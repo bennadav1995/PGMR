@@ -18,41 +18,35 @@
         :root {
             --panel-gap: 22px;
             --chrome-h: 52px;
-            /* Inferno / Magma spectrogram — static UI accents (signal-driven visuals use JS colormap) */
-            --inferno-floor: #050510;
-            --inferno-indigo: #0B0926;
-            --inferno-violet: #4D0A66;
-            --inferno-magenta: #A12466;
-            --inferno-flame: #D84331;
-            --inferno-peak: #FCD05B;
-            --spec-hot: var(--inferno-flame);
-            --spec-bright: var(--inferno-magenta);
-            --spec-line: var(--inferno-violet);
-            --spec-deep: #2A0B56;
-            --spec-glow: rgba(161, 36, 102, 0.42);
-            --spec-faint: rgba(101, 21, 110, 0.55);
-            --spec-glow-soft: rgba(11, 9, 38, 0.35);
-            --spec-glow-mid: rgba(101, 21, 110, 0.18);
-            --spec-glow-strong: rgba(216, 67, 49, 0.38);
-            --spec-cyan: var(--inferno-indigo);
-            --spec-magenta: var(--inferno-magenta);
-            --spec-amber: var(--inferno-peak);
+            /* Spectrogram palette — pure red + pure blue on black */
+            --spec-hot: #FF0000;
+            --spec-bright: #FF0000;
+            --spec-line: #FF0000;
+            --spec-deep: #FF0000;
+            --spec-glow: rgba(255, 0, 0, 0.45);
+            --spec-faint: rgba(255, 0, 0, 0.55);
+            --spec-glow-soft: rgba(255, 0, 0, 0.12);
+            --spec-glow-mid: rgba(255, 0, 0, 0.18);
+            --spec-glow-strong: rgba(255, 0, 0, 0.45);
+            --spec-cyan: #0000FF;
+            --spec-magenta: #cc44ff;
+            --spec-amber: #ffaa00;
             --matrix-red: var(--spec-deep);
-            --matrix-dim: #0B0926;
-            --card-bg: var(--inferno-floor);
-            --card-inner: var(--inferno-floor);
+            --matrix-dim: #1a1a1a;
+            --card-bg: #0a0a0a;
+            --card-inner: #000000;
             --frame-red: var(--spec-deep);
-            --frame-red-bright: var(--inferno-magenta);
-            --frame-red-line: var(--inferno-violet);
+            --frame-red-bright: var(--spec-hot);
+            --frame-red-line: var(--spec-line);
             --frame-red-glow: var(--spec-glow);
             --frame-red-faint: var(--spec-faint);
-            --frame-line-glow: 0 0 3px rgba(161, 36, 102, 0.45);
+            --frame-line-glow: 0 0 3px rgba(255, 0, 0, 0.55);
             --frame-inset: 12px;
             --frame-pad: 24px;
             --frame-step: 12px;
             --footer-h: 84px;
-            --json-key: #65156E;
-            --json-val: var(--inferno-flame);
+            --json-key: #553366;
+            --json-val: var(--spec-hot);
             --frame-breath-duration: 7s;
             --cmd-btn-muted: #666666;
             --cmd-btn-bg: rgba(10, 10, 10, 0.6);
@@ -65,7 +59,7 @@
         body { 
             margin: 0; 
             padding: 0; 
-            background-color: var(--inferno-floor); 
+            background-color: #000000; 
             overflow: hidden; 
             font-family: 'Courier New', Courier, monospace; 
             color: #ffffff; 
@@ -78,7 +72,7 @@
             position: relative;
             min-height: 0;
             overflow: hidden;
-            background: var(--inferno-floor);
+            background: #000000;
         }
         .panel-canvas-host {
             position: absolute;
@@ -91,7 +85,7 @@
             height: 100%;
         }
         #canvas-topology {
-            background: var(--inferno-floor);
+            background: #000000;
         }
         #labels-topology {
             display: none;
@@ -109,7 +103,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: var(--panel-gap);
             align-items: stretch;
-            background: var(--inferno-floor);
+            background: #000000;
             pointer-events: none;
             padding: calc(var(--chrome-h) + 16px) 22px 22px;
         }
@@ -126,13 +120,13 @@
         @keyframes frameRedBreath {
             0%, 100% {
                 box-shadow:
-                    0 0 3px rgba(101, 21, 110, 0.45),
+                    0 0 3px rgba(255, 0, 0, 0.5),
                     0 0 14px 1px var(--frame-red-glow),
                     0 0 36px 4px var(--spec-glow-soft);
             }
             50% {
                 box-shadow:
-                    0 0 4px rgba(216, 67, 49, 0.55),
+                    0 0 4px rgba(255, 0, 0, 0.75),
                     0 0 24px 2px var(--spec-glow-strong),
                     0 0 52px 10px var(--spec-glow-mid);
             }
@@ -159,8 +153,8 @@
             min-width: 0;
             min-height: 0;
             background:
-                radial-gradient(ellipse 90% 56px at 50% 0, rgba(101, 21, 110, 0.14), transparent 70%),
-                radial-gradient(ellipse 70% 40px at 50% 100%, rgba(77, 10, 102, 0.08), transparent 65%),
+                radial-gradient(ellipse 90% 56px at 50% 0, rgba(255, 0, 0, 0.14), transparent 70%),
+                radial-gradient(ellipse 70% 40px at 50% 100%, rgba(204, 68, 255, 0.06), transparent 65%),
                 var(--card-bg);
             overflow: hidden;
             isolation: isolate;
@@ -192,11 +186,11 @@
             background: conic-gradient(
                 from 270deg at 50% 0,
                 transparent 0deg,
-                rgba(42, 11, 86, 0.08) 10deg,
+                rgba(204, 68, 255, 0.07) 10deg,
                 transparent 22deg,
-                rgba(101, 21, 110, 0.16) 32deg,
+                rgba(255, 0, 0, 0.18) 32deg,
                 transparent 44deg,
-                rgba(216, 67, 49, 0.1) 54deg,
+                rgba(0, 0, 255, 0.1) 54deg,
                 transparent 66deg
             );
             animation: crownRadiance 8s ease-in-out infinite;
@@ -212,7 +206,7 @@
             z-index: 28;
             pointer-events: none;
             animation: ornamentPulse 8s ease-in-out infinite;
-            filter: drop-shadow(0 0 2px rgba(161, 36, 102, 0.55));
+            filter: drop-shadow(0 0 2px rgba(255, 0, 0, 0.65));
             background-image:
                 /* stepped corners */
                 linear-gradient(to right, var(--frame-red-line) 1px, transparent 1px),
@@ -275,7 +269,7 @@
             position: relative;
             margin: var(--frame-inset) var(--frame-inset) 0;
             background: var(--card-inner);
-            box-shadow: inset 0 0 48px rgba(11, 9, 38, 0.25);
+            box-shadow: inset 0 0 48px rgba(255, 0, 0, 0.03);
         }
         .viewport-panel .panel-viewport::before,
         .viewport-panel .panel-viewport::after {
@@ -299,7 +293,7 @@
             border-top: 1px solid var(--frame-red-bright);
             box-shadow:
                 var(--frame-line-glow),
-                inset 0 1px 0 rgba(101, 21, 110, 0.2);
+                inset 0 1px 0 rgba(255, 0, 0, 0.15);
             background: var(--card-bg);
             font-family: 'Courier New', Courier, monospace;
             font-size: 10px;
@@ -464,7 +458,7 @@
         .cmd-btn--danger.is-active {
             color: #ffffff;
             border-color: var(--frame-red-bright);
-            background: rgba(101, 21, 110, 0.22);
+            background: rgba(255, 0, 0, 0.22);
         }
         body.light-mode .cmd-btn {
             --cmd-btn-bg: rgba(255, 255, 255, 0.55);
@@ -512,41 +506,6 @@
             overflow: visible;
             z-index: 6;
         }
-        .e3-level-chart-wrap {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 52px;
-            z-index: 7;
-            pointer-events: none;
-            background: linear-gradient(180deg, rgba(5, 5, 16, 0.92) 0%, rgba(5, 5, 16, 0.55) 100%);
-            border-bottom: 1px solid var(--inferno-violet);
-        }
-        #e3-level-chart {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-        #e3-level-current {
-            position: absolute;
-            top: 4px;
-            right: 8px;
-            font-size: 8px;
-            letter-spacing: 0.08em;
-            color: var(--inferno-peak);
-            text-shadow: 0 0 6px rgba(252, 208, 91, 0.35);
-            white-space: nowrap;
-        }
-        #e3-level-chart-label {
-            position: absolute;
-            top: 4px;
-            left: 8px;
-            font-size: 7px;
-            letter-spacing: 0.12em;
-            color: var(--inferno-magenta);
-            opacity: 0.85;
-        }
         #labels-hardware .html-label.hardware-node.human {
             display: flex;
             flex-direction: column;
@@ -570,12 +529,12 @@
             display: block;
         }
         .html-label.human {
-            color: var(--inferno-flame);
+            color: #FF0000;
             font-weight: bold;
             letter-spacing: 1px;
-            background-color: rgba(5, 5, 16, 0.85);
+            background-color: rgba(0,0,0,0.8);
             padding: 2px 4px;
-            border: 1px solid var(--inferno-violet);
+            border: 1px solid var(--spec-deep);
         }
         body.light-mode {
             background-color: #ffffff !important;
@@ -588,13 +547,13 @@
             --card-bg: #ffffff;
             --card-inner: #ffffff;
             background:
-                radial-gradient(ellipse 90% 56px at 50% 0, rgba(101, 21, 110, 0.07), transparent 70%),
-                radial-gradient(ellipse 70% 40px at 50% 100%, rgba(77, 10, 102, 0.04), transparent 65%),
+                radial-gradient(ellipse 90% 56px at 50% 0, rgba(255, 0, 0, 0.07), transparent 70%),
+                radial-gradient(ellipse 70% 40px at 50% 100%, rgba(204, 68, 255, 0.04), transparent 65%),
                 #ffffff;
         }
         body.light-mode .viewport-panel .panel-viewport {
             background: #ffffff;
-            box-shadow: inset 0 0 40px rgba(101, 21, 110, 0.04);
+            box-shadow: inset 0 0 40px rgba(255, 0, 0, 0.04);
         }
         body.light-mode .viewport-panel .panel-footer {
             background: #ffffff;
@@ -609,9 +568,9 @@
             color: #999999;
         }
         body.light-mode .html-label.human {
-            color: var(--inferno-flame);
+            color: var(--spec-hot);
             background-color: rgba(255, 255, 255, 0.95);
-            border: 1px solid var(--inferno-magenta);
+            border: 1px solid var(--spec-line);
         }
         body.light-mode #labels-hardware .html-label.hardware-node.human {
             text-shadow: 0 0 4px rgba(255, 255, 255, 0.95), 0 1px 2px rgba(255, 255, 255, 0.85);
@@ -633,7 +592,7 @@
         }
     </style>
 </head>
-<body class="w-screen h-screen overflow-hidden relative select-none" style="background-color: var(--inferno-floor);">
+<body class="w-screen h-screen bg-black overflow-hidden relative select-none">
 
     <div class="scanlines"></div>
     <div id="webgl-container"></div>
@@ -693,11 +652,6 @@
                 <span class="panel-sub">07 // EVOLUTION 3D TOWER</span>
             </header>
             <div id="panel-hardware" class="panel-viewport">
-                <div id="e3-level-chart-wrap" class="e3-level-chart-wrap">
-                    <span id="e3-level-chart-label">LAYER SPECTRUM LOG</span>
-                    <canvas id="e3-level-chart"></canvas>
-                    <span id="e3-level-current">IDLE // AWAITING LAYER</span>
-                </div>
                 <div id="canvas-hardware" class="panel-canvas-host"></div>
                 <div id="labels-hardware" class="panel-labels"></div>
             </div>
@@ -754,105 +708,7 @@
         const PLAYBACK_RECORDING_URL = '/assets/data/recording.json';
         let liveSensorSocket = null;
         let trackedDevices = {};
-        let isLightMode = false;
-
-        // ==========================================
-        // INFERNO / MAGMA SPECTROGRAM COLORMAP
-        // Signal strength 0→1 maps noise floor → peak energy
-        // ==========================================
-        const SPECTRO_INFERNO_STOPS = [
-            { t: 0.000, r: 0x05, g: 0x05, b: 0x10 },
-            { t: 0.100, r: 0x0B, g: 0x09, b: 0x26 },
-            { t: 0.101, r: 0x2A, g: 0x0B, b: 0x56 },
-            { t: 0.400, r: 0x4D, g: 0x0A, b: 0x66 },
-            { t: 0.401, r: 0x65, g: 0x15, b: 0x6E },
-            { t: 0.700, r: 0xA1, g: 0x24, b: 0x66 },
-            { t: 0.701, r: 0xD8, g: 0x43, b: 0x31 },
-            { t: 0.900, r: 0xF3, g: 0x7F, b: 0x19 },
-            { t: 0.901, r: 0xFC, g: 0xD0, b: 0x5B },
-            { t: 1.000, r: 0xFF, g: 0xF9, b: 0xD0 }
-        ];
-        const _infernoRgbScratch = { r: 5, g: 5, b: 16 };
-        const _infernoColorScratch = new THREE.Color(0x050510);
-
-        function clampSignalStrength(t) {
-            return THREE.MathUtils.clamp(Number(t) || 0, 0, 1);
-        }
-
-        function rssiToSignalStrength(rssi, distanceM) {
-            let strength = THREE.MathUtils.mapLinear(Number(rssi) || -100, -100, -30, 0, 1);
-            const dist = Number(distanceM);
-            if (Number.isFinite(dist)) {
-                strength = Math.max(strength, THREE.MathUtils.mapLinear(dist, 220, 25, 0, 1));
-            }
-            return clampSignalStrength(strength);
-        }
-
-        function infernoSampleRgb(t) {
-            t = clampSignalStrength(t);
-            const stops = SPECTRO_INFERNO_STOPS;
-            for (let i = 0; i < stops.length - 1; i++) {
-                const a = stops[i];
-                const b = stops[i + 1];
-                if (t <= b.t) {
-                    const span = b.t - a.t || 1;
-                    const u = (t - a.t) / span;
-                    _infernoRgbScratch.r = Math.round(a.r + (b.r - a.r) * u);
-                    _infernoRgbScratch.g = Math.round(a.g + (b.g - a.g) * u);
-                    _infernoRgbScratch.b = Math.round(a.b + (b.b - a.b) * u);
-                    return _infernoRgbScratch;
-                }
-            }
-            const last = stops[stops.length - 1];
-            _infernoRgbScratch.r = last.r;
-            _infernoRgbScratch.g = last.g;
-            _infernoRgbScratch.b = last.b;
-            return _infernoRgbScratch;
-        }
-
-        function infernoHexAt(t) {
-            const rgb = infernoSampleRgb(t);
-            return (rgb.r << 16) | (rgb.g << 8) | rgb.b;
-        }
-
-        function infernoColorAt(t, out) {
-            const rgb = infernoSampleRgb(t);
-            return (out || _infernoColorScratch).setRGB(rgb.r / 255, rgb.g / 255, rgb.b / 255);
-        }
-
-        function infernoCssAt(t) {
-            const rgb = infernoSampleRgb(t);
-            const hex = (n) => n.toString(16).padStart(2, '0');
-            return `#${hex(rgb.r)}${hex(rgb.g)}${hex(rgb.b)}`;
-        }
-
-        function infernoRgbaAt(t, alpha) {
-            const rgb = infernoSampleRgb(t);
-            return `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;
-        }
-
-        function infernoWriteToBuffer(t, outArray, offset, alpha = 1) {
-            const rgb = infernoSampleRgb(t);
-            outArray[offset] = (rgb.r / 255) * alpha;
-            outArray[offset + 1] = (rgb.g / 255) * alpha;
-            outArray[offset + 2] = (rgb.b / 255) * alpha;
-        }
-
-        function getDeviceSignalStrength(dev) {
-            if (!dev) return 0;
-            return rssiToSignalStrength(
-                dev.lastRssi ?? dev.lastEntryRssi ?? -100,
-                dev.distanceM
-            );
-        }
-
-        function getPeakTrackedSignalStrength() {
-            let peak = 0;
-            for (const id in trackedDevices) {
-                peak = Math.max(peak, getDeviceSignalStrength(trackedDevices[id]));
-            }
-            return peak;
-        }
+        let isLightMode = false; 
         
         let hardwareStressMultiplierActive = false;
 
@@ -994,7 +850,7 @@
         const ENTITY_BURST_DECAY_SPEED = 0.42;
         const MAX_ENTITY_BURST_TENDRILS = 48;
 
-        function CrystalParticle(x, y, z, level, isHumanTarget = false, deviceHexColor = infernoHexAt(0.78)) {
+        function CrystalParticle(x, y, z, level, isHumanTarget = false, deviceHexColor = 0xff0000) {
             this.level = level;
             this.life = 0;
             this.isHuman = isHumanTarget;
@@ -1150,7 +1006,7 @@
                     logarithmicDepthBuffer: key === 'hardware'
                 });
                 panelRenderer.setPixelRatio(pixelRatio);
-                panelRenderer.setClearColor(0x050510, 1);
+                panelRenderer.setClearColor(0x000000, 1);
                 panelRenderer.domElement.style.display = 'block';
                 container.appendChild(panelRenderer.domElement);
                 panelViews[key] = {
@@ -1404,12 +1260,12 @@
             const radius = ENTITY_BASE_RADIUS;
             initEntityCoreSphereCache(radius);
             const cache = entityCoreSphereCache;
-            const outlineColor = infernoHexAt(0.16);
+            const outlineColor = isLightMode ? 0xff0000 : 0xff0000;
             const innerCageRadius = getEntityInnerCageRadius(radius);
 
             const shellCageGeo = new THREE.SphereGeometry(1, ENTITY_SHELL_WIDTH_SEGS, ENTITY_SHELL_HEIGHT_SEGS);
             const shellCageMesh = new THREE.Mesh(shellCageGeo, new THREE.MeshStandardMaterial({
-                color: 0x050510,
+                color: 0x050505,
                 transparent: true,
                 opacity: 0.15,
                 roughness: 0.1,
@@ -1419,7 +1275,7 @@
             }));
             shellCageMesh.name = 'entityShellCage';
             const shellWireMesh = new THREE.Mesh(shellCageGeo, new THREE.MeshBasicMaterial({
-                color: infernoHexAt(0.08),
+                color: isLightMode ? 0x444444 : 0x2a2a2a,
                 wireframe: true,
                 transparent: true,
                 opacity: isLightMode ? 0.55 : 0.42,
@@ -1466,14 +1322,14 @@
             const linkGeo = new THREE.BufferGeometry();
             linkGeo.setAttribute('position', new THREE.BufferAttribute(linkPositions, 3));
             const linkLines = new THREE.LineSegments(linkGeo, new THREE.LineBasicMaterial({
-                color: infernoHexAt(0.22), transparent: true, opacity: 0.22
+                color: isLightMode ? 0xff0000 : 0xff0000, transparent: true, opacity: 0.22
             }));
 
             const burstPositions = new Float32Array(MAX_ENTITY_BURST_TENDRILS * ENTITY_MAX_PATH_STEPS * 6);
             const burstGeo = new THREE.BufferGeometry();
             burstGeo.setAttribute('position', new THREE.BufferAttribute(burstPositions, 3));
             const burstLines = new THREE.LineSegments(burstGeo, new THREE.LineBasicMaterial({
-                color: infernoHexAt(0.82), transparent: true, opacity: 0.88
+                color: 0xff0000, transparent: true, opacity: 0.88
             }));
 
             const crystalPositions = new Float32Array(ENTITY_MAX_CRYSTAL_TRIS * 9);
@@ -1529,8 +1385,7 @@
         }
 
         function computeEntitySignalIntensity(time, delta) {
-            let target = THREE.MathUtils.mapLinear(dynamicEntity.organicJitter, 0.25, 2.2, 0.04, 0.42);
-            target = Math.max(target, getPeakTrackedSignalStrength() * 0.88);
+            let target = THREE.MathUtils.mapLinear(dynamicEntity.organicJitter, 0.25, 2.2, 0, 1);
 
             for (const id in trackedDevices) {
                 const dev = trackedDevices[id];
@@ -1824,13 +1679,16 @@
             return writeOffset - outOffset;
         }
 
-        function appendColoredPathSegments(flatDirs, dirCount, radius, animTime, energy, signalStrength, outPos, outCol, posOffset, colorAlpha = 1, maxRadius) {
+        function appendColoredPathSegments(flatDirs, dirCount, radius, animTime, energy, color, outPos, outCol, posOffset, colorAlpha = 1, maxRadius) {
             const segBytes = pathDirectionsToSegments(flatDirs, dirCount, radius, animTime, energy, 0, null, outPos, posOffset, maxRadius);
             const segVerts = segBytes / 3;
-            const base = clampSignalStrength(signalStrength);
+            const cr = ((color >> 16 & 255) / 255) * colorAlpha;
+            const cg = ((color >> 8 & 255) / 255) * colorAlpha;
+            const cb = (color & 255) / 255 * colorAlpha;
             for (let v = 0; v < segVerts; v++) {
-                const t = clampSignalStrength(base + (v / Math.max(1, segVerts - 1)) * 0.12);
-                infernoWriteToBuffer(t, outCol, posOffset + v * 3, colorAlpha);
+                outCol[posOffset + v * 3] = cr;
+                outCol[posOffset + v * 3 + 1] = cg;
+                outCol[posOffset + v * 3 + 2] = cb;
             }
             return segBytes;
         }
@@ -1969,7 +1827,10 @@
         }
 
         function getTopologyLabelColorHex(dev) {
-            return infernoHexAt(getDeviceSignalStrength(dev));
+            if (dev?.isHuman) {
+                return dev.personColor || getPersonColor(dev.name || dev.probeName || dev.macAddress || '');
+            }
+            return isLightMode ? 0x999999 : 0x666666;
         }
 
         function buildActiveSignalRecord(dev, devId) {
@@ -2002,9 +1863,14 @@
         }
 
         function computeSignalTypographyStrength(signal) {
-            let strength = rssiToSignalStrength(signal.rssi, signal.distanceM);
-            if (signal.isHuman) strength = Math.min(1, strength + 0.12);
-            return strength;
+            const rssi = Number(signal.rssi) || -75;
+            const dist = Number(signal.distanceM);
+            let strength = THREE.MathUtils.mapLinear(rssi, -100, -42, 0, 1);
+            if (Number.isFinite(dist)) {
+                strength = Math.max(strength, THREE.MathUtils.mapLinear(dist, 220, 25, 0, 1));
+            }
+            if (signal.isHuman) strength = Math.min(1, strength + 0.22);
+            return THREE.MathUtils.clamp(strength, 0, 1);
         }
 
         function computeSignalTypographyFrequency(signal) {
@@ -2069,6 +1935,7 @@
             const sizeMix = computeSignalTypographySizeMix(signal);
             const id = String(signal.probeName || signal.macAddress || signal.deviceId).slice(0, 28);
             const mac = String(signal.macAddress || id).slice(0, 24);
+            const labelHex = signal.colorHex ?? (isLightMode ? 0x999999 : 0x666666);
             const probeWeight = strength > 0.58 ? 'bold' : '600';
 
             const heroSize = typoSizeFromMix(sizeMix, 1.35);
@@ -2089,14 +1956,11 @@
             const deltaSize = typoSizeFromMix(amplification * 0.75 + sizeMix * 0.25, 1.4, 18, 128);
 
             const alphaFor = (lo, hi, mix) => THREE.MathUtils.lerp(lo, hi, THREE.MathUtils.clamp(mix, 0, 1));
-            const line = (text, size, weight, alphaMix, strengthMix = strength) => ({
+            const line = (text, size, weight, alphaMix, weightKey = '600') => ({
                 text: String(text),
                 size,
-                weight: weight || '600',
-                fill: infernoRgbaAt(
-                    clampSignalStrength(strengthMix),
-                    alphaFor(0.2, 1, alphaMix)
-                )
+                weight: weight || weightKey,
+                fill: hexToCanvasRgba(labelHex, alphaFor(0.2, 1, alphaMix))
             });
 
             const payload = {
@@ -2141,7 +2005,7 @@
         }
 
         function getTypoIdleFill() {
-            return isLightMode ? infernoRgbaAt(0.12, 0.45) : infernoRgbaAt(0.06, 0.55);
+            return isLightMode ? 'rgba(153,153,153,0.55)' : 'rgba(102,102,102,0.55)';
         }
 
         function createTypoLayer(meshName) {
@@ -2221,6 +2085,7 @@
         }
 
         function buildTypoStaticSnippets() {
+            const fill = getTypoIdleFill();
             const tokens = [
                 'PROBE', 'RSSI', 'MAC', 'SIG', 'ERR', 'OVF', 'NODE', 'RF', 'AMP', 'FRQ',
                 '!!!', 'RMP', 'ΔΔ', '0x', '2.437GHz', '//', '??', '██', 'NULL', 'STREAM'
@@ -2232,7 +2097,7 @@
                     text: `${tokens[i]}${Math.floor(mix * 999)}`,
                     size: typoSizeFromMix(mix, 1.25, 11, 72),
                     weight: mix > 0.72 ? 'bold' : '600',
-                    fill: infernoRgbaAt(0.05 + mix * 0.32, 0.3 + mix * 0.35),
+                    fill,
                     alpha: 0.3 + mix * 0.35
                 });
             }
@@ -2277,7 +2142,7 @@
         }
 
         function paintTypoStaticChaosBed(ctx, canvas) {
-            paintTypoDenseRows(ctx, canvas, buildTypoStaticSnippets(), infernoHexAt(0.18), {
+            paintTypoDenseRows(ctx, canvas, buildTypoStaticSnippets(), 0xCC44FF, {
                 sizeScale: 1.05,
                 alphaScale: 0.95,
                 rowJitter: 1.15,
@@ -2408,22 +2273,17 @@
             const typoEnvelope = typoRadius * breathingScale;
 
             updateEntityShellWireframe(redShellRadius, animTime, energy, typoEnvelope);
-            const shellStrength = clampSignalStrength(sig * 0.62 + energy * 0.38);
-            if (entityVisuals.shellLine?.material) {
-                entityVisuals.shellLine.material.color.setHex(infernoHexAt(Math.max(0.14, shellStrength)));
+            if (entityVisuals.shellCageMesh) {
+                entityVisuals.shellCageMesh.scale.setScalar(innerCageRadius);
+                entityVisuals.shellWireMesh.scale.setScalar(innerCageRadius);
+            }
+            if (entityVisuals.shellLine.material) {
                 const shellBase = isLightMode ? 0.78 : 0.95;
                 entityVisuals.shellLine.material.opacity = shellBase * (0.88 + sig * 0.12 + voice * 0.08);
                 if (entityVisuals.shellUsesWideLines && entityVisuals.shellLine.material.linewidth !== undefined) {
                     entityVisuals.shellLine.material.linewidth = 0.5 * (1 + voice * 0.72 + voicePulse * 0.46);
                     entityVisuals.shellLine.material.needsUpdate = true;
                 }
-            }
-            if (entityVisuals.shellCageMesh) {
-                entityVisuals.shellCageMesh.scale.setScalar(innerCageRadius);
-                entityVisuals.shellWireMesh.scale.setScalar(innerCageRadius);
-            }
-            if (entityVisuals.shellWireMesh?.material) {
-                entityVisuals.shellWireMesh.material.color.setHex(infernoHexAt(Math.max(0.06, shellStrength * 0.55)));
             }
             entityVisuals.veinLines.scale.setScalar(veinPulse);
             if (entityVisuals.veinLines.material) {
@@ -2450,12 +2310,10 @@
                 const ay = pathScratch[1];
                 const az = pathScratch[2];
 
-                const deviceStrength = getDeviceSignalStrength(dev);
-                let pathStrength = clampSignalStrength(deviceStrength * 0.85 + sig * 0.15);
-                let deviceFlare = Math.max(pathStrength, sig);
+                const pathColor = dev.isHuman ? (dev.personColor || 0xff0000) : (isLightMode ? 0x999999 : 0x222222);
+                let deviceFlare = sig;
                 if (dev.isHuman && time - (dev.lastSpikeAt || 0) < 800) {
                     deviceFlare = Math.max(deviceFlare, 0.92);
-                    pathStrength = Math.max(pathStrength, deviceFlare);
                 }
 
                 if (dev.isHuman) {
@@ -2469,9 +2327,14 @@
                     );
                     veinPos[veinWrite++] = ax; veinPos[veinWrite++] = ay; veinPos[veinWrite++] = az;
                     veinPos[veinWrite++] = pathScratch[3]; veinPos[veinWrite++] = pathScratch[4]; veinPos[veinWrite++] = pathScratch[5];
-                    const markerStrength = clampSignalStrength(deviceFlare);
-                    infernoWriteToBuffer(markerStrength, veinCol, veinWrite - 6, 0.72 + deviceFlare * 0.28);
-                    infernoWriteToBuffer(Math.min(1, markerStrength + 0.08), veinCol, veinWrite - 3, 0.72 + deviceFlare * 0.28);
+                    const mcr = ((dev.personColor || 0xff0000) >> 16 & 255) / 255 * (0.72 + deviceFlare * 0.28);
+                    const mcg = ((dev.personColor || 0xff0000) >> 8 & 255) / 255 * (0.72 + deviceFlare * 0.28);
+                    const mcb = ((dev.personColor || 0xff0000) & 255) / 255 * (0.72 + deviceFlare * 0.28);
+                    for (let v = 0; v < 2; v++) {
+                        veinCol[veinWrite - 6 + v * 3] = mcr;
+                        veinCol[veinWrite - 6 + v * 3 + 1] = mcg;
+                        veinCol[veinWrite - 6 + v * 3 + 2] = mcb;
+                    }
                 }
 
                 const dirCount = buildEntitySurfacePathDirections(
@@ -2479,8 +2342,8 @@
                     dynamicEntity.organicJitter, hashString(devId) * 0.001, 0, dirScratch, animTime
                 );
                 veinWrite += appendColoredPathSegments(
-                    dirScratch, dirCount, innerSurfaceRadius, animTime, energy, pathStrength, veinPos, veinCol, veinWrite,
-                    dev.isHuman ? (0.45 + deviceFlare * 0.52) : (0.12 + deviceStrength * 0.42), typoEnvelope
+                    dirScratch, dirCount, innerSurfaceRadius, animTime, energy, pathColor, veinPos, veinCol, veinWrite,
+                    dev.isHuman ? (0.45 + deviceFlare * 0.52) : (0.1 + sig * 0.38), typoEnvelope
                 );
 
                 for (let p = 1; p < dirCount; p += 3) {
@@ -2514,8 +2377,7 @@
                         dynamicEntity.organicJitter, hashString(devId) * 0.001 + 41.7, Math.PI * 0.55, dirScratch, animTime
                     );
                     veinWrite += appendColoredPathSegments(
-                        dirScratch, branchCount, innerSurfaceRadius, animTime, energy,
-                        clampSignalStrength(deviceFlare + 0.08), veinPos, veinCol, veinWrite,
+                        dirScratch, branchCount, innerSurfaceRadius, animTime, energy, dev.personColor || 0xff0000, veinPos, veinCol, veinWrite,
                         0.32 + deviceFlare * 0.58, typoEnvelope
                     );
                     for (let p = 2; p < branchCount; p += 4) {
@@ -2558,7 +2420,6 @@
             entityVisuals.linkGeo.setDrawRange(0, linkWrite / 3);
             entityVisuals.linkGeo.attributes.position.needsUpdate = true;
             entityVisuals.linkLines.material.opacity = 0.12 + sig * 0.42;
-            entityVisuals.linkLines.material.color.setHex(infernoHexAt(clampSignalStrength(sig * 0.55 + 0.18)));
 
             let burstWrite = 0;
             let burstOpacity = 0;
@@ -2576,7 +2437,6 @@
             entityVisuals.burstGeo.setDrawRange(0, burstWrite / 3);
             entityVisuals.burstGeo.attributes.position.needsUpdate = true;
             entityVisuals.burstLines.material.opacity = burstOpacity;
-            entityVisuals.burstLines.material.color.setHex(infernoHexAt(Math.max(sig, 0.78)));
 
             let triCount = 0;
             const crystalPos = entityVisuals.crystalPositions;
@@ -2604,12 +2464,15 @@
                         crystalPos[base + 6] = p3.x; crystalPos[base + 7] = p3.y; crystalPos[base + 8] = p3.z;
 
                         const humanTri = p1.isHuman || p2.isHuman || p3.isHuman;
-                        const triStrength = humanTri
-                            ? clampSignalStrength(sig * 0.75 + 0.28)
-                            : clampSignalStrength(sig * 0.22 + 0.06);
-                        infernoWriteToBuffer(triStrength, crystalCol, base, 1);
-                        infernoWriteToBuffer(Math.min(1, triStrength + 0.06), crystalCol, base + 3, 1);
-                        infernoWriteToBuffer(Math.min(1, triStrength + 0.03), crystalCol, base + 6, 1);
+                        const triColor = humanTri ? 0xff0000 : (isLightMode ? 0x888888 : 0x161616);
+                        const cr = (triColor >> 16 & 255) / 255;
+                        const cg = (triColor >> 8 & 255) / 255;
+                        const cb = (triColor & 255) / 255;
+                        for (let c = 0; c < 9; c += 3) {
+                            crystalCol[base + c] = cr;
+                            crystalCol[base + c + 1] = cg;
+                            crystalCol[base + c + 2] = cb;
+                        }
                         triCount++;
                     }
                 }
@@ -2652,11 +2515,6 @@
                 camera.aspect = rect.width / rect.height;
                 camera.updateProjectionMatrix();
 
-                if (key === 'hardware') {
-                    resizeE3LevelChart();
-                    drawE3LevelChart(performance.now());
-                }
-
                 const visibleGroups = getPanelGroups(key);
                 const visibilitySnapshot = new Map();
                 const prevFog = scene.fog;
@@ -2690,7 +2548,7 @@
             });
 
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x050510);
+            scene.background = new THREE.Color(0x000000);
 
             initCameras();
 
@@ -2713,13 +2571,13 @@
         }
 
         function buildTopologyEnvironment() {
-            floorGrid = new THREE.GridHelper(1200, 24, 0x0B0926, 0x0B0926);
+            floorGrid = new THREE.GridHelper(1200, 24, 0x141414, 0x141414);
             floorGrid.position.y = groundY;
             topologyGroup.add(floorGrid);
 
             for(let r = 150; r <= 600; r += 150) {
                 let ringGeo = new THREE.RingGeometry(r, r + 1, 64);
-                let ringMat = new THREE.MeshBasicMaterial({ color: infernoHexAt(0.08), side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
+                let ringMat = new THREE.MeshBasicMaterial({ color: 0x222222, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
                 let ringMesh = new THREE.Mesh(ringGeo, ringMat);
                 ringMesh.position.y = groundY + 0.2;
                 ringMesh.rotation.x = Math.PI / 2;
@@ -2758,7 +2616,7 @@
             const value = String(raw).trim().toLowerCase();
             if (value === 'black') return '#000000';
             if (value === 'red') return '#ff0000';
-            if (value === 'aqua') return '#00ffff';
+            if (value === 'aqua') return '#0000FF';
             if (value.startsWith('#')) {
                 if (value.length === 4) {
                     return '#' + value[1] + value[1] + value[2] + value[2] + value[3] + value[3];
@@ -2774,7 +2632,7 @@
             return value;
         }
 
-        const FLOOR7_PARTITION_STROKES = new Set(['#000000', '#333333', '#009999']);
+        const FLOOR7_PARTITION_STROKES = new Set(['#000000', '#333333', '#0000FF']);
 
         function isFloor7PartitionStroke(stroke) {
             const norm = normalizeSvgColor(stroke);
@@ -2792,7 +2650,7 @@
 
         function getFloor7PartitionMaterial() {
             return new THREE.LineBasicMaterial({
-                color: isLightMode ? 0x666666 : infernoHexAt(0.1),
+                color: isLightMode ? 0x666666 : 0x2a2a2a,
                 transparent: true,
                 opacity: isLightMode ? 0.42 : 0.55
             });
@@ -2905,7 +2763,7 @@
 
         function updateFloor7BlueprintTheme() {
             if (floor7PartitionLines?.material) {
-                floor7PartitionLines.material.color.setHex(isLightMode ? 0x666666 : infernoHexAt(0.1));
+                floor7PartitionLines.material.color.setHex(isLightMode ? 0x666666 : 0x2a2a2a);
                 floor7PartitionLines.material.opacity = isLightMode ? 0.42 : 0.55;
             }
         }
@@ -2913,7 +2771,7 @@
         function buildHardwareLattice() {
             let cylGeo = new THREE.CylinderGeometry(600, 600, 400, 16, 4, true);
             let edgeGeo = new THREE.EdgesGeometry(cylGeo);
-            let latMat = new THREE.LineBasicMaterial({ color: infernoHexAt(0.06), transparent: true, opacity: 0.15 });
+            let latMat = new THREE.LineBasicMaterial({ color: 0x111111, transparent: true, opacity: 0.15 });
             hardwareLattice = new THREE.LineSegments(edgeGeo, latMat);
             hardwareLattice.position.y = groundY + 200;
             topologyGroup.add(hardwareLattice);
@@ -2930,11 +2788,8 @@
         const E3_RAIN_MAX_PER_NODE = 5;
         const E3_CAMERA_HEADROOM = E3_LAYER_RISE * 3;
         const E3_LAYER_BOX_H = E3_LAYER_RISE * 0.9;
-        const E3_DEFAULT_ZOOM = 11;
         const E3_CAMERA_RISE_FOLLOW = 7;
         const E3_CAMERA_POS_FOLLOW = 6;
-        const E3_LEVEL_HISTORY_MAX = 160;
-        const E3_LEVEL_CHART_H = 52;
         const E3_INFRA_PATTERNS = [
             'ESP', 'HOT', 'DIRECT', 'WIFIBRG', 'BezeqEXT', 'Cudy', 'CyberLink',
             'Riko', 'Limor', 'Triple C', 'Opal', 'moti', 'c6553', 'HOTbox', 'IPC', 'Redmi'
@@ -2944,7 +2799,7 @@
         let e3LastLayerTime = 0;
         let e3RotX = 0.22;
         let e3RotY = 0.4;
-        let e3Zoom = E3_DEFAULT_ZOOM;
+        let e3Zoom = 18;
         let e3Spin = true;
         let e3SmoothLookY = 1;
         const e3Permanent = [];
@@ -2954,124 +2809,6 @@
         const e3BinCols = {};
         let e3UmweltPositions = null;
         let e3RainBitTex = null;
-        const e3LayerLevelHistory = [];
-        let e3LevelChartCanvas = null;
-        let e3LevelChartCtx = null;
-        let e3LevelChartW = 0;
-        let e3LevelChartH = 0;
-
-        function e3ComputeLayerSpectrogramLevel(devices) {
-            if (!devices.length) {
-                return { peak: 0, mean: 0, count: 0, peakRssi: -100 };
-            }
-            const strengths = devices.map(d => rssiToSignalStrength(d.rssi));
-            return {
-                peak: Math.max(...strengths),
-                mean: strengths.reduce((a, b) => a + b, 0) / strengths.length,
-                count: devices.length,
-                peakRssi: Math.max(...devices.map(d => d.rssi))
-            };
-        }
-
-        function e3RecordLayerLevel(layerIndex, devices, time = performance.now()) {
-            const level = e3ComputeLayerSpectrogramLevel(devices);
-            e3LayerLevelHistory.push({
-                layerIndex,
-                time,
-                peak: level.peak,
-                mean: level.mean,
-                count: level.count,
-                peakRssi: level.peakRssi
-            });
-            if (e3LayerLevelHistory.length > E3_LEVEL_HISTORY_MAX) {
-                e3LayerLevelHistory.splice(0, e3LayerLevelHistory.length - E3_LEVEL_HISTORY_MAX);
-            }
-        }
-
-        function initE3LevelChart() {
-            e3LevelChartCanvas = document.getElementById('e3-level-chart');
-            if (!e3LevelChartCanvas) return;
-            e3LevelChartCtx = e3LevelChartCanvas.getContext('2d');
-            resizeE3LevelChart();
-        }
-
-        function resizeE3LevelChart() {
-            const wrap = document.getElementById('e3-level-chart-wrap');
-            if (!wrap || !e3LevelChartCanvas || !e3LevelChartCtx) return;
-            const rect = wrap.getBoundingClientRect();
-            if (rect.width <= 1 || rect.height <= 1) return;
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            e3LevelChartW = Math.floor(rect.width);
-            e3LevelChartH = Math.floor(rect.height);
-            e3LevelChartCanvas.width = Math.floor(rect.width * dpr);
-            e3LevelChartCanvas.height = Math.floor(rect.height * dpr);
-            e3LevelChartCanvas.style.width = `${e3LevelChartW}px`;
-            e3LevelChartCanvas.style.height = `${e3LevelChartH}px`;
-            e3LevelChartCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        }
-
-        function drawE3LevelChart(time = performance.now()) {
-            if (!e3LevelChartCtx) initE3LevelChart();
-            if (!e3LevelChartCtx || e3LevelChartW <= 0) return;
-
-            const ctx = e3LevelChartCtx;
-            const w = e3LevelChartW;
-            const h = e3LevelChartH;
-            const padL = 6;
-            const padR = 6;
-            const padT = 16;
-            const padB = 6;
-            const chartW = w - padL - padR;
-            const chartH = h - padT - padB;
-            const t = time * 0.001;
-
-            ctx.clearRect(0, 0, w, h);
-
-            ctx.strokeStyle = infernoRgbaAt(0.06, 0.35);
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(padL, h - padB);
-            ctx.lineTo(w - padR, h - padB);
-            ctx.stroke();
-
-            const currentEl = document.getElementById('e3-level-current');
-            const history = e3LayerLevelHistory;
-
-            if (history.length === 0) {
-                const idlePulse = 0.05 + Math.sin(t * 1.4) * 0.025;
-                const barW = Math.max(3, chartW * 0.04);
-                const barH = chartH * idlePulse;
-                const x = padL + chartW * 0.5 - barW * 0.5;
-                const y = h - padB - barH;
-                ctx.fillStyle = infernoRgbaAt(idlePulse, 0.55);
-                ctx.fillRect(x, y, barW, barH);
-                if (currentEl) currentEl.textContent = 'IDLE // AWAITING LAYER';
-                return;
-            }
-
-            const barGap = 1;
-            const visible = history.slice(-Math.min(history.length, Math.floor(chartW / 3)));
-            const barW = Math.max(2, (chartW - barGap * (visible.length - 1)) / visible.length);
-
-            visible.forEach((entry, i) => {
-                const strength = entry.peak;
-                const barH = Math.max(2, chartH * strength);
-                const x = padL + i * (barW + barGap);
-                const y = h - padB - barH;
-                const isLatest = i === visible.length - 1;
-                ctx.fillStyle = infernoRgbaAt(strength, isLatest ? 0.95 : 0.72);
-                ctx.fillRect(x, y, barW, barH);
-                if (isLatest) {
-                    ctx.fillStyle = 'rgba(255,255,255,0.55)';
-                    ctx.fillRect(x, y, barW, 1);
-                }
-            });
-
-            const latest = history[history.length - 1];
-            if (currentEl) {
-                currentEl.textContent = `L${latest.layerIndex} // ${latest.peak.toFixed(2)} // ${latest.peakRssi} dBm // n=${latest.count}`;
-            }
-        }
 
         function e3GetRainBitTexture() {
             if (e3RainBitTex) return e3RainBitTex;
@@ -3159,10 +2896,10 @@
         }
 
         function e3RainColorForNode(isClosestRain, humanRain, norm) {
-            let strength = clampSignalStrength(norm);
-            if (humanRain) strength = Math.min(1, strength + 0.08);
-            if (isClosestRain) strength = Math.min(1, strength + 0.32);
-            return infernoHexAt(strength);
+            if (isClosestRain) return 0x0000ff;
+            if (humanRain) return 0xff0000;
+            const bv = Math.floor(80 + norm * 175);
+            return (bv << 16) | (bv << 8) | bv;
         }
 
         function e3SpawnBinaryRain(p, bc, height, cx, cz, closestInLayer, li) {
@@ -3225,7 +2962,7 @@
             constructor(from, to, rssi, parentGroup) {
                 this.from = from.clone();
                 this.to = to.clone();
-                this.norm = rssiToSignalStrength(rssi);
+                this.norm = Math.max(0, Math.min(1, (-rssi - 50) / 50));
                 this.wavy = this.norm < 0.5;
                 this.progress = 0;
                 this.done = false;
@@ -3235,7 +2972,8 @@
                 this.waveFreq = 3 + (1 - this.norm) * 9;
                 this.wavePhase = Math.random() * Math.PI * 2;
                 this.layerIndex = -1;
-                const col = infernoColorAt(this.norm);
+                const bv = Math.floor(130 + this.norm * 125);
+                const col = new THREE.Color().setRGB(bv / 255, bv / 255, bv / 255);
                 this.mat = this.wavy
                     ? new THREE.LineDashedMaterial({
                         color: col, transparent: true,
@@ -3289,9 +3027,12 @@
             c2.height = 48;
             const cx = c2.getContext('2d');
             cx.clearRect(0, 0, 256, 48);
-            const strength = clampSignalStrength(norm + (isE3Human(name) ? 0.08 : 0));
-            cx.font = `${isE3Human(name) ? 'bold ' : ''}${Math.floor(13 + norm * 5)}px Courier New`;
-            cx.fillStyle = infernoRgbaAt(strength, 0.45 + norm * 0.45);
+            const bv = Math.floor(140 + norm * 115);
+            const humanSp = isE3Human(name);
+            cx.font = `${humanSp ? 'bold ' : ''}${Math.floor(13 + norm * 5)}px Courier New`;
+            cx.fillStyle = humanSp
+                ? `rgba(255,0,0,${0.5 + norm * 0.45})`
+                : `rgba(${bv},${bv},${bv},${0.4 + norm * 0.5})`;
             cx.fillText(String(name).toUpperCase().slice(0, 12), 4, 28);
             const tex = new THREE.CanvasTexture(c2);
             const mat = new THREE.SpriteMaterial({
@@ -3333,7 +3074,7 @@
             if (!e3Group) return;
             const height = li * E3_LAYER_RISE;
             const positions = devices.map(d => {
-                const norm = rssiToSignalStrength(d.rssi);
+                const norm = Math.max(0, Math.min(1, (-d.rssi - 50) / 50));
                 const [bx, bz] = e3GetTXZ(d.name);
                 const drift = (1 - norm) * 0.3;
                 const angle = (d.name.charCodeAt(0) / 127) * Math.PI * 2 + li * 0.6;
@@ -3362,7 +3103,7 @@
             const boxEdges = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
             const boxAlpha = Math.min(0.18, 0.07 + li * 0.007);
             const boxMat = new THREE.LineBasicMaterial({
-                color: infernoHexAt(0.08),
+                color: isLightMode ? 0x222222 : 0xffffff,
                 transparent: true,
                 opacity: boxAlpha
             });
@@ -3412,8 +3153,7 @@
                 const isCenter = p.name === closestInLayer;
                 const r = 0.025 + p.norm * 0.075;
                 const sg = new THREE.SphereGeometry(r * (isCenter ? 1.8 : 1), 10, 10);
-                const sphereStrength = clampSignalStrength(p.norm + (isCenter ? 0.28 : isE3Human(p.name) ? 0.1 : 0));
-                const sphereColor = infernoHexAt(sphereStrength);
+                const sphereColor = isCenter ? 0x0000ff : isE3Human(p.name) ? 0xff0000 : 0xffffff;
                 const sm = new THREE.MeshBasicMaterial({ color: sphereColor, transparent: true, opacity: 0 });
                 const sphere = new THREE.Mesh(sg, sm);
                 sphere.position.set(cx, height, cz);
@@ -3424,7 +3164,7 @@
 
                 if (isCenter) {
                     const rgeo = new THREE.RingGeometry(r * 2.2, r * 3.0, 28);
-                    const rmat = new THREE.MeshBasicMaterial({ color: infernoHexAt(Math.min(1, p.norm + 0.35)), transparent: true, opacity: 0, side: THREE.DoubleSide });
+                    const rmat = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0, side: THREE.DoubleSide });
                     const ring = new THREE.Mesh(rgeo, rmat);
                     ring.position.set(cx, height, cz);
                     ring.rotation.x = Math.PI / 2;
@@ -3456,8 +3196,7 @@
                     );
                     gl.setLayerIndex(li);
                     if (isBlue && gl.line?.material) {
-                        const lineStrength = clampSignalStrength(Math.max(a.norm, b.norm) + 0.22);
-                        gl.line.material.color.setHex(infernoHexAt(lineStrength));
+                        gl.line.material.color.setHex(0x0000ff);
                         gl.line.material.opacity = 0.35;
                     }
                     e3Growing.push(gl);
@@ -3465,7 +3204,6 @@
             }
 
             e3Layers.push(layerNodes);
-            e3RecordLayerLevel(li, devices, performance.now());
 
             const hasHuman = devices.some(d => isE3Human(d.name));
             if (hasHuman && window.isAiGenerationEnabled === true) {
@@ -3499,10 +3237,10 @@
             e3Group.frustumCulled = false;
             scene.add(e3Group);
 
-            e3Fog = new THREE.FogExp2(0x050510, 0.009);
+            e3Fog = new THREE.FogExp2(0x000000, 0.009);
 
             const ambient = new THREE.AmbientLight(0xffffff, 0.06);
-            const l1 = new THREE.PointLight(infernoHexAt(0.42), 1.2, 90);
+            const l1 = new THREE.PointLight(0x0000ff, 1.2, 90);
             l1.position.set(10, 18, 10);
             const l2 = new THREE.PointLight(0xffffff, 0.5, 60);
             l2.position.set(-10, -4, 12);
@@ -3511,9 +3249,7 @@
             e3LastLayerTime = performance.now();
             e3SyncCameraSmoothState(e3LastLayerTime);
             applyEvolution3DCameraPose();
-            initE3LevelChart();
             syncE3Hud();
-            drawE3LevelChart();
         }
 
         function applyEvolution3DCameraPose() {
@@ -3625,7 +3361,6 @@
             }
 
             syncE3Hud();
-            drawE3LevelChart(time);
 
             if (isPanelIdle('hardware') && !E3_ORBIT.userPiloting) {
                 updateEvolution3DCamera(delta, time);
@@ -3685,13 +3420,6 @@
         function evo2FlashBoost(ageMs) {
             if (ageMs < 100) return 1 + (1 - ageMs / 100) * 0.65;
             return 1;
-        }
-
-        function evo2InfernoStrength(v, options = {}) {
-            let strength = rssiToSignalStrength(v.rssi);
-            if (options.isClosest) strength = Math.min(1, strength + 0.28);
-            else if (options.human) strength = Math.min(1, strength + 0.1);
-            return strength;
         }
 
         function evo2ResolveSensorId(sID) {
@@ -3817,7 +3545,7 @@
             const H = evo2H;
             const sc = evo2Scale();
 
-            ctx.fillStyle = isLightMode ? 'rgba(255,255,255,0.12)' : infernoRgbaAt(0.02, 0.22);
+            ctx.fillStyle = isLightMode ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.18)';
             ctx.fillRect(0, 0, W, H);
 
             const entries = Object.entries(evo2Active)
@@ -3847,17 +3575,15 @@
                     if (linePulse < 0.02) continue;
 
                     const isClosestLine = nA === closest || nB === closest;
-                    const lineStrength = evo2InfernoStrength(
-                        { rssi: Math.max(vA.rssi, vB.rssi) },
-                        { isClosest: isClosestLine, human: true }
-                    );
 
                     ctx.beginPath();
                     ctx.moveTo(pxA, pyA);
                     const mx = (pxA + pxB) / 2;
                     const my = (pyA + pyB) / 2;
                     ctx.quadraticCurveTo(mx, my, pxB, pyB);
-                    ctx.strokeStyle = infernoRgbaAt(lineStrength, linePulse * 0.72);
+                    ctx.strokeStyle = isClosestLine
+                        ? `rgba(0,0,255,${linePulse * 0.75})`
+                        : `rgba(255,255,255,${linePulse * 0.42})`;
                     ctx.lineWidth = 0.2 + linePulse * (isClosestLine ? 0.75 : 0.45);
                     ctx.stroke();
                 }
@@ -3869,13 +3595,12 @@
                 const pulse = evo2PulseFactor(age);
                 if (pulse < 0.015) return;
 
-                const norm = rssiToSignalStrength(v.rssi);
+                const norm = Math.max(0, Math.min(1, (-v.rssi - 50) / 50));
                 const bc = evo2BinCols[name];
                 if (!bc) return;
 
                 const isClosestRain = name === closest;
                 const human = isEv02Human(name);
-                const rainStrength = evo2InfernoStrength(v, { isClosest: isClosestRain, human });
                 const cols = Math.min(3, Math.max(1, Math.floor(norm * 3) + 1));
                 const spread = (10 + norm * 18) * sc;
                 const charH = 8 * sc;
@@ -3894,7 +3619,11 @@
                         const a = pulse * falloff * (0.5 + norm * 0.3);
                         if (a < 0.02) continue;
 
-                        ctx.fillStyle = infernoRgbaAt(rainStrength, a);
+                        ctx.fillStyle = isClosestRain
+                            ? `rgba(0,0,255,${a})`
+                            : human
+                            ? `rgba(255,0,0,${a})`
+                            : `rgba(200,200,200,${a * 0.6})`;
                         ctx.font = `${Math.floor(7 * sc)}px Courier New`;
                         ctx.textAlign = 'center';
                         ctx.fillText(ch, colX, y);
@@ -3909,10 +3638,9 @@
                 if (pulse < 0.015) return;
 
                 const flash = evo2FlashBoost(age);
-                const norm = rssiToSignalStrength(v.rssi);
+                const norm = Math.max(0, Math.min(1, (-v.rssi - 50) / 50));
                 const human = isEv02Human(name);
                 const isClosest = name === closest;
-                const nodeStrength = evo2InfernoStrength(v, { isClosest, human });
                 const dotR = (3 + norm * 2.5) * (0.7 + pulse * 0.3);
 
                 for (let r = 0; r < 3; r++) {
@@ -3925,7 +3653,11 @@
                     if (ringAlpha < 0.02) continue;
                     ctx.beginPath();
                     ctx.arc(px, py, rad, 0, Math.PI * 2);
-                    ctx.strokeStyle = infernoRgbaAt(nodeStrength, ringAlpha);
+                    ctx.strokeStyle = isClosest
+                        ? `rgba(0,0,255,${ringAlpha})`
+                        : human
+                        ? `rgba(255, 0, 0,${ringAlpha})`
+                        : `rgba(255,255,255,${ringAlpha})`;
                     ctx.lineWidth = isClosest ? 1.1 : 0.75;
                     ctx.stroke();
                 }
@@ -3934,17 +3666,25 @@
                 ctx.beginPath();
                 ctx.moveTo(px, py);
                 ctx.lineTo(sx, sy);
-                ctx.strokeStyle = infernoRgbaAt(nodeStrength, pulse * 0.22);
+                ctx.strokeStyle = isClosest
+                    ? `rgba(0,0,255,${pulse * 0.22})`
+                    : `rgba(255,255,255,${pulse * 0.08})`;
                 ctx.lineWidth = 0.2 + pulse * 0.35;
                 ctx.stroke();
 
                 ctx.beginPath();
                 ctx.arc(px, py, dotR, 0, Math.PI * 2);
-                ctx.fillStyle = infernoRgbaAt(nodeStrength, Math.min(1, pulse * flash * 0.98));
+                ctx.fillStyle = isClosest
+                    ? `rgba(0,0,255,${Math.min(1, pulse * flash * 0.98)})`
+                    : human
+                    ? `rgba(255, 0, 0,${Math.min(1, pulse * flash * 0.98)})`
+                    : `rgba(255,255,255,${Math.min(1, pulse * flash * 0.85)})`;
                 ctx.fill();
 
                 if (pulse > 0.08 && (human || isClosest)) {
-                    ctx.fillStyle = infernoRgbaAt(Math.min(1, nodeStrength + 0.08), Math.min(1, pulse * flash * 0.92));
+                    ctx.fillStyle = isClosest
+                        ? `rgba(0,0,255,${Math.min(1, pulse * flash * 0.92)})`
+                        : `rgba(255,0,0,${Math.min(1, pulse * flash * 0.82)})`;
                     ctx.font = "bold 10px 'Courier New', Courier, monospace";
                     ctx.textAlign = 'left';
                     ctx.fillText(name.slice(0, 8).toUpperCase(), px + dotR + 5, py + 3);
@@ -3958,9 +3698,9 @@
                 const isCenter = sid === 1;
                 ctx.beginPath();
                 ctx.arc(sx, sy, isCenter ? 2.5 : 2, 0, Math.PI * 2);
-                ctx.fillStyle = infernoRgbaAt(isCenter ? 0.72 : 0.18, isCenter ? 0.28 : 0.16);
+                ctx.fillStyle = isCenter ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.14)';
                 ctx.fill();
-                ctx.fillStyle = infernoRgbaAt(isCenter ? 0.88 : 0.24, isCenter ? 0.38 : 0.22);
+                ctx.fillStyle = isCenter ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.22)';
                 ctx.font = "9px 'Courier New', Courier, monospace";
                 ctx.textAlign = 'left';
                 ctx.fillText(s.label, sx + 5, sy + 3);
@@ -4037,22 +3777,11 @@
         }
 
         function getPersonColor(deviceId) {
-            for (const id in trackedDevices) {
-                const dev = trackedDevices[id];
-                if (
-                    id === deviceId ||
-                    dev.name === deviceId ||
-                    dev.probeName === deviceId ||
-                    dev.macAddress === deviceId
-                ) {
-                    return dev.personColor ?? infernoHexAt(getDeviceSignalStrength(dev));
-                }
-            }
-            return infernoHexAt(0.12 + (hashString(deviceId) % 1000) / 1000 * 0.22);
+            return 0xff0000;
         }
 
         function getSensorColor() {
-            return isLightMode ? 0x000000 : infernoHexAt(0.92);
+            return isLightMode ? 0x000000 : 0xffffff;
         }
 
         // ==========================================
@@ -4072,10 +3801,10 @@
                 document.querySelectorAll('.id-title, .id-text').forEach(t => t.style.color = "");
             } else {
                 document.body.classList.remove('light-mode');
-                scene.background = new THREE.Color(0x050510);
+                scene.background = new THREE.Color(0x000000);
                 
-                if(floorGrid) { scene.remove(floorGrid); floorGrid = new THREE.GridHelper(1200, 24, 0x0B0926, 0x0B0926); floorGrid.position.y = groundY; topologyGroup.add(floorGrid); }
-                if (hardwareLattice) hardwareLattice.material.color.setHex(infernoHexAt(0.06));
+                if(floorGrid) { scene.remove(floorGrid); floorGrid = new THREE.GridHelper(1200, 24, 0x141414, 0x141414); floorGrid.position.y = groundY; topologyGroup.add(floorGrid); }
+                if (hardwareLattice) hardwareLattice.material.color.setHex(0x111111);
                 
                 document.querySelectorAll('.panel-footer, .panel-chrome').forEach(p => { p.style.backgroundColor = ""; p.style.borderColor = ""; });
                 document.querySelectorAll('.id-title, .id-text').forEach(t => t.style.color = "");
@@ -4084,7 +3813,7 @@
             PANEL_KEYS.forEach(key => {
                 const view = panelViews[key];
                 if (view?.renderer) {
-                    view.renderer.setClearColor(isLightMode ? 0xffffff : 0x050510, 1);
+                    view.renderer.setClearColor(isLightMode ? 0xffffff : 0x000000, 1);
                 }
             });
 
@@ -4639,8 +4368,7 @@
             const targetSize = THREE.MathUtils.mapLinear(entry.rssi, -100, -30, 8, 26);
 
             if (entry.rssi > -52) {
-                const signalStrength = rssiToSignalStrength(entry.rssi, entry.distance_m);
-                const devColor = infernoHexAt(signalStrength);
+                const devColor = humanCheck ? getPersonColor(displayName) : 0x222222;
                 const burstCap = 6;
                 for (let k = 0; k < burstCap; k++) {
                     frozenCrystalParticles.push(new CrystalParticle(
@@ -4659,13 +4387,10 @@
                 trackedDevices[deviceId].targetSize = targetSize;
                 trackedDevices[deviceId].lastSeen = time;
                 syncDeviceTelemetry(trackedDevices[deviceId], entry);
-                const signalStrength = rssiToSignalStrength(entry.rssi, entry.distance_m);
-                const infernoColor = infernoHexAt(signalStrength);
                 if (humanCheck) {
+                    const personColor = getPersonColor(displayName);
                     trackedDevices[deviceId].isHuman = true;
-                    trackedDevices[deviceId].personColor = infernoColor;
-                } else {
-                    trackedDevices[deviceId].personColor = infernoColor;
+                    trackedDevices[deviceId].personColor = personColor;
                 }
             } else {
                 trackedDevices[deviceId] = {
@@ -4673,8 +4398,7 @@
                     topoX: topoPos.x, topoZ: topoPos.z, topoTargetX: topoPos.x, topoTargetZ: topoPos.z,
                     orbit,
                     size: targetSize, targetSize, name: displayName, lastSeen: time, isHuman: humanCheck,
-                    personColor: infernoHexAt(rssiToSignalStrength(entry.rssi, entry.distance_m)),
-                    activeSensor: entry.sensor_id,
+                    personColor: humanCheck ? getPersonColor(displayName) : null, activeSensor: entry.sensor_id,
                     lastRssi: undefined, lastSpikeAt: 0, pendingEntityBurst: false
                 };
                 syncDeviceTelemetry(trackedDevices[deviceId], entry);
@@ -4981,7 +4705,6 @@
         function onWindowResize() {
             measurePanelRects();
             resizeEvolution2DPanel();
-            resizeE3LevelChart();
         }
     </script>
 </body>
