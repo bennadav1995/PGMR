@@ -837,6 +837,15 @@
         const ENTITY_TYPO_TEXTURE_REPEAT = 6;
         const ENTITY_TYPO_SIGNAL_REPAINT_MS = 480;
         const ENTITY_TYPO_CORE_SEGS = 48;
+        const ENTITY_BUBBLE_SEGS = 64;
+        const ENTITY_BUBBLE_DISTORT = 0.3 + Math.random() * 0.5;
+        const ENTITY_BUBBLE_SPEED = 0.5 + Math.random() * 2.5;
+        const ENTITY_BUBBLE_FLOAT_AMP = 0;
+        const ENTITY_BUBBLE_BIRTH_DURATION = 0.8;
+        const ENTITY_HUMAN_PATH_RAYS = 6;
+        const ENTITY_INNER_DEPTH_MIN = 0.14;
+        const ENTITY_INNER_DEPTH_MAX = 0.9;
+        let entityBubble = null;
         let entityTypoCore = null;
         let entityPanelLights = null;
 
@@ -1160,6 +1169,438 @@
             camera.position.set(rig.lookAt.x, rig.lookAt.y, rig.lookAt.z).add(tempV3);
         }
 
+        const ENTITY_BUBBLE_SNOISE_GLSL = `
+            vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+            vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+            vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
+            vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+            float snoise(vec3 v) {
+                const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
+                const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+                vec3 i  = floor(v + dot(v, C.yyy));
+                vec3 x0 = v - i + dot(i, C.xxx);
+                vec3 g  = step(x0.yzx, x0.xyz);
+                vec3 l  = 1.0 - g;
+                vec3 i1 = min(g.xyz, l.zxy);
+                vec3 i2 = max(g.xyz, l.zxy);
+                vec3 x1 = x0 - i1 + C.xxx;
+                vec3 x2 = x0 - i2 + C.yyy;
+                vec3 x3 = x0 - D.yyy;
+                i = mod289(i);
+                vec4 p = permute(permute(permute(
+                    i.z + vec4(0.0, i1.z, i2.z, 1.0)) +
+                    i.y + vec4(0.0, i1.y, i2.y, 1.0)) +
+                    i.x + vec4(0.0, i1.x, i2.x, 1.0));
+                float n_ = 0.142857142857;
+                vec3 ns = n_ * D.wyz - D.xzx;
+                vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+                vec4 x_ = floor(j * ns.z);
+                vec4 y_ = floor(j - 7.0 * x_);
+                vec4 x = x_ * ns.x + ns.yyyy;
+                vec4 y = y_ * ns.x + ns.yyyy;
+                vec4 h = 1.0 - abs(x) - abs(y);
+                vec4 b0 = vec4(x.xy, y.xy);
+                vec4 b1 = vec4(x.zw, y.zw);
+                vec4 s0 = floor(b0) * 2.0 + 1.0;
+                vec4 s1 = floor(b1) * 2.0 + 1.0;
+                vec4 sh = -step(h, vec4(0.0));
+                vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+                vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+                vec3 p0 = vec3(a0.xy, h.x);
+                vec3 p1 = vec3(a0.zw, h.y);
+                vec3 p2 = vec3(a1.xy, h.z);
+                vec3 p3 = vec3(a1.zw, h.w);
+                vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+                p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+                vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+                m = m * m;
+                return 42.0 * dot(m * m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+            }
+        `;
+
+        function createEntityBubbleMaterial() {
+            const material = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                vertexColors: true,
+                wireframe: true,
+                transparent: true,
+                opacity: isLightMode ? 0.78 : 0.92
+            });
+            return material;
+        }
+
+        function initEntityBubble() {
+            if (entityBubble) return;
+
+            const geometry = new THREE.SphereGeometry(1, ENTITY_BUBBLE_SEGS, ENTITY_BUBBLE_SEGS);
+            const vertexColors = new Float32Array(geometry.attributes.position.count * 3);
+            geometry.setAttribute('color', new THREE.BufferAttribute(vertexColors, 3));
+            const posAttr = geometry.attributes.position;
+            const baseDirs = new Float32Array(posAttr.count * 3);
+            for (let i = 0; i < posAttr.count; i++) {
+                const x = posAttr.getX(i);
+                const y = posAttr.getY(i);
+                const z = posAttr.getZ(i);
+                const invLen = 1 / Math.sqrt(x * x + y * y + z * z);
+                baseDirs[i * 3] = x * invLen;
+                baseDirs[i * 3 + 1] = y * invLen;
+                baseDirs[i * 3 + 2] = z * invLen;
+            }
+
+            const material = createEntityBubbleMaterial();
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.name = 'entityOrganicBubble';
+            mesh.frustumCulled = false;
+            mesh.renderOrder = 5;
+
+            entityGroup.add(mesh);
+
+            entityBubble = {
+                mesh,
+                material,
+                baseDirs,
+                floatingOffset: Math.random() * 100,
+                birthProgress: 1,
+                birthDone: true,
+                speed: ENTITY_BUBBLE_SPEED,
+                distort: ENTITY_BUBBLE_DISTORT,
+                smoothDistort: ENTITY_BUBBLE_DISTORT,
+                smoothSpeed: ENTITY_BUBBLE_SPEED,
+                smoothFreqScale: 1,
+                pulseDistort: 0,
+                motionAnimTime: 0
+            };
+
+            mesh.scale.setScalar(1);
+            updateEntityBubbleVertexColors([]);
+        }
+
+        function getEntityNetworkIdleRgb() {
+            return { r: 1, g: 1, b: 1 };
+        }
+
+        function hexToUnitRgb(hex) {
+            hex >>>= 0;
+            return {
+                r: ((hex >> 16) & 255) / 255,
+                g: ((hex >> 8) & 255) / 255,
+                b: (hex & 255) / 255
+            };
+        }
+
+        function collectEntityNetworkSources(activeDeviceKeys) {
+            const sources = [];
+            activeDeviceKeys.forEach((devId, index) => {
+                if (devId.includes('\u200b')) return;
+                const dev = trackedDevices[devId];
+                if (!dev?.entityAnchor) return;
+
+                const signal = {
+                    rssi: dev.lastRssi ?? dev.lastEntryRssi ?? -70,
+                    rssiDelta: dev.rssiDelta ?? 0,
+                    distanceM: dev.distanceM,
+                    isHuman: dev.isHuman === true
+                };
+                const weight = 0.05 + computeSignalTypographySizeMix(signal);
+                const hex = dev.isHuman
+                    ? (dev.personColor || getPersonSignalColor(dev, devId))
+                    : 0xffffff;
+                const rgb = hexToUnitRgb(hex);
+                const frequency = computeSignalTypographyFrequency(signal);
+                const amplification = computeSignalTypographyAmplification(signal);
+                const anchor = dev.entityAnchor;
+
+                sources.push({
+                    nx: anchor.nx,
+                    ny: anchor.ny,
+                    nz: anchor.nz,
+                    r: rgb.r,
+                    g: rgb.g,
+                    b: rgb.b,
+                    weight: dev.isHuman ? weight : weight * 0.28,
+                    frequency,
+                    amplification,
+                    isHuman: dev.isHuman === true
+                });
+            });
+            return sources;
+        }
+
+        function updateEntityBubbleVertexColors(sources) {
+            initEntityBubble();
+            const colors = entityBubble.mesh.geometry.attributes.color;
+            const pos = entityBubble.mesh.geometry.attributes.position;
+            if (!colors || !pos) return;
+
+            const idle = getEntityNetworkIdleRgb();
+            const sourceCount = sources.length;
+            const crowdTightness = sourceCount > 1 ? Math.sqrt(sourceCount) : 1;
+
+            for (let i = 0; i < pos.count; i++) {
+                const vx = pos.getX(i);
+                const vy = pos.getY(i);
+                const vz = pos.getZ(i);
+                const invLen = 1 / Math.sqrt(vx * vx + vy * vy + vz * vz);
+                const dx = vx * invLen;
+                const dy = vy * invLen;
+                const dz = vz * invLen;
+
+                let r = idle.r * 0.28;
+                let g = idle.g * 0.28;
+                let b = idle.b * 0.28;
+                let totalW = 0.28;
+
+                for (let s = 0; s < sources.length; s++) {
+                    const src = sources[s];
+                    const dot = THREE.MathUtils.clamp(dx * src.nx + dy * src.ny + dz * src.nz, -1, 1);
+                    const freqSpread = THREE.MathUtils.lerp(1.1, 7.5, src.frequency);
+                    const ampSpread = THREE.MathUtils.lerp(0.85, 1.35, src.amplification);
+                    const sharpness = (2.4 + crowdTightness * 2.2) * freqSpread * ampSpread * (src.isHuman ? 1 : 0.45);
+                    const lobe = Math.pow(Math.max(0, dot), sharpness);
+                    const ring = Math.pow(Math.max(0, dot), Math.max(1.2, sharpness * (0.42 + src.frequency * 0.35)));
+                    const w = src.weight * (lobe * 0.78 + ring * 0.22);
+                    if (w <= 0) continue;
+                    r += src.r * w;
+                    g += src.g * w;
+                    b += src.b * w;
+                    totalW += w;
+                }
+
+                colors.setXYZ(i, r / totalW, g / totalW, b / totalW);
+            }
+
+            colors.needsUpdate = true;
+        }
+
+        function computeEntityBubbleMotion(animTime, energy, time, delta) {
+            initEntityBubble();
+            const bubble = entityBubble;
+            const jitter = dynamicEntity.organicJitter;
+            const voice = dynamicEntity.voiceEnergy;
+            const voiceSharp = dynamicEntity.voiceCadence;
+            const sig = dynamicEntity.signalIntensity;
+            const timeMul = THREE.MathUtils.lerp(0.5, 4.2, energy);
+            const freqMul = THREE.MathUtils.lerp(1.0, 8.2, energy);
+
+            let targetDistort = THREE.MathUtils.lerp(0.22, 0.58, energy);
+            targetDistort += THREE.MathUtils.mapLinear(jitter, 0.25, 2.2, 0, 0.16);
+            targetDistort += voice * 0.1 + voiceSharp * 0.05;
+
+            entityBurstTendrils.forEach(burst => {
+                if (burst.phase === 'active') targetDistort += 0.08;
+            });
+
+            targetDistort = THREE.MathUtils.clamp(targetDistort, 0.18, 0.82);
+
+            let pulseTarget = dynamicEntity.spikeBurst * 0.34 + dynamicEntity.spikeClench * 0.16;
+            for (const id in trackedDevices) {
+                const dev = trackedDevices[id];
+                if (!dev?.isHuman) continue;
+                const spikeAge = time - (dev.lastSpikeAt || 0);
+                if (spikeAge < 700) {
+                    pulseTarget = Math.max(pulseTarget, 0.24 * (1 - spikeAge / 700));
+                }
+            }
+            pulseTarget = THREE.MathUtils.clamp(pulseTarget, 0, 0.42);
+
+            const distortAttack = targetDistort > bubble.smoothDistort ? 8 + sig * 5 : 1.4;
+            bubble.smoothDistort = THREE.MathUtils.lerp(
+                bubble.smoothDistort, targetDistort, delta * distortAttack
+            );
+
+            const pulseAttack = pulseTarget > bubble.pulseDistort ? 14 + sig * 4 : 2.1;
+            bubble.pulseDistort = THREE.MathUtils.lerp(
+                bubble.pulseDistort, pulseTarget, delta * pulseAttack
+            );
+
+            let targetSpeed = THREE.MathUtils.lerp(0.45, 2.8, energy) * (0.72 + timeMul * 0.28);
+            targetSpeed += voice * 1.35 + voiceSharp * 0.42;
+            const speedAttack = targetSpeed > bubble.smoothSpeed ? 9 + sig * 4 : 1.5;
+            bubble.smoothSpeed = THREE.MathUtils.lerp(
+                bubble.smoothSpeed, targetSpeed, delta * speedAttack
+            );
+
+            const targetFreqScale = THREE.MathUtils.lerp(0.85, 2.05, freqMul / 8.2);
+            bubble.smoothFreqScale = THREE.MathUtils.lerp(
+                bubble.smoothFreqScale, targetFreqScale, delta * 2.4
+            );
+            bubble.motionAnimTime = animTime;
+
+            return bubble;
+        }
+
+        const ENTITY_BUBBLE_NOISE_PERM = (function buildEntityBubbleNoisePerm() {
+            const perm = new Uint8Array(512);
+            for (let i = 0; i < 256; i++) perm[i] = i;
+            for (let i = 255; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const t = perm[i];
+                perm[i] = perm[j];
+                perm[j] = t;
+            }
+            for (let i = 0; i < 256; i++) perm[i + 256] = perm[i];
+            return perm;
+        })();
+
+        function entityBubbleGrad3(hash, x, y, z) {
+            const h = hash & 15;
+            const u = h < 8 ? x : y;
+            const v = h < 4 ? y : (h === 12 || h === 14 ? x : z);
+            return ((h & 1) ? -u : u) + ((h & 2) ? -v : v);
+        }
+
+        function entityBubbleSnoise3(xin, yin, zin) {
+            const perm = ENTITY_BUBBLE_NOISE_PERM;
+            const F3 = 1 / 3;
+            const G3 = 1 / 6;
+            let s = (xin + yin + zin) * F3;
+            let i = Math.floor(xin + s);
+            let j = Math.floor(yin + s);
+            let k = Math.floor(zin + s);
+            s = (i + j + k) * G3;
+            const x0 = xin - i + s;
+            const y0 = yin - j + s;
+            const z0 = zin - k + s;
+
+            let i1, j1, k1, i2, j2, k2;
+            if (x0 >= y0) {
+                if (y0 >= z0) { i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 1; k2 = 0; }
+                else if (x0 >= z0) { i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 0; k2 = 1; }
+                else { i1 = 0; j1 = 0; k1 = 1; i2 = 1; j2 = 0; k2 = 1; }
+            } else if (y0 < z0) { i1 = 0; j1 = 0; k1 = 1; i2 = 0; j2 = 1; k2 = 1; }
+            else if (x0 < z0) { i1 = 0; j1 = 1; k1 = 0; i2 = 0; j2 = 1; k2 = 1; }
+            else { i1 = 0; j1 = 1; k1 = 0; i2 = 1; j2 = 1; k2 = 0; }
+
+            const x1 = x0 - i1 + G3, y1 = y0 - j1 + G3, z1 = z0 - k1 + G3;
+            const x2 = x0 - i2 + 2 * G3, y2 = y0 - j2 + 2 * G3, z2 = z0 - k2 + 2 * G3;
+            const x3 = x0 - 1 + 3 * G3, y3 = y0 - 1 + 3 * G3, z3 = z0 - 1 + 3 * G3;
+
+            const ii = i & 255, jj = j & 255, kk = k & 255;
+            let n0 = 0, n1 = 0, n2 = 0, n3 = 0;
+            let t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+            if (t0 >= 0) {
+                t0 *= t0;
+                n0 = t0 * t0 * entityBubbleGrad3(perm[ii + perm[jj + perm[kk]]], x0, y0, z0);
+            }
+            let t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+            if (t1 >= 0) {
+                t1 *= t1;
+                n1 = t1 * t1 * entityBubbleGrad3(perm[ii + i1 + perm[jj + j1 + perm[kk + k1]]], x1, y1, z1);
+            }
+            let t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+            if (t2 >= 0) {
+                t2 *= t2;
+                n2 = t2 * t2 * entityBubbleGrad3(perm[ii + i2 + perm[jj + j2 + perm[kk + k2]]], x2, y2, z2);
+            }
+            let t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+            if (t3 >= 0) {
+                t3 *= t3;
+                n3 = t3 * t3 * entityBubbleGrad3(perm[ii + 1 + perm[jj + 1 + perm[kk + 1]]], x3, y3, z3);
+            }
+            return 32 * (n0 + n1 + n2 + n3);
+        }
+
+        function getEntityBubbleSurfaceScale(nx, ny, nz) {
+            initEntityBubble();
+            const bubble = entityBubble;
+            const shaderTime = (bubble.motionAnimTime || 0) * bubble.smoothSpeed;
+            const updateTime = shaderTime / 50;
+            const activeDistort = bubble.smoothDistort + bubble.pulseDistort;
+            const freqScale = bubble.smoothFreqScale;
+            const t5 = updateTime * 5;
+            const noise = entityBubbleSnoise3(
+                nx * freqScale * 0.5 + t5,
+                ny * freqScale * 0.5 + t5,
+                nz * freqScale * 0.5 + t5
+            );
+            return noise * (activeDistort * activeDistort) + 1;
+        }
+
+        function updateEntityBubbleMeshDeform() {
+            initEntityBubble();
+            const bubble = entityBubble;
+            const pos = bubble.mesh.geometry.attributes.position;
+            const baseDirs = bubble.baseDirs;
+            for (let i = 0; i < pos.count; i++) {
+                const nx = baseDirs[i * 3];
+                const ny = baseDirs[i * 3 + 1];
+                const nz = baseDirs[i * 3 + 2];
+                const scale = getEntityBubbleSurfaceScale(nx, ny, nz);
+                pos.setXYZ(i, nx * scale, ny * scale, nz * scale);
+            }
+            pos.needsUpdate = true;
+        }
+
+        function sampleEntityBubbleDeformedSurface(nx, ny, nz, out, offset) {
+            initEntityBubble();
+            const pos = entityBubble.mesh.geometry.attributes.position;
+            const cols = ENTITY_BUBBLE_SEGS + 1;
+            const phi = Math.acos(THREE.MathUtils.clamp(ny, -1, 1));
+            let theta = Math.atan2(-nx, nz);
+            if (theta < 0) theta += Math.PI * 2;
+
+            const fu = theta / (Math.PI * 2) * ENTITY_BUBBLE_SEGS;
+            const fv = phi / Math.PI * ENTITY_BUBBLE_SEGS;
+            const u0 = Math.min(ENTITY_BUBBLE_SEGS, Math.floor(fu));
+            const v0 = Math.min(ENTITY_BUBBLE_SEGS, Math.floor(fv));
+            const u1 = Math.min(ENTITY_BUBBLE_SEGS, u0 + 1);
+            const v1 = Math.min(ENTITY_BUBBLE_SEGS, v0 + 1);
+            const tu = fu - u0;
+            const tv = fv - v0;
+
+            function readVert(col, row) {
+                const idx = row * cols + col;
+                return [pos.getX(idx), pos.getY(idx), pos.getZ(idx)];
+            }
+
+            const p00 = readVert(u0, v0);
+            const p10 = readVert(u1, v0);
+            const p01 = readVert(u0, v1);
+            const p11 = readVert(u1, v1);
+            const lerp = THREE.MathUtils.lerp;
+            out[offset] = lerp(lerp(p00[0], p10[0], tu), lerp(p01[0], p11[0], tu), tv);
+            out[offset + 1] = lerp(lerp(p00[1], p10[1], tu), lerp(p01[1], p11[1], tu), tv);
+            out[offset + 2] = lerp(lerp(p00[2], p10[2], tu), lerp(p01[2], p11[2], tu), tv);
+        }
+
+        function getEntityInteriorDepth(stepIndex, stepCount, profileSeed = 0) {
+            const t = stepCount > 1 ? stepIndex / (stepCount - 1) : 0;
+            const waveA = Math.sin(t * Math.PI * 1.55 + profileSeed * 0.61);
+            const waveB = Math.sin(t * Math.PI * 3.25 + profileSeed * 1.17) * 0.34;
+            const mix = THREE.MathUtils.clamp(0.5 + waveA * 0.31 + waveB, 0, 1);
+            return THREE.MathUtils.lerp(ENTITY_INNER_DEPTH_MIN, ENTITY_INNER_DEPTH_MAX, mix);
+        }
+
+        function writeEntityBubbleSurfacePoint(nx, ny, nz, out, offset, depth = 1) {
+            sampleEntityBubbleDeformedSurface(nx, ny, nz, out, offset);
+            if (depth !== 1) {
+                out[offset] *= depth;
+                out[offset + 1] *= depth;
+                out[offset + 2] *= depth;
+            }
+        }
+
+        function updateEntityBubble(outerRadius, delta, animTime, energy = 0, time = 0) {
+            initEntityBubble();
+            const bubble = computeEntityBubbleMotion(animTime, energy, time, delta);
+            const breathingScale = 1 + Math.sin(animTime * ENTITY_ORGANISM_BREATH_SPEED) * ENTITY_ORGANISM_BREATH_AMP;
+
+            let birthScale = 1;
+            if (!bubble.birthDone) {
+                bubble.birthProgress = Math.min(1, bubble.birthProgress + Math.max(delta, 1 / 120) / ENTITY_BUBBLE_BIRTH_DURATION);
+                const t = bubble.birthProgress;
+                birthScale = Math.max(0.05, 1 - Math.pow(1 - t, 3) * Math.cos(t * Math.PI * 2));
+                if (bubble.birthProgress >= 1) bubble.birthDone = true;
+            }
+
+            updateEntityBubbleMeshDeform();
+
+            const baseScale = outerRadius * breathingScale * birthScale;
+            bubble.mesh.scale.setScalar(baseScale);
+            const floatY = Math.sin(animTime * 0.5 + bubble.floatingOffset) * ENTITY_BUBBLE_FLOAT_AMP;
+            bubble.mesh.position.set(0, floatY, 0);
+        }
+
         function initEntityCoreSphereCache(radius) {
             const widthSegs = ENTITY_SHELL_WIDTH_SEGS;
             const heightSegs = ENTITY_SHELL_HEIGHT_SEGS;
@@ -1244,70 +1685,23 @@
             if (entityPanelLights) return;
             entityPanelLights = new THREE.Group();
             entityPanelLights.name = 'entityPanelLights';
-            entityPanelLights.add(new THREE.AmbientLight(0xffffff, 0.42));
-            const key = new THREE.DirectionalLight(0xffffff, 0.62);
-            key.position.set(180, 260, 220);
+            entityPanelLights.add(new THREE.AmbientLight(0xffffff, 0.6));
+            entityPanelLights.add(new THREE.HemisphereLight(0xffffff, 0x331111, 0.5));
+            const key = new THREE.DirectionalLight(0xffffff, 1);
+            key.position.set(200, 400, 200);
             entityPanelLights.add(key);
-            const rim = new THREE.DirectionalLight(0x888888, 0.28);
-            rim.position.set(-160, -120, -200);
-            entityPanelLights.add(rim);
+            const fill = new THREE.DirectionalLight(0xffcccc, 0.35);
+            fill.position.set(-180, -120, -160);
+            entityPanelLights.add(fill);
             scene.add(entityPanelLights);
         }
 
         function initEntityVisuals() {
             if (entityVisuals) return;
             initEntityPanelLights();
+            initEntityBubble();
+            updateEntityBubble(ENTITY_BASE_RADIUS, 1 / 60, 0);
             const radius = ENTITY_BASE_RADIUS;
-            initEntityCoreSphereCache(radius);
-            const cache = entityCoreSphereCache;
-            const outlineColor = isLightMode ? 0xff0000 : 0xff0000;
-            const innerCageRadius = getEntityInnerCageRadius(radius);
-
-            const shellCageGeo = new THREE.SphereGeometry(1, ENTITY_SHELL_WIDTH_SEGS, ENTITY_SHELL_HEIGHT_SEGS);
-            const shellCageMesh = new THREE.Mesh(shellCageGeo, new THREE.MeshStandardMaterial({
-                color: 0x050505,
-                transparent: true,
-                opacity: 0.15,
-                roughness: 0.1,
-                metalness: 0.9,
-                side: THREE.DoubleSide,
-                depthWrite: false
-            }));
-            shellCageMesh.name = 'entityShellCage';
-            const shellWireMesh = new THREE.Mesh(shellCageGeo, new THREE.MeshBasicMaterial({
-                color: isLightMode ? 0x444444 : 0x2a2a2a,
-                wireframe: true,
-                transparent: true,
-                opacity: isLightMode ? 0.55 : 0.42,
-                depthWrite: false
-            }));
-            shellWireMesh.name = 'entityShellWire';
-            shellCageMesh.scale.setScalar(innerCageRadius);
-            shellWireMesh.scale.setScalar(innerCageRadius);
-
-            const shellPositions = new Float32Array(cache.numEdges * 6);
-            let shellLine;
-            let shellGeo;
-
-            if (THREE.LineSegments2 && THREE.LineSegmentsGeometry && THREE.LineMaterial) {
-                shellGeo = new THREE.LineSegmentsGeometry();
-                shellGeo.setPositions(shellPositions);
-                const shellMat = new THREE.LineMaterial({
-                    color: outlineColor,
-                    linewidth: 0.5,
-                    transparent: true,
-                    opacity: isLightMode ? 0.72 : 0.92,
-                    depthTest: true,
-                    resolution: new THREE.Vector2(window.innerWidth / 3, window.innerHeight)
-                });
-                shellLine = new THREE.LineSegments2(shellGeo, shellMat);
-            } else {
-                shellGeo = new THREE.BufferGeometry();
-                shellGeo.setAttribute('position', new THREE.BufferAttribute(shellPositions, 3));
-                shellLine = new THREE.LineSegments(shellGeo, new THREE.LineBasicMaterial({
-                    color: outlineColor, transparent: true, opacity: isLightMode ? 0.72 : 0.92
-                }));
-            }
 
             const veinPositions = new Float32Array(ENTITY_MAX_PATH_VERTS * 3);
             const veinColors = new Float32Array(ENTITY_MAX_PATH_VERTS * 3);
@@ -1319,10 +1713,12 @@
             }));
 
             const linkPositions = new Float32Array(ENTITY_MAX_HUMAN_LINKS * ENTITY_MAX_LINK_STEPS * 6);
+            const linkColors = new Float32Array(ENTITY_MAX_HUMAN_LINKS * ENTITY_MAX_LINK_STEPS * 6);
             const linkGeo = new THREE.BufferGeometry();
             linkGeo.setAttribute('position', new THREE.BufferAttribute(linkPositions, 3));
+            linkGeo.setAttribute('color', new THREE.BufferAttribute(linkColors, 3));
             const linkLines = new THREE.LineSegments(linkGeo, new THREE.LineBasicMaterial({
-                color: isLightMode ? 0xff0000 : 0xff0000, transparent: true, opacity: 0.22
+                vertexColors: true, transparent: true, opacity: 0.22
             }));
 
             const burstPositions = new Float32Array(MAX_ENTITY_BURST_TENDRILS * ENTITY_MAX_PATH_STEPS * 6);
@@ -1343,37 +1739,18 @@
 
             entityVisuals = {
                 radius,
-                shellCageMesh,
-                shellWireMesh,
-                shellLine, shellGeo, shellPositions, shellUsesWideLines: !!(THREE.LineSegments2 && THREE.LineSegmentsGeometry && THREE.LineMaterial),
                 veinLines, veinGeo, veinPositions, veinColors,
-                linkLines, linkGeo, linkPositions,
+                linkLines, linkGeo, linkPositions, linkColors,
                 burstLines, burstGeo, burstPositions,
                 crystalMesh, crystalGeo, crystalPositions, crystalColors,
                 pathScratch: new Float32Array(ENTITY_MAX_PATH_STEPS * 3),
                 dirScratch: new Float32Array(ENTITY_MAX_PATH_STEPS * 3)
             };
 
-            entityGroup.add(shellCageMesh);
-            entityGroup.add(shellWireMesh);
-            entityGroup.add(shellLine);
-            entityGroup.add(veinLines);
-            entityGroup.add(linkLines);
-            entityGroup.add(burstLines);
-            entityGroup.add(crystalMesh);
-            initEntityTypoCore();
-            if (entityTypoCore?.base?.mesh) {
-                entityGroup.remove(entityTypoCore.base.mesh);
-                entityGroup.remove(entityTypoCore.signal.mesh);
-                entityGroup.add(entityTypoCore.base.mesh);
-                entityGroup.add(entityTypoCore.signal.mesh);
-                entityTypoCore.base.mesh.renderOrder = 10;
-                entityTypoCore.signal.mesh.renderOrder = 11;
-                entityTypoCore.baseRadius = getEntityTypoOuterRadius(radius);
-            }
-            shellCageMesh.renderOrder = 0;
-            shellWireMesh.renderOrder = 1;
-            shellLine.renderOrder = 2;
+            entityBubble.mesh.add(veinLines);
+            entityBubble.mesh.add(linkLines);
+            entityBubble.mesh.add(burstLines);
+            entityBubble.mesh.add(crystalMesh);
             veinLines.renderOrder = 3;
         }
 
@@ -1429,9 +1806,7 @@
             const sig = dynamicEntity.signalIntensity;
 
             entityGroup.position.set(0, 0, 0);
-            entityGroup.rotation.x = Math.sin(animTime * 0.08) * 0.04;
-            entityGroup.rotation.y = animTime * ENTITY_TYPO_ROT_SPEED;
-            entityGroup.rotation.z = Math.cos(animTime * 0.06) * 0.025;
+            entityGroup.rotation.set(0, 0, 0);
 
             dynamicEntity.rotVelX = 0;
             dynamicEntity.rotVelY = 0;
@@ -1471,12 +1846,6 @@
             }
 
             entityGroup.scale.set(bodyScale, bodyScale, bodyScale);
-
-            if (entityVisuals?.shellCageMesh) {
-                const cageOpacity = THREE.MathUtils.clamp(0.12 + sig * 0.08, 0.12, 0.24);
-                entityVisuals.shellCageMesh.material.opacity = cageOpacity;
-                entityVisuals.shellWireMesh.material.opacity = THREE.MathUtils.clamp(0.38 + sig * 0.12, 0.38, 0.58);
-            }
         }
 
         function computeEntityWaveEnergy(time, delta) {
@@ -1595,7 +1964,16 @@
             }
         }
 
-        function buildEntitySurfacePathDirections(anchorNx, anchorNy, anchorNz, sizeFactor, radius, organicJitter, noiseOffset, tangentBias, outDirs, animTime = 0) {
+        function pickEntitySurfaceReference(dir, out) {
+            const ax = Math.abs(dir.x);
+            const ay = Math.abs(dir.y);
+            const az = Math.abs(dir.z);
+            if (ay <= ax && ay <= az) return out.set(0, 1, 0);
+            if (ax <= az) return out.set(1, 0, 0);
+            return out.set(0, 0, 1);
+        }
+
+        function buildEntitySurfacePathDirections(anchorNx, anchorNy, anchorNz, sizeFactor, radius, organicJitter, noiseOffset, tangentBias, outDirs, animTime = 0, crawlSign = 1) {
             const calculatedLength = 3.2 * radius * THREE.MathUtils.mapLinear(
                 THREE.MathUtils.clamp(sizeFactor, 8, 26), 8, 26, 0.4, 1.3
             );
@@ -1609,9 +1987,9 @@
             outDirs[dirCount * 3 + 2] = dir.z;
             dirCount++;
 
-            entitySurfaceTemp.v3.set(0, 1, 0);
-            let tangent = entitySurfaceTemp.axis.crossVectors(dir, entitySurfaceTemp.v3);
-            if (tangent.lengthSq() < 0.001) tangent.crossVectors(dir, entitySurfaceTemp.v2.set(1, 0, 0));
+            pickEntitySurfaceReference(dir, entitySurfaceTemp.v2);
+            let tangent = entitySurfaceTemp.axis.crossVectors(dir, entitySurfaceTemp.v2);
+            if (tangent.lengthSq() < 0.001) tangent.crossVectors(dir, entitySurfaceTemp.v3.set(1, 0, 0));
             tangent.normalize();
             if (tangentBias !== 0) tangent.applyAxisAngle(dir, tangentBias).normalize();
 
@@ -1619,7 +1997,7 @@
             const noiseIntensity = 0.22 + organicJitter * 0.18;
 
             for (let s = 1; s <= crawlSteps; s++) {
-                const stepAngle = totalArc / crawlSteps;
+                const stepAngle = (totalArc / crawlSteps) * crawlSign;
                 const nX = Math.sin(noiseOffset + animTime * 1.2 + s * 0.09) * Math.cos(noiseOffset + s * 0.07);
                 const nY = Math.sin(noiseOffset + animTime * 0.9 + s * 0.11) * Math.cos(noiseOffset + s * 0.08);
                 const lateralWobble = (nX + nY) * noiseIntensity;
@@ -1628,8 +2006,9 @@
                 dir.applyAxisAngle(binormal, lateralWobble);
                 dir.normalize();
 
-                tangent.crossVectors(dir, entitySurfaceTemp.v2.set(0, 1, 0));
-                if (tangent.lengthSq() < 0.001) tangent.crossVectors(dir, entitySurfaceTemp.v2.set(1, 0, 0));
+                pickEntitySurfaceReference(dir, entitySurfaceTemp.v2);
+                tangent.crossVectors(dir, entitySurfaceTemp.v2);
+                if (tangent.lengthSq() < 0.001) tangent.crossVectors(dir, entitySurfaceTemp.v3.set(1, 0, 0));
                 tangent.normalize();
                 binormal.crossVectors(dir, tangent).normalize();
 
@@ -1641,11 +2020,12 @@
             return dirCount;
         }
 
-        function pathDirectionsToSegments(flatDirs, dirCount, radius, animTime, energy, retractT, rootDir, outPositions, outOffset, maxRadius) {
+        function pathDirectionsToSegments(flatDirs, dirCount, radius, animTime, energy, retractT, rootDir, outPositions, outOffset, maxRadius, useBubbleSurface = false, depthProfileSeed = 0) {
             const root = rootDir;
             let writeOffset = outOffset;
             let hasPrev = false;
             let prevX, prevY, prevZ;
+            const scratch = entityVisuals ? entityVisuals.pathScratch : new Float32Array(3);
 
             for (let i = 0; i < dirCount; i++) {
                 const di = i * 3;
@@ -1659,12 +2039,17 @@
                     const invLen = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
                     nx *= invLen; ny *= invLen; nz *= invLen;
                 }
-                const scale = sampleFluidSphereRadius(nx, ny, nz, animTime, energy);
-                let r = radius * scale;
-                if (maxRadius != null && maxRadius > 0) r = Math.min(r, maxRadius);
-                const x = nx * r;
-                const y = ny * r;
-                const z = nz * r;
+                let x, y, z;
+                if (useBubbleSurface) {
+                    const depth = getEntityInteriorDepth(i, dirCount, depthProfileSeed);
+                    writeEntityBubbleSurfacePoint(nx, ny, nz, scratch, 0, depth);
+                    x = scratch[0]; y = scratch[1]; z = scratch[2];
+                } else {
+                    const scale = sampleFluidSphereRadius(nx, ny, nz, animTime, energy);
+                    let r = radius * scale;
+                    if (maxRadius != null && maxRadius > 0) r = Math.min(r, maxRadius);
+                    x = nx * r; y = ny * r; z = nz * r;
+                }
                 if (hasPrev) {
                     outPositions[writeOffset++] = prevX;
                     outPositions[writeOffset++] = prevY;
@@ -1679,8 +2064,8 @@
             return writeOffset - outOffset;
         }
 
-        function appendColoredPathSegments(flatDirs, dirCount, radius, animTime, energy, color, outPos, outCol, posOffset, colorAlpha = 1, maxRadius) {
-            const segBytes = pathDirectionsToSegments(flatDirs, dirCount, radius, animTime, energy, 0, null, outPos, posOffset, maxRadius);
+        function appendColoredPathSegments(flatDirs, dirCount, radius, animTime, energy, color, outPos, outCol, posOffset, colorAlpha = 1, maxRadius, useBubbleSurface = false, depthProfileSeed = 0) {
+            const segBytes = pathDirectionsToSegments(flatDirs, dirCount, radius, animTime, energy, 0, null, outPos, posOffset, maxRadius, useBubbleSurface, depthProfileSeed);
             const segVerts = segBytes / 3;
             const cr = ((color >> 16 & 255) / 255) * colorAlpha;
             const cg = ((color >> 8 & 255) / 255) * colorAlpha;
@@ -1720,6 +2105,61 @@
                     outPos[writeOffset++] = z;
                 }
                 prevX = x; prevY = y; prevZ = z;
+                hasPrev = true;
+            }
+            return writeOffset - outOffset;
+        }
+
+        function writeSurfaceLinkSegmentsColored(anchorA, anchorB, colorA, colorB, radius, animTime, energy, outPos, outCol, outOffset, steps, maxRadius, alpha = 1, useBubbleSurface = false) {
+            const rgbA = hexToUnitRgb(colorA);
+            const rgbB = hexToUnitRgb(colorB);
+            let writeOffset = outOffset;
+            let hasPrev = false;
+            let prevX, prevY, prevZ, prevR, prevG, prevB;
+
+            for (let s = 0; s <= steps; s++) {
+                const t = s / steps;
+                let nx = anchorA.nx * (1 - t) + anchorB.nx * t;
+                let ny = anchorA.ny * (1 - t) + anchorB.ny * t;
+                let nz = anchorA.nz * (1 - t) + anchorB.nz * t;
+                const invLen = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
+                nx *= invLen; ny *= invLen; nz *= invLen;
+                let x, y, z;
+                if (useBubbleSurface) {
+                    const depth = getEntityInteriorDepth(s, steps + 1, anchorA.nx * 1.7 + anchorB.ny * 2.3);
+                    writeEntityBubbleSurfacePoint(nx, ny, nz, outPos, writeOffset, depth);
+                    x = outPos[writeOffset];
+                    y = outPos[writeOffset + 1];
+                    z = outPos[writeOffset + 2];
+                } else {
+                    const scale = sampleFluidSphereRadius(nx, ny, nz, animTime, energy);
+                    let rRadius = radius * scale;
+                    if (maxRadius != null && maxRadius > 0) rRadius = Math.min(rRadius, maxRadius);
+                    x = nx * rRadius;
+                    y = ny * rRadius;
+                    z = nz * rRadius;
+                }
+                const cr = THREE.MathUtils.lerp(rgbA.r, rgbB.r, t) * alpha;
+                const cg = THREE.MathUtils.lerp(rgbA.g, rgbB.g, t) * alpha;
+                const cb = THREE.MathUtils.lerp(rgbA.b, rgbB.b, t) * alpha;
+
+                if (hasPrev) {
+                    outPos[writeOffset] = prevX;
+                    outPos[writeOffset + 1] = prevY;
+                    outPos[writeOffset + 2] = prevZ;
+                    outCol[writeOffset] = prevR;
+                    outCol[writeOffset + 1] = prevG;
+                    outCol[writeOffset + 2] = prevB;
+                    outPos[writeOffset + 3] = x;
+                    outPos[writeOffset + 4] = y;
+                    outPos[writeOffset + 5] = z;
+                    outCol[writeOffset + 3] = cr;
+                    outCol[writeOffset + 4] = cg;
+                    outCol[writeOffset + 5] = cb;
+                    writeOffset += 6;
+                }
+                prevX = x; prevY = y; prevZ = z;
+                prevR = cr; prevG = cg; prevB = cb;
                 hasPrev = true;
             }
             return writeOffset - outOffset;
@@ -1786,6 +2226,21 @@
             return pts;
         }
 
+        function getEntitySpreadSphereDir(index, total, devId) {
+            const golden = Math.PI * (3 - Math.sqrt(5));
+            const jitter = ((hashString(devId + ':spread') % 1000) / 1000 - 0.5) * 0.06;
+            const i = THREE.MathUtils.clamp(index + jitter, 0, Math.max(0, total - 0.001));
+            const t = (i + 0.5) / Math.max(1, total);
+            const y = 1 - t * 2;
+            const ring = Math.sqrt(Math.max(0, 1 - y * y));
+            const theta = golden * i;
+            return {
+                nx: Math.cos(theta) * ring,
+                ny: y,
+                nz: Math.sin(theta) * ring
+            };
+        }
+
         function getTypoStreamSphereDir(devId) {
             const u = (hashString(devId + ':typo:u') % 10000) / 10000;
             const v = (hashString(devId + ':typo:v') % 10000) / 10000;
@@ -1828,7 +2283,7 @@
 
         function getTopologyLabelColorHex(dev) {
             if (dev?.isHuman) {
-                return dev.personColor || getPersonColor(dev.name || dev.probeName || dev.macAddress || '');
+                return dev.personColor || getPersonBaseColor(dev.name || dev.probeName || dev.macAddress || '');
             }
             return isLightMode ? 0x999999 : 0x666666;
         }
@@ -1848,7 +2303,7 @@
                 probeTime: dev.probeTime ?? null,
                 layerY: dev.layerY ?? '--',
                 isHuman: dev.isHuman === true,
-                colorHex: getTopologyLabelColorHex(dev),
+                colorHex: dev.isHuman ? getPersonSignalColor(dev, devId) : getTopologyLabelColorHex(dev),
                 deviceId: devId
             };
         }
@@ -1897,6 +2352,66 @@
             );
         }
 
+        function getPersonBaseColor(deviceId) {
+            const hash = hashString(String(deviceId || 'unknown'));
+            const hue = (hash % 360) / 360;
+            return new THREE.Color().setHSL(hue, 0.82, 0.48).getHex();
+        }
+
+        function getPersonSignalColor(dev, devId) {
+            const signal = {
+                rssi: dev.lastRssi ?? dev.lastEntryRssi ?? -70,
+                rssiDelta: dev.rssiDelta ?? 0,
+                distanceM: dev.distanceM,
+                isHuman: true
+            };
+            const strength = computeSignalTypographyStrength(signal);
+            const frequency = computeSignalTypographyFrequency(signal);
+            const amplification = computeSignalTypographyAmplification(signal);
+            const identity = String(devId || dev.name || dev.probeName || dev.macAddress || 'unknown');
+            const baseHue = (hashString(identity) % 360) / 360;
+            let hue = baseHue + (frequency - 0.5) * 0.18 + amplification * 0.08;
+            hue = ((hue % 1) + 1) % 1;
+            const sat = THREE.MathUtils.lerp(0.5, 1, strength);
+            const light = THREE.MathUtils.lerp(0.22, 0.58, strength * 0.55 + frequency * 0.3 + amplification * 0.15);
+            return new THREE.Color().setHSL(hue, sat, light).getHex();
+        }
+
+        function computeEntityNetworkColor() {
+            const signals = collectActiveSignals().filter(s => s.isHuman);
+            if (!signals.length) {
+                return 0xffffff;
+            }
+
+            let r = 0;
+            let g = 0;
+            let b = 0;
+            let totalWeight = 0;
+
+            signals.forEach(signal => {
+                const weight = 0.08 + computeSignalTypographySizeMix(signal);
+                const hex = signal.colorHex >>> 0;
+                r += ((hex >> 16) & 255) * weight;
+                g += ((hex >> 8) & 255) * weight;
+                b += (hex & 255) * weight;
+                totalWeight += weight;
+            });
+
+            r = Math.round(r / totalWeight);
+            g = Math.round(g / totalWeight);
+            b = Math.round(b / totalWeight);
+            return (r << 16) | (g << 8) | b;
+        }
+
+        function refreshHumanSignalColors() {
+            Object.keys(trackedDevices).forEach(devId => {
+                if (devId.includes('\u200b')) return;
+                const dev = trackedDevices[devId];
+                if (!dev?.isHuman) return;
+                dev.personColor = getPersonSignalColor(dev, devId);
+            });
+        }
+
         function typoSizeFromMix(mix, power = 1.55, minSize = ENTITY_TYPO_FONT_MIN, maxSize = ENTITY_TYPO_FONT_MAX) {
             const curved = Math.pow(THREE.MathUtils.clamp(mix, 0, 1), power);
             return Math.round(THREE.MathUtils.lerp(minSize, maxSize, curved));
@@ -1935,7 +2450,7 @@
             const sizeMix = computeSignalTypographySizeMix(signal);
             const id = String(signal.probeName || signal.macAddress || signal.deviceId).slice(0, 28);
             const mac = String(signal.macAddress || id).slice(0, 24);
-            const labelHex = signal.colorHex ?? (isLightMode ? 0x999999 : 0x666666);
+            const labelHex = signal.isHuman ? (signal.colorHex ?? 0xff0000) : 0xffffff;
             const probeWeight = strength > 0.58 ? 'bold' : '600';
 
             const heroSize = typoSizeFromMix(sizeMix, 1.35);
@@ -2005,7 +2520,7 @@
         }
 
         function getTypoIdleFill() {
-            return isLightMode ? 'rgba(153,153,153,0.55)' : 'rgba(102,102,102,0.55)';
+            return 'rgba(255,255,255,0.55)';
         }
 
         function createTypoLayer(meshName) {
@@ -2260,70 +2775,51 @@
         function updateEntityPanel(radius, animTime, energy, time, delta, frameCount) {
             initEntityVisuals();
             updateEntityOrganicMotion(time, delta);
+            updateEntityBubble(radius, delta, animTime, energy, time);
 
             const sig = dynamicEntity.signalIntensity;
             const voice = dynamicEntity.voiceEnergy;
-            const voicePulse = dynamicEntity.voiceCadence;
-            const veinPulse = 1 + voice * 0.08 + voicePulse * 0.05;
-            const typoRadius = getEntityTypoOuterRadius(radius);
-            const innerSurfaceRadius = getEntityInnerSurfaceRadius(radius);
-            const redShellRadius = getEntityRedShellRadius(radius);
-            const innerCageRadius = getEntityInnerCageRadius(radius);
-            const breathingScale = 1 + Math.sin(animTime * ENTITY_ORGANISM_BREATH_SPEED) * ENTITY_ORGANISM_BREATH_AMP;
-            const typoEnvelope = typoRadius * breathingScale;
 
-            updateEntityShellWireframe(redShellRadius, animTime, energy, typoEnvelope);
-            if (entityVisuals.shellCageMesh) {
-                entityVisuals.shellCageMesh.scale.setScalar(innerCageRadius);
-                entityVisuals.shellWireMesh.scale.setScalar(innerCageRadius);
-            }
-            if (entityVisuals.shellLine.material) {
-                const shellBase = isLightMode ? 0.78 : 0.95;
-                entityVisuals.shellLine.material.opacity = shellBase * (0.88 + sig * 0.12 + voice * 0.08);
-                if (entityVisuals.shellUsesWideLines && entityVisuals.shellLine.material.linewidth !== undefined) {
-                    entityVisuals.shellLine.material.linewidth = 0.5 * (1 + voice * 0.72 + voicePulse * 0.46);
-                    entityVisuals.shellLine.material.needsUpdate = true;
-                }
-            }
-            entityVisuals.veinLines.scale.setScalar(veinPulse);
-            if (entityVisuals.veinLines.material) {
+            if (entityVisuals.veinLines) {
+                entityVisuals.veinLines.scale.setScalar(1);
                 entityVisuals.veinLines.material.opacity = THREE.MathUtils.clamp(0.55 + voice * 0.45, 0.35, 1);
             }
             updateEntityBurstTendrils(delta, time);
 
+            refreshHumanSignalColors();
+
             const activeDeviceKeys = Object.keys(trackedDevices);
+            const humanKeys = activeDeviceKeys.filter(k => trackedDevices[k]?.isHuman && !k.includes('\u200b'));
             const dirScratch = entityVisuals.dirScratch;
             const pathScratch = entityVisuals.pathScratch;
             const veinPos = entityVisuals.veinPositions;
             const veinCol = entityVisuals.veinColors;
             let veinWrite = 0;
             const endEffectors = [];
-            const distThreshSq = (hardwareStressMultiplierActive ? 120 : 180) ** 2;
+            const distThresh = (hardwareStressMultiplierActive ? 120 : 180) / radius;
+            const distThreshSq = distThresh * distThresh;
 
             activeDeviceKeys.forEach((devId, index) => {
                 const dev = trackedDevices[devId];
-                const anchor = ensureDeviceEntityAnchor(dev, devId, index, activeDeviceKeys.length);
-                writeDeformedSurfacePoint(
-                    anchor.nx, anchor.ny, anchor.nz, innerSurfaceRadius, animTime, energy, pathScratch, 0, typoEnvelope
-                );
-                const ax = pathScratch[0];
-                const ay = pathScratch[1];
-                const az = pathScratch[2];
+                const anchor = ensureDeviceEntityAnchor(dev, devId, index, activeDeviceKeys.length, humanKeys);
+                const pathNoise = hashString(devId) * 0.001;
+                const anchorDepth = dev.isHuman
+                    ? 0.38 + (hashString(devId + ':marker') % 100) / 100 * 0.34
+                    : getEntityInteriorDepth(0, 14, pathNoise + index * 0.41);
+                writeEntityBubbleSurfacePoint(anchor.nx, anchor.ny, anchor.nz, pathScratch, 0, anchorDepth);
+                let ax = pathScratch[0];
+                let ay = pathScratch[1];
+                let az = pathScratch[2];
 
-                const pathColor = dev.isHuman ? (dev.personColor || 0xff0000) : (isLightMode ? 0x999999 : 0x222222);
+                const pathColor = dev.isHuman ? (dev.personColor || 0xff0000) : 0xffffff;
                 let deviceFlare = sig;
                 if (dev.isHuman && time - (dev.lastSpikeAt || 0) < 800) {
                     deviceFlare = Math.max(deviceFlare, 0.92);
                 }
 
                 if (dev.isHuman) {
-                    const markerNx = anchor.nx + 0.012;
-                    const markerNy = anchor.ny + 0.006;
-                    const markerNz = anchor.nz;
-                    const invLen = 1 / Math.sqrt(markerNx * markerNx + markerNy * markerNy + markerNz * markerNz);
-                    writeDeformedSurfacePoint(
-                        markerNx * invLen, markerNy * invLen, markerNz * invLen,
-                        innerSurfaceRadius, animTime, energy, pathScratch, 3, typoEnvelope
+                    writeEntityBubbleSurfacePoint(
+                        anchor.nx, anchor.ny, anchor.nz, pathScratch, 3, anchorDepth * 1.05
                     );
                     veinPos[veinWrite++] = ax; veinPos[veinWrite++] = ay; veinPos[veinWrite++] = az;
                     veinPos[veinWrite++] = pathScratch[3]; veinPos[veinWrite++] = pathScratch[4]; veinPos[veinWrite++] = pathScratch[5];
@@ -2335,90 +2831,132 @@
                         veinCol[veinWrite - 6 + v * 3 + 1] = mcg;
                         veinCol[veinWrite - 6 + v * 3 + 2] = mcb;
                     }
+
+                    writeEntityBubbleSurfacePoint(anchor.nx, anchor.ny, anchor.nz, pathScratch, 0, ENTITY_INNER_DEPTH_MIN * 0.65);
+                    veinPos[veinWrite++] = pathScratch[0]; veinPos[veinWrite++] = pathScratch[1]; veinPos[veinWrite++] = pathScratch[2];
+                    veinPos[veinWrite++] = ax; veinPos[veinWrite++] = ay; veinPos[veinWrite++] = az;
+                    for (let v = 0; v < 2; v++) {
+                        veinCol[veinWrite - 6 + v * 3] = mcr * 0.55;
+                        veinCol[veinWrite - 6 + v * 3 + 1] = mcg * 0.55;
+                        veinCol[veinWrite - 6 + v * 3 + 2] = mcb * 0.55;
+                    }
                 }
 
-                const dirCount = buildEntitySurfacePathDirections(
-                    anchor.nx, anchor.ny, anchor.nz, dev.size || 15, innerSurfaceRadius,
-                    dynamicEntity.organicJitter, hashString(devId) * 0.001, 0, dirScratch, animTime
-                );
-                veinWrite += appendColoredPathSegments(
-                    dirScratch, dirCount, innerSurfaceRadius, animTime, energy, pathColor, veinPos, veinCol, veinWrite,
-                    dev.isHuman ? (0.45 + deviceFlare * 0.52) : (0.1 + sig * 0.38), typoEnvelope
-                );
-
-                for (let p = 1; p < dirCount; p += 3) {
-                    if (endEffectors.length >= ENTITY_MAX_END_EFFECTORS) break;
-                    writeDeformedSurfacePoint(
-                        dirScratch[p * 3], dirScratch[p * 3 + 1], dirScratch[p * 3 + 2],
-                        innerSurfaceRadius, animTime, energy, pathScratch, 0, typoEnvelope
-                    );
-                    endEffectors.push({
-                        x: pathScratch[0], y: pathScratch[1], z: pathScratch[2],
-                        isHuman: dev.isHuman
-                    });
-                }
-                if (endEffectors.length < ENTITY_MAX_END_EFFECTORS) {
-                    endEffectors.push({ x: ax, y: ay, z: az, isHuman: dev.isHuman });
-                }
-                if (dirCount > 1 && endEffectors.length < ENTITY_MAX_END_EFFECTORS) {
-                    writeDeformedSurfacePoint(
-                        dirScratch[(dirCount - 1) * 3], dirScratch[(dirCount - 1) * 3 + 1], dirScratch[(dirCount - 1) * 3 + 2],
-                        innerSurfaceRadius, animTime, energy, pathScratch, 0, typoEnvelope
-                    );
-                    endEffectors.push({
-                        x: pathScratch[0], y: pathScratch[1], z: pathScratch[2],
-                        isHuman: dev.isHuman
-                    });
-                }
+                const pathSize = dev.size || 15;
 
                 if (dev.isHuman) {
-                    const branchCount = buildEntitySurfacePathDirections(
-                        anchor.nx, anchor.ny, anchor.nz, (dev.size || 15) * 0.82, innerSurfaceRadius,
-                        dynamicEntity.organicJitter, hashString(devId) * 0.001 + 41.7, Math.PI * 0.55, dirScratch, animTime
+                    for (let ray = 0; ray < ENTITY_HUMAN_PATH_RAYS; ray++) {
+                        const tangentBias = (Math.PI * 2 * ray) / ENTITY_HUMAN_PATH_RAYS;
+                        const depthSeed = pathNoise + ray * 19.7 + index * 0.13;
+                        const dirCount = buildEntitySurfacePathDirections(
+                            anchor.nx, anchor.ny, anchor.nz, pathSize, radius,
+                            dynamicEntity.organicJitter, pathNoise + ray * 17.3, tangentBias, dirScratch, animTime, 1
+                        );
+                        veinWrite += appendColoredPathSegments(
+                            dirScratch, dirCount, 1, animTime, energy, pathColor, veinPos, veinCol, veinWrite,
+                            0.45 + deviceFlare * 0.52, null, true, depthSeed
+                        );
+                        const reverseCount = buildEntitySurfacePathDirections(
+                            anchor.nx, anchor.ny, anchor.nz, pathSize * 0.82, radius,
+                            dynamicEntity.organicJitter, pathNoise + ray * 23.1 + 9.4, tangentBias, dirScratch, animTime, -1
+                        );
+                        veinWrite += appendColoredPathSegments(
+                            dirScratch, reverseCount, 1, animTime, energy, pathColor, veinPos, veinCol, veinWrite,
+                            0.32 + deviceFlare * 0.38, null, true, depthSeed + 31.5
+                        );
+                        for (let p = 1; p < dirCount; p += 3) {
+                            if (endEffectors.length >= ENTITY_MAX_END_EFFECTORS) break;
+                            const ptDepth = getEntityInteriorDepth(p, dirCount, depthSeed);
+                            writeEntityBubbleSurfacePoint(
+                                dirScratch[p * 3], dirScratch[p * 3 + 1], dirScratch[p * 3 + 2], pathScratch, 0, ptDepth
+                            );
+                            endEffectors.push({
+                                x: pathScratch[0], y: pathScratch[1], z: pathScratch[2],
+                                isHuman: true
+                            });
+                        }
+                    }
+                } else {
+                    const dirCount = buildEntitySurfacePathDirections(
+                        anchor.nx, anchor.ny, anchor.nz, pathSize, radius,
+                        dynamicEntity.organicJitter, pathNoise, 0, dirScratch, animTime, 1
                     );
                     veinWrite += appendColoredPathSegments(
-                        dirScratch, branchCount, innerSurfaceRadius, animTime, energy, dev.personColor || 0xff0000, veinPos, veinCol, veinWrite,
-                        0.32 + deviceFlare * 0.58, typoEnvelope
+                        dirScratch, dirCount, 1, animTime, energy, pathColor, veinPos, veinCol, veinWrite,
+                        0.1 + sig * 0.38, null, true, pathNoise + index * 0.29
                     );
-                    for (let p = 2; p < branchCount; p += 4) {
+                    for (let p = 1; p < dirCount; p += 3) {
                         if (endEffectors.length >= ENTITY_MAX_END_EFFECTORS) break;
-                        writeDeformedSurfacePoint(
-                            dirScratch[p * 3], dirScratch[p * 3 + 1], dirScratch[p * 3 + 2],
-                            innerSurfaceRadius, animTime, energy, pathScratch, 0, typoEnvelope
+                        const ptDepth = getEntityInteriorDepth(p, dirCount, pathNoise + index * 0.29);
+                        writeEntityBubbleSurfacePoint(
+                            dirScratch[p * 3], dirScratch[p * 3 + 1], dirScratch[p * 3 + 2], pathScratch, 0, ptDepth
                         );
                         endEffectors.push({
                             x: pathScratch[0], y: pathScratch[1], z: pathScratch[2],
-                            isHuman: true
+                            isHuman: false
                         });
                     }
                 }
 
+                if (endEffectors.length < ENTITY_MAX_END_EFFECTORS) {
+                    endEffectors.push({ x: ax, y: ay, z: az, isHuman: dev.isHuman });
+                }
+
                 if (dev.pendingEntityBurst) {
-                    spawnEntityBurstTendrils(devId, dev, anchor, innerSurfaceRadius, animTime, energy, dynamicEntity.organicJitter);
+                    spawnEntityBurstTendrils(devId, dev, anchor, radius, animTime, energy, dynamicEntity.organicJitter);
                     dev.pendingEntityBurst = false;
                 }
             });
 
-            updateEntityTypoCore(radius, sig, delta, animTime);
+            const networkSources = collectEntityNetworkSources(activeDeviceKeys);
+            updateEntityBubbleVertexColors(networkSources);
 
             entityVisuals.veinGeo.setDrawRange(0, veinWrite / 3);
             entityVisuals.veinGeo.attributes.position.needsUpdate = true;
             entityVisuals.veinGeo.attributes.color.needsUpdate = true;
 
-            const humanKeys = activeDeviceKeys.filter(k => trackedDevices[k]?.isHuman && !k.includes('\u200b'));
             let linkWrite = 0;
             let linkPairs = 0;
+
+            for (let i = 0; i < humanKeys.length && linkPairs < ENTITY_MAX_HUMAN_LINKS; i++) {
+                const j = (i + 1) % humanKeys.length;
+                if (j === i) break;
+                const devA = trackedDevices[humanKeys[i]];
+                const devB = trackedDevices[humanKeys[j]];
+                const a = ensureDeviceEntityAnchor(devA, humanKeys[i], i, activeDeviceKeys.length, humanKeys);
+                const b = ensureDeviceEntityAnchor(devB, humanKeys[j], j, activeDeviceKeys.length, humanKeys);
+                linkWrite += writeSurfaceLinkSegmentsColored(
+                    a, b,
+                    devA.personColor || getPersonSignalColor(devA, humanKeys[i]),
+                    devB.personColor || getPersonSignalColor(devB, humanKeys[j]),
+                    1, animTime, energy,
+                    entityVisuals.linkPositions, entityVisuals.linkColors, linkWrite,
+                    ENTITY_MAX_LINK_STEPS, null, 0.55 + sig * 0.35, true
+                );
+                linkPairs++;
+            }
+
             for (let i = 0; i < humanKeys.length && linkPairs < ENTITY_MAX_HUMAN_LINKS; i++) {
                 for (let j = i + 1; j < humanKeys.length && linkPairs < ENTITY_MAX_HUMAN_LINKS; j++) {
-                    const a = trackedDevices[humanKeys[i]].entityAnchor;
-                    const b = trackedDevices[humanKeys[j]].entityAnchor;
+                    const devA = trackedDevices[humanKeys[i]];
+                    const devB = trackedDevices[humanKeys[j]];
+                    const a = ensureDeviceEntityAnchor(devA, humanKeys[i], i, activeDeviceKeys.length, humanKeys);
+                    const b = ensureDeviceEntityAnchor(devB, humanKeys[j], j, activeDeviceKeys.length, humanKeys);
                     if (!a || !b) continue;
-                    linkWrite += writeSurfaceLinkSegments(a, b, innerSurfaceRadius, animTime, energy, entityVisuals.linkPositions, linkWrite, ENTITY_MAX_LINK_STEPS, typoEnvelope);
+                    linkWrite += writeSurfaceLinkSegmentsColored(
+                        a, b,
+                        devA.personColor || getPersonSignalColor(devA, humanKeys[i]),
+                        devB.personColor || getPersonSignalColor(devB, humanKeys[j]),
+                        1, animTime, energy,
+                        entityVisuals.linkPositions, entityVisuals.linkColors, linkWrite,
+                        ENTITY_MAX_LINK_STEPS, null, 0.55 + sig * 0.35, true
+                    );
                     linkPairs++;
                 }
             }
             entityVisuals.linkGeo.setDrawRange(0, linkWrite / 3);
             entityVisuals.linkGeo.attributes.position.needsUpdate = true;
+            entityVisuals.linkGeo.attributes.color.needsUpdate = true;
             entityVisuals.linkLines.material.opacity = 0.12 + sig * 0.42;
 
             let burstWrite = 0;
@@ -2430,8 +2968,8 @@
                 const fade = burst.phase === 'decay' ? (1 - retractT * 0.95) : 1;
                 burstOpacity = Math.max(burstOpacity, (0.62 + sig * 0.36) * fade);
                 burstWrite += pathDirectionsToSegments(
-                    burst.pathDirs, burst.dirCount, innerSurfaceRadius, animTime, energy, retractT, burst.rootDir,
-                    entityVisuals.burstPositions, burstWrite, typoEnvelope
+                    burst.pathDirs, burst.dirCount, 1, animTime, energy, retractT, burst.rootDir,
+                    entityVisuals.burstPositions, burstWrite, null, true, hashString(burst.deviceId) * 0.001
                 );
             });
             entityVisuals.burstGeo.setDrawRange(0, burstWrite / 3);
@@ -2464,7 +3002,7 @@
                         crystalPos[base + 6] = p3.x; crystalPos[base + 7] = p3.y; crystalPos[base + 8] = p3.z;
 
                         const humanTri = p1.isHuman || p2.isHuman || p3.isHuman;
-                        const triColor = humanTri ? 0xff0000 : (isLightMode ? 0x888888 : 0x161616);
+                        const triColor = humanTri ? 0xff0000 : 0xffffff;
                         const cr = (triColor >> 16 & 255) / 255;
                         const cg = (triColor >> 8 & 255) / 255;
                         const cb = (triColor & 255) / 255;
@@ -2484,10 +3022,15 @@
             entityVisuals.crystalMesh.visible = triCount > 0;
         }
 
-        function ensureDeviceEntityAnchor(dev, devId, index, total) {
-            if (dev.entityAnchor) return dev.entityAnchor;
-            const dir = getTypoStreamSphereDir(devId);
+        function ensureDeviceEntityAnchor(dev, devId, index, total, humanKeys = null) {
+            const humanIndex = humanKeys ? humanKeys.indexOf(devId) : -1;
+            const spreadIndex = dev.isHuman && humanKeys && humanIndex >= 0 ? humanIndex : index;
+            const spreadTotal = dev.isHuman && humanKeys && humanKeys.length > 0 ? humanKeys.length : total;
+            const spreadKey = `${spreadTotal}:${spreadIndex}`;
+            if (dev.entityAnchor && dev.entityAnchorSpreadKey === spreadKey) return dev.entityAnchor;
+            const dir = getEntitySpreadSphereDir(spreadIndex, spreadTotal, devId);
             dev.entityAnchor = { nx: dir.nx, ny: dir.ny, nz: dir.nz };
+            dev.entityAnchorSpreadKey = spreadKey;
             return dev.entityAnchor;
         }
 
@@ -3777,7 +4320,7 @@
         }
 
         function getPersonColor(deviceId) {
-            return 0xff0000;
+            return getPersonBaseColor(deviceId);
         }
 
         function getSensorColor() {
@@ -3819,9 +4362,8 @@
 
             towerMeshes.forEach(mesh => mesh.material.color.setHex(getSensorColor()));
             updateFloor7BlueprintTheme();
-            if (entityTypoCore) {
-                entityTypoCore.lastPaintKey = '';
-                entityTypoCore.baseTheme = null;
+            if (entityBubble?.material) {
+                entityBubble.material.opacity = isLightMode ? 0.78 : 0.92;
             }
             syncSpectrumBtnUi();
         }
@@ -4388,9 +4930,8 @@
                 trackedDevices[deviceId].lastSeen = time;
                 syncDeviceTelemetry(trackedDevices[deviceId], entry);
                 if (humanCheck) {
-                    const personColor = getPersonColor(displayName);
                     trackedDevices[deviceId].isHuman = true;
-                    trackedDevices[deviceId].personColor = personColor;
+                    trackedDevices[deviceId].personColor = getPersonSignalColor(trackedDevices[deviceId], deviceId);
                 }
             } else {
                 trackedDevices[deviceId] = {
@@ -4398,7 +4939,7 @@
                     topoX: topoPos.x, topoZ: topoPos.z, topoTargetX: topoPos.x, topoTargetZ: topoPos.z,
                     orbit,
                     size: targetSize, targetSize, name: displayName, lastSeen: time, isHuman: humanCheck,
-                    personColor: humanCheck ? getPersonColor(displayName) : null, activeSensor: entry.sensor_id,
+                    personColor: humanCheck ? getPersonSignalColor({ name: displayName, lastEntryRssi: entry.rssi, rssiDelta: 0, probeName: displayName, macAddress: entry.mac || entry.bssid || displayName, probeType: entry.probe || 'WIFI_PROBE', activeSensor: entry.sensor_id, distanceM: entry.distance_m, isHuman: true }, deviceId) : null, activeSensor: entry.sensor_id,
                     lastRssi: undefined, lastSpikeAt: 0, pendingEntityBurst: false
                 };
                 syncDeviceTelemetry(trackedDevices[deviceId], entry);
