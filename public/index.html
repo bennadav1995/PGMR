@@ -44,8 +44,8 @@
             --frame-inset: 12px;
             --frame-pad: 24px;
             --frame-step: 12px;
-            --footer-h: 84px;
-            --json-key: #553366;
+            --footer-h: 98px;
+            --json-key: #ffffff;
             --json-val: var(--spec-hot);
             --frame-breath-duration: 7s;
             --cmd-btn-muted: #666666;
@@ -301,7 +301,7 @@
             box-sizing: border-box;
             height: var(--footer-h);
             margin: 0 var(--frame-inset) var(--frame-inset);
-            padding: 10px 14px 12px calc(var(--frame-pad) + 8px);
+            padding: 8px 14px 10px calc(var(--frame-pad) + 8px);
             border: none;
             border-top: 1px solid var(--frame-red-bright);
             box-shadow:
@@ -311,13 +311,96 @@
             font-family: 'Courier New', Courier, monospace;
             font-size: 10px;
             font-weight: normal;
-            line-height: 1.45;
+            line-height: 1.35;
             letter-spacing: 0;
             text-transform: none;
             color: var(--json-key);
             display: flex;
             flex-direction: column;
             justify-content: center;
+            gap: 5px;
+            overflow: hidden;
+        }
+        .panel-footer-static {
+            color: var(--json-key);
+            font-size: 10px;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 0;
+        }
+        .panel-footer-static::before {
+            content: '{ ';
+            color: var(--frame-red-faint);
+        }
+        .panel-footer-static::after {
+            content: ' }';
+            color: var(--frame-red-faint);
+        }
+        .panel-footer-live-wrap {
+            position: relative;
+            overflow: hidden;
+            min-height: 16px;
+            height: 16px;
+            flex: 1 1 auto;
+            flex-shrink: 0;
+        }
+        .panel-footer-live-wrap.is-idle {
+            opacity: 0.35;
+        }
+        .panel-footer-live {
+            display: block;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #ffffff;
+            font-size: 10px;
+            line-height: 16px;
+            letter-spacing: 0.03em;
+            text-shadow: none;
+        }
+        .panel-footer-live.is-pulse {
+            animation: footerLivePulse 0.42s ease-out;
+        }
+        @keyframes footerLivePulse {
+            0% { opacity: 0.15; text-shadow: 0 0 12px rgba(255, 0, 0, 0.85); }
+            100% { opacity: 1; text-shadow: none; }
+        }
+        .panel-footer-live .footer-cursor {
+            color: #FF0000;
+            animation: footerCursorBlink 0.85s step-end infinite;
+        }
+        @keyframes footerCursorBlink {
+            50% { opacity: 0; }
+        }
+        .panel-footer-live .footer-ticker-red {
+            color: #FF0000;
+            text-shadow: 0 0 8px rgba(255, 0, 0, 0.45);
+        }
+        .panel-footer-live .footer-ticker-blue {
+            color: #0000FF;
+            text-shadow: 0 0 8px rgba(0, 0, 255, 0.45);
+        }
+        .panel-footer-live .footer-ticker-muted {
+            color: rgba(255, 255, 255, 0.72);
+            text-shadow: none;
+        }
+        .panel-footer-live .footer-ticker-speech {
+            color: #ffffff;
+            text-shadow: none;
+        }
+        .panel-footer-live .footer-ticker-level {
+            color: #ffffff;
+            text-shadow: none;
+        }
+        .panel-footer-live .footer-ticker-points {
+            color: #FF0000;
+        }
+        .panel-footer-live .footer-ticker-sep {
+            color: rgba(255, 255, 255, 0.45);
+            text-shadow: none;
         }
         .viewport-panel .panel-footer .panel-sub {
             display: none;
@@ -588,6 +671,13 @@
         body.light-mode #labels-hardware .html-label.hardware-node.human {
             text-shadow: 0 0 4px rgba(255, 255, 255, 0.95), 0 1px 2px rgba(255, 255, 255, 0.85);
         }
+        body.light-mode .panel-footer-static {
+            color: #666666;
+        }
+        body.light-mode .panel-footer-live {
+            color: #000000;
+            text-shadow: none;
+        }
         body.light-mode .panel-footer .footer-value,
         body.light-mode .id-title,
         body.light-mode .id-text {
@@ -635,11 +725,9 @@
                 <div id="labels-topology" class="panel-labels"></div>
             </div>
             <footer class="panel-footer">
-                <div class="footer-grid">
-                    <span>ACTIVE:</span>
-                    <span id="hud-active-nodes" class="footer-value id-text">0</span>
-                    <span>NODES:</span>
-                    <span id="hud-evo2-nodes" class="footer-value id-text">0</span>
+                <div class="panel-footer-static">01 // TOPOLOGY — 06 // EVOLUTION</div>
+                <div class="panel-footer-live-wrap">
+                    <div class="panel-footer-live" id="footer-live-topology"></div>
                 </div>
             </footer>
         </section>
@@ -654,8 +742,10 @@
                 <div id="labels-entity" class="panel-labels"></div>
             </div>
             <footer class="panel-footer">
-                <div>AUDIO: <span id="hud-audio-status" class="footer-value text-red-500 font-bold">MUTED</span></div>
-                <div class="panel-sub">CRYSTAL LATTICE // ENTITY ROTATION ACTIVE</div>
+                <div class="panel-footer-static">03 // ENTITY — ORGANIC PROTOCOL CORE</div>
+                <div class="panel-footer-live-wrap">
+                    <div class="panel-footer-live" id="footer-live-entity"></div>
+                </div>
             </footer>
         </section>
 
@@ -669,15 +759,9 @@
                 <div id="labels-hardware" class="panel-labels"></div>
             </div>
             <footer class="panel-footer">
-                <div class="footer-grid">
-                    <span>FEED_IN:</span>
-                    <span id="hud-device" class="footer-value truncate id-text">-</span>
-                    <span>RSSI_DBM:</span>
-                    <span id="hud-rssi" class="footer-value id-text">-</span>
-                    <span>LAYERS:</span>
-                    <span id="hud-e3-layers" class="footer-value id-text">0</span>
-                    <span>NODES:</span>
-                    <span id="hud-e3-nodes" class="footer-value id-text">0</span>
+                <div class="panel-footer-static">02 // RESIDUAL — 07 // EVOLUTION 3D TOWER</div>
+                <div class="panel-footer-live-wrap">
+                    <div class="panel-footer-live" id="footer-live-hardware"></div>
                 </div>
             </footer>
         </section>
@@ -724,6 +808,176 @@
         let isLightMode = false; 
         
         let hardwareStressMultiplierActive = false;
+
+        const PANEL_FOOTER_STATIC = {
+            topology: '01 // TOPOLOGY — 06 // EVOLUTION',
+            entity: '03 // ENTITY — ORGANIC PROTOCOL CORE',
+            hardware: '02 // RESIDUAL — 07 // EVOLUTION 3D TOWER'
+        };
+
+        const panelFooterLiveHtml = { topology: '', entity: '', hardware: '' };
+        const panelFooterQueues = { topology: [] };
+        const panelFooterIndex = { topology: 0 };
+        const panelFooterLastStep = { topology: 0 };
+        const PANEL_FOOTER_STEP_MS = 2400;
+        let entityFooterSpeaking = false;
+        const entityFooterTypewriter = {
+            full: '',
+            charIdx: 0,
+            lastCharAt: 0,
+            charMs: 30
+        };
+
+        function escapeFooterHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function setPanelFooterLive(key, html, pulse = true) {
+            const el = document.getElementById('footer-live-' + key);
+            const wrap = el?.closest('.panel-footer-live-wrap');
+            if (!el) return;
+            const content = (html && html.trim()) ? html : '';
+            const display = content || '<span class="footer-ticker-muted">—</span>';
+            const changed = panelFooterLiveHtml[key] !== content;
+            panelFooterLiveHtml[key] = content;
+            el.innerHTML = display;
+            if (wrap) wrap.classList.toggle('is-idle', !content);
+            if (pulse && changed && content) {
+                el.classList.remove('is-pulse');
+                void el.offsetWidth;
+                el.classList.add('is-pulse');
+            }
+        }
+
+        function topologyNameLineHtml(name, closest) {
+            const label = escapeFooterHtml(name.slice(0, 18).toUpperCase());
+            if (name === closest) return `<span class="footer-ticker-blue">${label}</span>`;
+            if (typeof isEv02Human === 'function' && isEv02Human(name)) {
+                return `<span class="footer-ticker-red">${label}</span>`;
+            }
+            return `<span class="footer-ticker-muted">${label}</span>`;
+        }
+
+        function rebuildTopologyFooterQueue() {
+            const closest = typeof evo2GetClosestHuman === 'function'
+                ? evo2GetClosestHuman(performance.now())
+                : null;
+            const names = typeof evo2RecordedNames !== 'undefined'
+                ? [...evo2RecordedNames].sort((a, b) => a.localeCompare(b))
+                : [];
+            panelFooterQueues.topology = names.map(name => topologyNameLineHtml(name, closest));
+            if (panelFooterIndex.topology >= panelFooterQueues.topology.length) {
+                panelFooterIndex.topology = 0;
+            }
+            showPanelFooterLine('topology');
+        }
+
+        function rebuildHardwareFooterQueue() {
+            const stats = typeof e3LayerStats !== 'undefined' ? e3LayerStats : [];
+            if (!stats.length) {
+                setPanelFooterLive('hardware', '<span class="footer-ticker-muted">AWAITING LAYER BUILD</span>', false);
+                return;
+            }
+            const latest = stats[stats.length - 1];
+            const inputCount = latest.inputs ?? latest.points ?? 0;
+            setPanelFooterLive(
+                'hardware',
+                `<span class="footer-ticker-level">LEVEL ${String(latest.level).padStart(2, '0')}</span>` +
+                `<span class="footer-ticker-sep"> — </span>` +
+                `<span class="footer-ticker-points">${inputCount}</span>` +
+                `<span class="footer-ticker-muted"> PTS</span>`
+            );
+        }
+
+        function showPanelFooterLine(key) {
+            const queue = panelFooterQueues[key];
+            if (key === 'hardware') {
+                rebuildHardwareFooterQueue();
+                return;
+            }
+            if (!queue.length) {
+                setPanelFooterLive('topology', '<span class="footer-ticker-muted">AWAITING RECORDED SIGNALS</span>', false);
+                return;
+            }
+            const idx = panelFooterIndex[key] % queue.length;
+            setPanelFooterLive(key, queue[idx]);
+        }
+
+        function refreshTopologyFooterTicker() {
+            rebuildTopologyFooterQueue();
+        }
+
+        function refreshEntityFooterTicker() {
+            if (!isAiVoiceSpeaking || !lastAiGeneratedText) {
+                entityFooterTypewriter.full = '';
+                entityFooterTypewriter.charIdx = 0;
+                entityFooterTypewriter.lastCharAt = 0;
+                panelFooterLiveHtml.entity = '';
+                setPanelFooterLive('entity', '', false);
+                return;
+            }
+            if (entityFooterTypewriter.full !== lastAiGeneratedText) {
+                entityFooterTypewriter.full = lastAiGeneratedText;
+                entityFooterTypewriter.charIdx = 0;
+                entityFooterTypewriter.lastCharAt = 0;
+                panelFooterLiveHtml.entity = '';
+            }
+        }
+
+        function refreshHardwareFooterTicker() {
+            rebuildHardwareFooterQueue();
+        }
+
+        function tickEntityFooterTypewriter(now) {
+            if (!isAiVoiceSpeaking || !entityFooterTypewriter.full) return;
+            const tw = entityFooterTypewriter;
+            if (tw.charIdx >= tw.full.length) {
+                setPanelFooterLive(
+                    'entity',
+                    `<span class="footer-ticker-speech">${escapeFooterHtml(tw.full)}</span>`,
+                    false
+                );
+                return;
+            }
+            if (now - tw.lastCharAt < tw.charMs) return;
+            tw.charIdx = Math.min(tw.full.length, tw.charIdx + 1);
+            tw.lastCharAt = now;
+            const shown = tw.full.slice(0, tw.charIdx);
+            setPanelFooterLive(
+                'entity',
+                `<span class="footer-ticker-speech">${escapeFooterHtml(shown)}</span><span class="footer-cursor">█</span>`,
+                tw.charIdx === 1
+            );
+        }
+
+        function tickPanelFooterRotators(now) {
+            tickEntityFooterTypewriter(now);
+            const queue = panelFooterQueues.topology;
+            if (queue.length <= 1) return;
+            if (now - panelFooterLastStep.topology < PANEL_FOOTER_STEP_MS) return;
+            panelFooterLastStep.topology = now;
+            panelFooterIndex.topology = (panelFooterIndex.topology + 1) % queue.length;
+            showPanelFooterLine('topology');
+        }
+
+        function refreshPanelFooterTickers() {
+            refreshTopologyFooterTicker();
+            refreshEntityFooterTicker();
+            refreshHardwareFooterTicker();
+        }
+
+        function initPanelFooterTickers() {
+            Object.entries(PANEL_FOOTER_STATIC).forEach(([key, label]) => {
+                const el = document.querySelector(`[data-panel="${key}"] .panel-footer-static`);
+                if (el) el.textContent = label;
+            });
+            panelFooterLastStep.topology = performance.now();
+            refreshPanelFooterTickers();
+        }
 
         const groundY = -120; 
         const towerHeight = 250;
@@ -875,6 +1129,13 @@
         const ENTITY_BUBBLE_LINE_OPACITY = 0.42;
         const ENTITY_BUBBLE_FLOAT_AMP = 0;
         const ENTITY_BUBBLE_BIRTH_DURATION = 0.8;
+        const ENTITY_BUBBLE_PULSE_ROT_DIVISOR = 16;
+        const ENTITY_BUBBLE_PULSE_ROT_STEP = (Math.PI * 2) / ENTITY_BUBBLE_PULSE_ROT_DIVISOR;
+        const ENTITY_BUBBLE_PULSE_ROT_DURATION = 2.8;
+
+        function easeEntityBubbleTurn(t) {
+            return 0.5 - 0.5 * Math.cos(Math.PI * THREE.MathUtils.clamp(t, 0, 1));
+        }
         const ENTITY_INNER_DEPTH_MIN = 0.14;
         const ENTITY_INNER_DEPTH_MAX = 0.9;
         let entityBubble = null;
@@ -1033,6 +1294,7 @@
             panelsReady = true;
             document.getElementById('triple-stage')?.classList.add('panels-live');
             measurePanelRects();
+            refreshPanelFooterTickers();
             renderAllPanels();
         }
 
@@ -1114,8 +1376,8 @@
                 },
                 hardware: {
                     target: { x: 0, y: 1, z: 0 },
-                    minDistance: 6,
-                    maxDistance: 55
+                    minDistance: 4,
+                    maxDistance: 35
                 }
             };
 
@@ -1396,6 +1658,8 @@
                 smoothSpeed: ENTITY_BUBBLE_SPEED,
                 smoothFreqScale: 1,
                 pulseDistort: 0,
+                pulseRotationY: 0,
+                pulseRotationTargetY: 0,
                 motionAnimTime: 0
             };
 
@@ -1753,6 +2017,7 @@
 
             const baseScale = outerRadius * breathingScale * birthScale;
             bubble.mesh.scale.setScalar(baseScale);
+            updateEntityBubblePulseRotation(bubble, delta, time);
             const floatY = Math.sin(animTime * 0.5 + bubble.floatingOffset) * ENTITY_BUBBLE_FLOAT_AMP;
             bubble.mesh.position.set(0, floatY, 0);
         }
@@ -1965,6 +2230,20 @@
             return dynamicEntity.signalIntensity;
         }
 
+        function updateEntityBubblePulseRotation(bubble, delta, time) {
+            if (bubble.pulseRotStartTime != null) {
+                const segment = bubble.pulseRotationTargetY - bubble.pulseRotFromY;
+                const elapsed = (time - bubble.pulseRotStartTime) * 0.001;
+                const t = easeEntityBubbleTurn(elapsed / ENTITY_BUBBLE_PULSE_ROT_DURATION);
+                bubble.pulseRotationY = bubble.pulseRotFromY + segment * t;
+                if (t >= 1) {
+                    bubble.pulseRotationY = bubble.pulseRotationTargetY;
+                    bubble.pulseRotStartTime = null;
+                }
+            }
+            bubble.mesh.rotation.y = bubble.pulseRotationY;
+        }
+
         function triggerOrganismSpike(time) {
             if (dynamicEntity.spikeActive && time - dynamicEntity.spikeStart < 180) return;
             dynamicEntity.spikeActive = true;
@@ -1980,6 +2259,12 @@
             dynamicEntity.spikeAsymNx /= asymLen;
             dynamicEntity.spikeAsymNy /= asymLen;
             dynamicEntity.spikeAsymNz /= asymLen;
+            initEntityBubble();
+            if (entityBubble) {
+                entityBubble.pulseRotFromY = entityBubble.pulseRotationY;
+                entityBubble.pulseRotationTargetY += ENTITY_BUBBLE_PULSE_ROT_STEP;
+                entityBubble.pulseRotStartTime = time;
+            }
         }
 
         function updateEntityOrganicMotion(time, delta) {
@@ -3580,6 +3865,22 @@
         const E3_LAYER_BOX_H = E3_LAYER_RISE * 0.9;
         const E3_CAMERA_RISE_FOLLOW = 7;
         const E3_CAMERA_POS_FOLLOW = 6;
+        const E3_DEFAULT_ZOOM = 8;
+        const E3_CAMERA_TRANSITION_MS = 2200;
+        const E3_CAMERA_DEFAULT_HOLD_MS = 13440;
+        const E3_CAMERA_ALT_HOLD_MS = 9200;
+        const E3_ALT_CAMERA_SHOTS = [
+            { id: 'birdseye', zoom: 10, rotX: 1.38, rotY: 0.28, spin: false, lookYFactor: 1, lookYOffset: 0.65 },
+            { id: 'inside', zoom: 2.4, rotX: 0.14, rotY: 0.62, spin: false, lookYFactor: 0.42, lookYOffset: 0 },
+            { id: 'distant', zoom: 30, rotX: 0.17, rotY: null, spin: true, lookYFactor: 1, lookYOffset: 0 },
+            { id: 'profile', zoom: 11, rotX: -0.16, rotY: null, spin: true, rotYAdd: Math.PI * 0.52, lookYFactor: 0.72, lookYOffset: -0.25 }
+        ];
+        const E3_CAMERA_CYCLE_MS =
+            E3_CAMERA_DEFAULT_HOLD_MS * (E3_ALT_CAMERA_SHOTS.length + 1) +
+            E3_CAMERA_ALT_HOLD_MS * E3_ALT_CAMERA_SHOTS.length +
+            E3_CAMERA_TRANSITION_MS * E3_ALT_CAMERA_SHOTS.length * 2;
+        const e3CameraCycleStart = performance.now();
+        let e3CameraTimeline = [];
         const E3_INFRA_PATTERNS = [
             'ESP', 'HOT', 'DIRECT', 'WIFIBRG', 'BezeqEXT', 'Cudy', 'CyberLink',
             'Riko', 'Limor', 'Triple C', 'Opal', 'moti', 'c6553', 'HOTbox', 'IPC', 'Redmi'
@@ -3587,10 +3888,11 @@
 
         let e3LayerCount = 0;
         let e3LastLayerTime = 0;
+        const e3LayerStats = [];
+        const e3LayerReadings = [];
         let e3RotX = 0.22;
-        let e3RotY = 0.4;
-        let e3Zoom = 18;
-        let e3Spin = true;
+        let e3OrbitAngle = 0.4;
+        let e3Zoom = E3_DEFAULT_ZOOM;
         let e3SmoothLookY = 1;
         const e3Permanent = [];
         const e3Growing = [];
@@ -3660,6 +3962,75 @@
             return Math.max(1, anticipatedTop - E3_CAMERA_HEADROOM);
         }
 
+        function e3DefaultCameraShot() {
+            return {
+                id: 'default',
+                zoom: E3_DEFAULT_ZOOM,
+                rotX: 0.22,
+                rotY: null,
+                spin: true,
+                lookYFactor: 1,
+                lookYOffset: 0
+            };
+        }
+
+        function e3CameraSmoothstep(t) {
+            const x = THREE.MathUtils.clamp(t, 0, 1);
+            return x * x * (3 - 2 * x);
+        }
+
+        function e3ShotRotY(shot, orbitAngle) {
+            if (shot.rotY != null) return shot.rotY;
+            return orbitAngle + (shot.rotYAdd ?? 0);
+        }
+
+        function e3BlendCameraShots(shotA, shotB, blend, orbitAngle) {
+            const t = e3CameraSmoothstep(blend);
+            const rotYA = e3ShotRotY(shotA, orbitAngle);
+            let rotYB = e3ShotRotY(shotB, orbitAngle);
+            let delta = rotYB - rotYA;
+            if (delta > Math.PI) rotYB -= Math.PI * 2;
+            else if (delta < -Math.PI) rotYB += Math.PI * 2;
+
+            return {
+                zoom: THREE.MathUtils.lerp(shotA.zoom, shotB.zoom, t),
+                rotX: THREE.MathUtils.lerp(shotA.rotX, shotB.rotX, t),
+                rotY: THREE.MathUtils.lerp(rotYA, rotYB, t),
+                spin: t < 0.5 ? shotA.spin : shotB.spin,
+                lookYFactor: THREE.MathUtils.lerp(shotA.lookYFactor ?? 1, shotB.lookYFactor ?? 1, t),
+                lookYOffset: THREE.MathUtils.lerp(shotA.lookYOffset ?? 0, shotB.lookYOffset ?? 0, t)
+            };
+        }
+
+        function e3BuildCameraTimeline() {
+            const def = e3DefaultCameraShot();
+            const timeline = [
+                { kind: 'hold', shotA: def, shotB: def, dur: E3_CAMERA_DEFAULT_HOLD_MS }
+            ];
+            E3_ALT_CAMERA_SHOTS.forEach(alt => {
+                timeline.push({ kind: 'blend', shotA: def, shotB: alt, dur: E3_CAMERA_TRANSITION_MS });
+                timeline.push({ kind: 'hold', shotA: alt, shotB: alt, dur: E3_CAMERA_ALT_HOLD_MS });
+                timeline.push({ kind: 'blend', shotA: alt, shotB: def, dur: E3_CAMERA_TRANSITION_MS });
+                timeline.push({ kind: 'hold', shotA: def, shotB: def, dur: E3_CAMERA_DEFAULT_HOLD_MS });
+            });
+            return timeline;
+        }
+
+        function e3ResolveCameraShot(time) {
+            if (!e3CameraTimeline.length) e3CameraTimeline = e3BuildCameraTimeline();
+            const elapsed = (time - e3CameraCycleStart) % E3_CAMERA_CYCLE_MS;
+            let local = elapsed;
+            for (const seg of e3CameraTimeline) {
+                if (local < seg.dur) {
+                    const blend = seg.kind === 'blend' ? local / seg.dur : 0;
+                    return e3BlendCameraShots(seg.shotA, seg.shotB, blend, e3OrbitAngle);
+                }
+                local -= seg.dur;
+            }
+            const def = e3DefaultCameraShot();
+            return e3BlendCameraShots(def, def, 0, e3OrbitAngle);
+        }
+
         function e3SyncCameraSmoothState(time = performance.now()) {
             e3SmoothLookY = e3GetCameraLookTarget(time);
         }
@@ -3677,11 +4048,11 @@
                 if (time - e3Active[name].ts > E3_SIGNAL_TTL_MS) delete e3Active[name];
             }
 
-            const devs = Object.entries(e3Active)
-                .map(([name, v]) => ({ name, rssi: v.rssi }));
-            if (devs.length === 0) return;
+            const readings = e3LayerReadings.slice();
+            e3LayerReadings.length = 0;
+            if (readings.length === 0) return;
 
-            addEvolution3DLayer(devs, e3LayerCount);
+            addEvolution3DLayer(readings, e3LayerCount);
             e3LayerCount++;
         }
 
@@ -3850,6 +4221,7 @@
 
         function onE3Signal(name, rssi, time) {
             e3Active[name] = { rssi, ts: time };
+            e3LayerReadings.push({ name, rssi, ts: time });
             if (!e3BinCols[name]) {
                 e3BinCols[name] = { chars: '00000000', speed: 0.5 + Math.random() * 1.5 };
             }
@@ -3861,19 +4233,20 @@
         }
 
         function addEvolution3DLayer(devices, li) {
-            if (!e3Group) return;
+            if (!e3Group || !devices.length) return;
             const height = li * E3_LAYER_RISE;
-            const positions = devices.map(d => {
+            const positions = devices.map((d, i) => {
                 const norm = Math.max(0, Math.min(1, (-d.rssi - 50) / 50));
                 const [bx, bz] = e3GetTXZ(d.name);
                 const drift = (1 - norm) * 0.3;
-                const angle = (d.name.charCodeAt(0) / 127) * Math.PI * 2 + li * 0.6;
+                const angle = (d.name.charCodeAt(0) / 127) * Math.PI * 2 + li * 0.6 + i * 0.41;
+                const spread = (i % 7) * 0.07;
                 return {
                     name: d.name,
                     rssi: d.rssi,
                     norm,
-                    x: bx + Math.sin(angle) * drift + Math.cos(li * 0.9 + d.name.charCodeAt(0) * 0.05) * drift * 0.5,
-                    z: bz + Math.cos(angle * 0.7) * drift + Math.sin(li * 0.7) * drift * 0.4,
+                    x: bx + Math.sin(angle) * (drift + spread) + Math.cos(li * 0.9 + d.name.charCodeAt(0) * 0.05 + i * 0.2) * drift * 0.5,
+                    z: bz + Math.cos(angle * 0.7) * (drift + spread) + Math.sin(li * 0.7 + i * 0.15) * drift * 0.4,
                     y: height
                 };
             });
@@ -3917,6 +4290,7 @@
             });
 
             const layerNodes = [];
+            let layerSphereCount = 0;
             positions.forEach(p => {
                 const cx = Math.max(minX + 0.1, Math.min(maxX - 0.1, p.x));
                 const cz = Math.max(minZ + 0.1, Math.min(maxZ - 0.1, p.z));
@@ -3947,10 +4321,11 @@
                 const sm = new THREE.MeshBasicMaterial({ color: sphereColor, transparent: true, opacity: 0 });
                 const sphere = new THREE.Mesh(sg, sm);
                 sphere.position.set(cx, height, cz);
-                sphere.userData = { growP: 0, targetO: isCenter ? 0.95 : 0.55 + p.norm * 0.4, layerIndex: li };
+                sphere.userData = { growP: 0, targetO: isCenter ? 0.95 : 0.55 + p.norm * 0.4, layerIndex: li, isSphere: true };
                 sphere.scale.set(0, 0, 0);
                 e3Group.add(sphere);
                 e3Permanent.push(sphere);
+                layerSphereCount++;
 
                 if (isCenter) {
                     const rgeo = new THREE.RingGeometry(r * 2.2, r * 3.0, 28);
@@ -3958,7 +4333,7 @@
                     const ring = new THREE.Mesh(rgeo, rmat);
                     ring.position.set(cx, height, cz);
                     ring.rotation.x = Math.PI / 2;
-                    ring.userData = { growP: 0, targetO: 0.5, layerIndex: li };
+                    ring.userData = { growP: 0, targetO: 0.5, layerIndex: li, isRing: true };
                     e3Group.add(ring);
                     e3Permanent.push(ring);
                 }
@@ -3994,12 +4369,14 @@
             }
 
             e3Layers.push(layerNodes);
+            e3LayerStats.push({ level: li + 1, inputs: layerSphereCount });
+            refreshHardwareFooterTicker();
 
             const hasHuman = devices.some(d => isE3Human(d.name));
             if (hasHuman && window.isAiGenerationEnabled === true) {
                 const layerY = Math.round(height);
                 const raw7thSentence = `0.0035% // INVISIBLE_EMF_SPECTRUM_0.0035% // DEITY_CORE_MONITORING_HUMAN_TRAFFIC_LOGGED_LOG [LAYER_Y:${layerY}]`;
-                const humansInField = devices.filter(d => isE3Human(d.name)).map(d => d.name);
+                const humansInField = [...new Set(devices.filter(d => isE3Human(d.name)).map(d => d.name))];
                 const primaryDevice = humansInField[0] || 'HUMAN_PRESENCE';
                 const voiceEntry = buildAiVoicePayload({
                     device: primaryDevice,
@@ -4015,7 +4392,7 @@
                         log: raw7thSentence,
                         layer_id: 'e3-layer-' + li,
                         humans_in_field: humansInField,
-                        active_node_count: devices.length,
+                        active_node_count: layerSphereCount,
                     });
                 }
             }
@@ -4047,15 +4424,16 @@
             if (!camera) return;
             const tH = e3LayerCount * E3_LAYER_RISE;
             const lookY = e3SmoothLookY;
-            camera.position.x = e3Zoom * Math.sin(e3RotY) * Math.cos(e3RotX);
-            camera.position.y = lookY + e3Zoom * Math.sin(e3RotX);
-            camera.position.z = e3Zoom * Math.cos(e3RotY) * Math.cos(e3RotX);
-            camera.lookAt(0, lookY, 0);
+            const shot = e3ResolveCameraShot(performance.now());
+            camera.position.x = shot.zoom * Math.sin(shot.rotY) * Math.cos(shot.rotX);
+            camera.position.y = lookY * shot.lookYFactor + shot.lookYOffset + shot.zoom * Math.sin(shot.rotX);
+            camera.position.z = shot.zoom * Math.cos(shot.rotY) * Math.cos(shot.rotX);
+            camera.lookAt(0, lookY * shot.lookYFactor + shot.lookYOffset, 0);
             camera.near = 0.1;
-            camera.far = Math.max(300, tH * 8 + e3Zoom * 4);
+            camera.far = Math.max(300, tH * 8 + shot.zoom * 4);
             camera.updateProjectionMatrix();
             if (panelViews.hardware?.controls) {
-                panelViews.hardware.controls.target.set(0, lookY, 0);
+                panelViews.hardware.controls.target.set(0, lookY * shot.lookYFactor + shot.lookYOffset, 0);
             }
         }
 
@@ -4069,9 +4447,10 @@
             const dz = camera.position.z - target.z;
             e3Zoom = Math.sqrt(dx * dx + dy * dy + dz * dz);
             if (e3Zoom < 0.001) return;
-            e3RotY = Math.atan2(dx, dz);
+            e3OrbitAngle = Math.atan2(dx, dz);
             e3RotX = Math.asin(THREE.MathUtils.clamp(dy / e3Zoom, -1, 1));
             e3SmoothLookY = target.y;
+            e3CameraCycleStart = performance.now();
         }
 
         function updateEvolution3DCamera(delta, time) {
@@ -4084,28 +4463,26 @@
             const riseFollow = 1 - Math.exp(-delta * E3_CAMERA_RISE_FOLLOW);
             e3SmoothLookY += (lookTarget - e3SmoothLookY) * riseFollow;
 
-            if (e3Spin) e3RotY += 0.002;
+            const shot = e3ResolveCameraShot(time);
+            if (shot.spin) e3OrbitAngle += 0.002;
 
-            const lookY = e3SmoothLookY;
+            const lookY = e3SmoothLookY * shot.lookYFactor + shot.lookYOffset;
             const targetPos = new THREE.Vector3(
-                e3Zoom * Math.sin(e3RotY) * Math.cos(e3RotX),
-                lookY + e3Zoom * Math.sin(e3RotX),
-                e3Zoom * Math.cos(e3RotY) * Math.cos(e3RotX)
+                shot.zoom * Math.sin(shot.rotY) * Math.cos(shot.rotX),
+                lookY + shot.zoom * Math.sin(shot.rotX),
+                shot.zoom * Math.cos(shot.rotY) * Math.cos(shot.rotX)
             );
             const posFollow = 1 - Math.exp(-delta * E3_CAMERA_POS_FOLLOW);
             camera.position.lerp(targetPos, posFollow);
             view.controls.target.lerp(new THREE.Vector3(0, lookY, 0), riseFollow);
             camera.near = 0.1;
-            camera.far = Math.max(300, tH * 8 + e3Zoom * 4);
+            camera.far = Math.max(300, tH * 8 + shot.zoom * 4);
             camera.updateProjectionMatrix();
             view.controls.update();
         }
 
         function syncE3Hud() {
-            const layersEl = document.getElementById('hud-e3-layers');
-            const nodesEl = document.getElementById('hud-e3-nodes');
-            if (layersEl) layersEl.textContent = String(e3LayerCount);
-            if (nodesEl) nodesEl.textContent = String(e3Permanent.filter(o => o.isMesh).length);
+            // Layer footer updates when addEvolution3DLayer records a new level.
         }
 
         function updateEvolution3DFrame(delta, time) {
@@ -4162,7 +4539,15 @@
         // ==========================================
         const EV02_SIGNAL_TTL_MS = 8000;
         const EV02_PULSE_DECAY_MS = 3000;
-        const EV02_RING_EXPAND_MS = 1400;
+        const EV02_RING_EXPAND_MS = 1800;
+        const EV02_RING_COUNT = 3;
+        const EV02_RING_DELAY_MS = 200;
+        const EV02_RING_SPREAD_BASE = 22;
+        const EV02_RING_SPREAD_W = 0.085;
+        const EV02_RING_SPREAD_HIGHLIGHT = 1.5;
+        const EV02_RING_LINE_INFRA = 1.0;
+        const EV02_RING_LINE_HUMAN = 1.45;
+        const EV02_RING_LINE_CLOSEST = 1.65;
         const EV02_FIELD_PAD = 0.06;
         // Calibrated installation map: S01 center, S02–S05 at true corner anchors
         const EV02_SENSOR_LAYOUT = {
@@ -4176,6 +4561,8 @@
 
         const evo2Active = {};
         const evo2BinCols = {};
+        const evo2RecordedNames = new Set();
+        let evo2FooterClosestCache = null;
         let evo2Canvas = null;
         let evo2Ctx = null;
         let evo2W = 0;
@@ -4262,6 +4649,8 @@
         }
 
         function onEv02Signal(name, rssi, sensorId, time) {
+            const isNewName = !evo2RecordedNames.has(name);
+            evo2RecordedNames.add(name);
             const [x, y] = evo2GetPos(name);
             const prev = evo2Active[name];
             if (prev) {
@@ -4287,6 +4676,16 @@
                 };
             }
             evo2BinCols[name].chars = Math.abs(rssi).toString(2).padStart(8, '0');
+            if (isNewName) {
+                refreshTopologyFooterTicker();
+                const sorted = [...evo2RecordedNames].sort((a, b) => a.localeCompare(b));
+                const idx = sorted.indexOf(name);
+                if (idx >= 0) {
+                    panelFooterIndex.topology = idx;
+                    panelFooterLastStep.topology = performance.now();
+                    showPanelFooterLine('topology');
+                }
+            }
         }
 
         function evo2NodePx(v, W, H) {
@@ -4320,11 +4719,8 @@
             if (evo2Ctx) evo2Ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
 
-        function syncEv02Hud(entryCount) {
-            const activeEl = document.getElementById('hud-active-nodes');
-            const nodesEl = document.getElementById('hud-evo2-nodes');
-            if (activeEl) activeEl.textContent = String(entryCount);
-            if (nodesEl) nodesEl.textContent = String(Object.keys(evo2Active).length);
+        function syncEv02Hud(_entryCount) {
+            // Footer ticker refreshes on new signals and closest-human changes in drawEvolution2DPanel.
         }
 
         function drawEvolution2DPanel(playTime, delta = 1 / 60) {
@@ -4346,6 +4742,10 @@
             }
 
             const closest = evo2GetClosestHuman(playTime);
+            if (closest !== evo2FooterClosestCache) {
+                evo2FooterClosestCache = closest;
+                refreshTopologyFooterTicker();
+            }
 
             const humans = entries.filter(([n]) => isEv02Human(n));
             for (let i = 0; i < humans.length; i++) {
@@ -4433,12 +4833,13 @@
                 const isClosest = name === closest;
                 const dotR = (3 + norm * 2.5) * (0.7 + pulse * 0.3);
 
-                for (let r = 0; r < 3; r++) {
-                    const ringDelay = r * 160;
+                for (let r = 0; r < EV02_RING_COUNT; r++) {
+                    const ringDelay = r * EV02_RING_DELAY_MS;
                     const ringAge = Math.max(0, age - ringDelay);
                     const rt = Math.min(1, ringAge / EV02_RING_EXPAND_MS);
                     if (rt <= 0) continue;
-                    const rad = rt * (14 + norm * W * 0.055);
+                    const spreadMul = (isClosest || human) ? EV02_RING_SPREAD_HIGHLIGHT : 1;
+                    const rad = rt * (EV02_RING_SPREAD_BASE + norm * W * EV02_RING_SPREAD_W) * spreadMul;
                     const ringAlpha = pulse * (1 - rt) * (isClosest ? 0.55 : human ? 0.38 : 0.22);
                     if (ringAlpha < 0.02) continue;
                     ctx.beginPath();
@@ -4448,7 +4849,11 @@
                         : human
                         ? `rgba(255, 0, 0,${ringAlpha})`
                         : `rgba(255,255,255,${ringAlpha})`;
-                    ctx.lineWidth = isClosest ? 1.1 : 0.75;
+                    ctx.lineWidth = isClosest
+                        ? EV02_RING_LINE_CLOSEST
+                        : human
+                        ? EV02_RING_LINE_HUMAN
+                        : EV02_RING_LINE_INFRA;
                     ctx.stroke();
                 }
 
@@ -4671,11 +5076,7 @@
         }
 
         function syncHudAudioStatus() {
-            const el = document.getElementById('hud-audio-status');
-            if (!el) return;
-            const live = isMasterAudioLive();
-            el.innerText = live ? 'SYSTEM_RAW_AUDIO_ACTIVE' : 'MUTED';
-            el.className = 'footer-value text-red-500 font-bold';
+            refreshEntityFooterTicker();
         }
 
         function disableAiGeneration() {
@@ -4821,6 +5222,7 @@
                 URL.revokeObjectURL(audioUrl);
                 currentAiVoiceObjectUrl = null;
                 currentAiVoiceElement = null;
+                refreshEntityFooterTicker();
             };
 
             audio.onended = finishVoicePlayback;
@@ -4840,6 +5242,7 @@
             try {
                 isAiVoiceSpeaking = true;
                 aiVoiceActive = true;
+                refreshEntityFooterTicker();
                 const playPromise = audio.play();
                 if (playPromise !== undefined) await playPromise;
                 console.log('-> [AUDIO] HTML5 .play() resolved — output routed to system speakers');
@@ -5209,8 +5612,6 @@
             if (!isClone) {
                 onEv02Signal(displayName, entry.rssi, entry.sensor_id, time);
                 onE3Signal(displayName, entry.rssi, time);
-                document.getElementById('hud-device').innerText = deviceId;
-                document.getElementById('hud-rssi').innerText = entry.rssi + " dBm";
                 playEmfTone(entry.rssi, entry.distance_m, humanCheck);
                 maybeTriggerAiVoiceFromSensor(entry, deviceId, humanCheck);
             }
@@ -5437,6 +5838,7 @@
         syncHudAudioStatus();
         syncSpectrumBtnUi();
         syncStressBtnUi();
+        initPanelFooterTickers();
 
         // ==========================================
         // 7. MAIN ENGINE ANIMATION LOOP
@@ -5548,6 +5950,13 @@
             const entityWaveEnergy = computeEntityWaveEnergy(time, delta);
             const sphereAnimTime = simulationElapsedSec;
             updateEntityPanel(entityRadius, sphereAnimTime, entityWaveEnergy, time, delta, frameCount);
+
+            if (entityFooterSpeaking !== isAiVoiceSpeaking) {
+                entityFooterSpeaking = isAiVoiceSpeaking;
+                refreshEntityFooterTicker();
+            }
+
+            tickPanelFooterRotators(time);
 
             updateHtmlLabels();
             renderAllPanels(delta);
