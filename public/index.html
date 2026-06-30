@@ -17,6 +17,7 @@
     <style>
         :root {
             --panel-gap: 22px;
+            --tower-col-w: calc((100% - 2 * var(--panel-gap)) / 3);
             --chrome-h: 52px;
             /* Spectrogram palette — pure red + pure blue on black */
             --spec-hot: #FF0000;
@@ -100,12 +101,209 @@
             inset: 0;
             z-index: 5;
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr) var(--tower-col-w);
+            grid-template-rows: minmax(0, 0.88fr) minmax(0, 1.12fr);
+            grid-template-areas:
+                "field entity tower"
+                "topology topology tower";
             gap: var(--panel-gap);
             align-items: stretch;
             background: #000000;
             pointer-events: none;
             padding: calc(var(--chrome-h) + 16px) 22px 22px;
+        }
+
+        .viewport-panel[data-panel="field"] { grid-area: field; }
+        .viewport-panel[data-panel="entity"] { grid-area: entity; }
+        .viewport-panel[data-panel="hardware"] { grid-area: tower; }
+        .viewport-panel[data-panel="topology"] { grid-area: topology; }
+
+        .viewport-panel[data-panel="topology"] .panel-viewport {
+            margin-bottom: 0;
+        }
+
+        .viewport-panel[data-panel="field"] .panel-viewport {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-serial-head {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 5px 10px 4px;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.22);
+            font-size: 7px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.42);
+            background: linear-gradient(180deg, rgba(255, 0, 0, 0.06) 0%, transparent 100%);
+        }
+
+        .field-serial-head strong {
+            color: rgba(255, 255, 255, 0.72);
+            font-weight: 600;
+        }
+
+        .field-serial-head-status {
+            color: var(--spec-hot);
+            text-shadow: 0 0 6px rgba(255, 0, 0, 0.35);
+        }
+
+        .field-serial-feed-wrap {
+            position: relative;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        .field-serial-feed-wrap::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 28px;
+            z-index: 2;
+            pointer-events: none;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.92) 0%, transparent 100%);
+        }
+
+        .field-serial-feed {
+            position: absolute;
+            inset: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 6px 8px 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 7px;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.82);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 0, 0, 0.25) transparent;
+        }
+
+        .field-serial-feed::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .field-serial-feed::-webkit-scrollbar-thumb {
+            background: rgba(255, 0, 0, 0.28);
+        }
+
+        .field-serial-line {
+            display: block;
+            padding: 1px 4px 1px 6px;
+            margin-bottom: 1px;
+            border-left: 2px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.012);
+            white-space: pre-wrap;
+            word-break: break-word;
+            transition: background 0.35s ease, border-color 0.35s ease;
+        }
+
+        .field-serial-line--cont {
+            padding-left: 14px;
+            border-left-color: rgba(255, 255, 255, 0.04);
+            background: transparent;
+            opacity: 0.82;
+        }
+
+        .field-serial-line--typing {
+            background: rgba(255, 0, 0, 0.04);
+            border-left-color: rgba(255, 0, 0, 0.35);
+        }
+
+        .field-serial-line--fresh {
+            animation: fieldSerialFlash 0.9s ease-out;
+        }
+
+        @keyframes fieldSerialFlash {
+            0% { background: rgba(255, 0, 0, 0.12); }
+            100% { background: rgba(255, 255, 255, 0.012); }
+        }
+
+        .field-serial-line--human.field-serial-line--blue {
+            border-left-color: rgba(0, 0, 255, 0.55);
+        }
+
+        .field-serial-line--human.field-serial-line--red {
+            border-left-color: rgba(255, 0, 0, 0.55);
+        }
+
+        .field-serial-body {
+            display: inline;
+        }
+
+        .field-serial-cursor {
+            display: inline;
+            color: var(--spec-hot);
+            animation: fieldSerialCursorBlink 0.72s step-end infinite;
+        }
+
+        @keyframes fieldSerialCursorBlink {
+            50% { opacity: 0; }
+        }
+
+        .field-serial-name {
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .field-serial-name--human {
+            font-weight: bold;
+        }
+
+        .field-serial-name--blue {
+            color: #0000FF;
+            text-shadow: 0 0 8px rgba(0, 0, 255, 0.35);
+        }
+
+        .field-serial-name--red {
+            color: #FF0000;
+            text-shadow: 0 0 8px rgba(255, 0, 0, 0.35);
+        }
+
+        body.light-mode .field-serial-head {
+            color: rgba(0, 0, 0, 0.45);
+            border-bottom-color: rgba(255, 0, 0, 0.18);
+            background: linear-gradient(180deg, rgba(255, 0, 0, 0.04) 0%, transparent 100%);
+        }
+
+        body.light-mode .field-serial-head strong {
+            color: rgba(0, 0, 0, 0.72);
+        }
+
+        body.light-mode .field-serial-feed-wrap::before {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, transparent 100%);
+        }
+
+        body.light-mode .field-serial-feed {
+            color: rgba(0, 0, 0, 0.78);
+        }
+
+        body.light-mode .field-serial-line {
+            background: rgba(0, 0, 0, 0.02);
+            border-left-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .field-serial-line--cont {
+            border-left-color: rgba(0, 0, 0, 0.06);
+        }
+
+        body.light-mode .field-serial-name {
+            color: rgba(0, 0, 0, 0.72);
+        }
+
+        body.light-mode .field-serial-name--blue {
+            color: #0000cc;
+            text-shadow: none;
+        }
+
+        body.light-mode .field-serial-name--red {
+            color: #cc0000;
+            text-shadow: none;
         }
 
         #triple-stage:not(.panels-live) .viewport-panel {
@@ -170,8 +368,9 @@
             border: 1px solid var(--frame-red-bright);
             animation: frameRedBreath var(--frame-breath-duration) ease-in-out infinite;
         }
-        .viewport-panel:nth-child(2) { animation-delay: -2.3s; }
-        .viewport-panel:nth-child(3) { animation-delay: -4.6s; }
+        .viewport-panel:nth-child(2) { animation-delay: -1.75s; }
+        .viewport-panel:nth-child(3) { animation-delay: -3.5s; }
+        .viewport-panel:nth-child(4) { animation-delay: -5.25s; }
 
         /* Living crown — conic fan (glow only) */
         .viewport-panel::before {
@@ -195,8 +394,9 @@
             );
             animation: crownRadiance 8s ease-in-out infinite;
         }
-        .viewport-panel:nth-child(2)::before { animation-delay: -2.7s; }
-        .viewport-panel:nth-child(3)::before { animation-delay: -5.4s; }
+        .viewport-panel:nth-child(2)::before { animation-delay: -2.1s; }
+        .viewport-panel:nth-child(3)::before { animation-delay: -4.2s; }
+        .viewport-panel:nth-child(4)::before { animation-delay: -6.3s; }
 
         /* Sparse deco geometry — corners, masthead, pilasters, datum chevron */
         .viewport-panel::after {
@@ -258,8 +458,9 @@
                 10px 26%, calc(100% - 10px) 26%;
             background-repeat: no-repeat;
         }
-        .viewport-panel:nth-child(2)::after { animation-delay: -2.7s; }
-        .viewport-panel:nth-child(3)::after { animation-delay: -5.4s; }
+        .viewport-panel:nth-child(2)::after { animation-delay: -2.1s; }
+        .viewport-panel:nth-child(3)::after { animation-delay: -4.2s; }
+        .viewport-panel:nth-child(4)::after { animation-delay: -6.3s; }
 
         .viewport-panel[data-panel="entity"] .panel-footer {
             color: rgba(255, 255, 255, 0.88);
@@ -353,11 +554,11 @@
             display: block;
             width: 100%;
             overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            white-space: normal;
             color: #ffffff;
             font-size: 10px;
-            line-height: 16px;
+            line-height: 1.35;
+            max-height: 2.7em;
             letter-spacing: 0.03em;
             text-shadow: none;
         }
@@ -703,7 +904,7 @@
     <div id="global-command-bar">
         <div id="global-title-block">
             <div class="id-title">0.0035%</div>
-            <div class="display-meta">TRIPLE MATRIX // 3840×2160 // SIMULTANEOUS FIELD RENDER</div>
+            <div class="display-meta">QUAD MATRIX // 3840×2160 // MULTI-SCREEN FIELD RENDER</div>
         </div>
         <div class="interactive-element cmd-btn-row">
             <button id="btn-audio-global" type="button" class="cmd-btn">[ AUDIO: MUTED ]</button>
@@ -713,21 +914,24 @@
     </div>
 
     <div id="triple-stage">
-        <section class="viewport-panel" data-panel="topology">
+        <section class="viewport-panel" data-panel="field">
             <header class="panel-chrome">
-                <span class="panel-index">01 // TOPOLOGY</span>
-                <span class="panel-sub">06 // EVOLUTION</span>
+                <span class="panel-index">04 // FIELD</span>
+                <span class="panel-sub">SENSOR SERIAL STREAM</span>
             </header>
-            <div id="panel-topology" class="panel-viewport">
-                <div id="canvas-topology" class="panel-canvas-host">
-                    <canvas id="evo2d-canvas"></canvas>
+            <div id="panel-field" class="panel-viewport">
+                <div class="field-serial-head">
+                    <span><strong>RX</strong> // SENSOR SERIAL</span>
+                    <span class="field-serial-head-status">● LIVE</span>
                 </div>
-                <div id="labels-topology" class="panel-labels"></div>
+                <div class="field-serial-feed-wrap">
+                    <div id="field-serial-feed" class="field-serial-feed" aria-live="polite"></div>
+                </div>
             </div>
             <footer class="panel-footer">
-                <div class="panel-footer-static">01 // TOPOLOGY — 06 // EVOLUTION</div>
+                <div class="panel-footer-static">04 // FIELD — SENSOR SERIAL STREAM</div>
                 <div class="panel-footer-live-wrap">
-                    <div class="panel-footer-live" id="footer-live-topology"></div>
+                    <div class="panel-footer-live" id="footer-live-field"></div>
                 </div>
             </footer>
         </section>
@@ -762,6 +966,25 @@
                 <div class="panel-footer-static">02 // RESIDUAL — 07 // EVOLUTION 3D TOWER</div>
                 <div class="panel-footer-live-wrap">
                     <div class="panel-footer-live" id="footer-live-hardware"></div>
+                </div>
+            </footer>
+        </section>
+
+        <section class="viewport-panel" data-panel="topology">
+            <header class="panel-chrome">
+                <span class="panel-index">01 // TOPOLOGY</span>
+                <span class="panel-sub">06 // EVOLUTION</span>
+            </header>
+            <div id="panel-topology" class="panel-viewport">
+                <div id="canvas-topology" class="panel-canvas-host">
+                    <canvas id="evo2d-canvas"></canvas>
+                </div>
+                <div id="labels-topology" class="panel-labels"></div>
+            </div>
+            <footer class="panel-footer">
+                <div class="panel-footer-static">01 // TOPOLOGY — 06 // EVOLUTION</div>
+                <div class="panel-footer-live-wrap">
+                    <div class="panel-footer-live" id="footer-live-topology"></div>
                 </div>
             </footer>
         </section>
@@ -810,23 +1033,59 @@
         let hardwareStressMultiplierActive = false;
 
         const PANEL_FOOTER_STATIC = {
+            field: '04 // FIELD — SENSOR SERIAL STREAM',
             topology: '01 // TOPOLOGY — 06 // EVOLUTION',
             entity: '03 // ENTITY — ORGANIC PROTOCOL CORE',
             hardware: '02 // RESIDUAL — 07 // EVOLUTION 3D TOWER'
         };
 
-        const panelFooterLiveHtml = { topology: '', entity: '', hardware: '' };
+        const FIELD_SERIAL_MAX_LINES = 250;
+        const FIELD_SERIAL_QUEUE_MAX = 64;
+        const FIELD_SERIAL_LINE_PAUSE_MS = [4, 11];
+        let fieldSerialClosestCache = null;
+        let fieldSerialLineIndex = 0;
+        let fieldSerialLastLineEl = null;
+        const fieldSerialQueue = [];
+        const fieldSerialTyper = {
+            lineEl: null,
+            bodyEl: null,
+            cursorEl: null,
+            segments: null,
+            segIdx: 0,
+            charIdx: 0,
+            activeSpan: null,
+            nextAt: 0,
+            idleUntil: 0,
+            ctx: null
+        };
+
+        const panelFooterLiveHtml = { topology: '', entity: '', hardware: '', field: '' };
         const panelFooterQueues = { topology: [] };
         const panelFooterIndex = { topology: 0 };
         const panelFooterLastStep = { topology: 0 };
         const PANEL_FOOTER_STEP_MS = 2400;
+        const ENTITY_FOOTER_REFRESH_MS = 2200;
+        let entityFooterLastRefresh = 0;
+        const PANEL_FOOTER_TYPER_KEYS = ['topology', 'entity', 'hardware', 'field'];
+        const PANEL_FOOTER_CHAR_MS = 8;
         let entityFooterSpeaking = false;
-        const entityFooterTypewriter = {
-            full: '',
-            charIdx: 0,
-            lastCharAt: 0,
-            charMs: 30
-        };
+
+        function createPanelFooterTyper() {
+            return {
+                targetHtml: '',
+                segments: [],
+                totalChars: 0,
+                charIdx: 0,
+                lastAt: 0,
+                charMs: PANEL_FOOTER_CHAR_MS,
+                pulseOnStart: false,
+                pulsed: false
+            };
+        }
+
+        const panelFooterTypers = Object.fromEntries(
+            PANEL_FOOTER_TYPER_KEYS.map(key => [key, createPanelFooterTyper()])
+        );
 
         function escapeFooterHtml(str) {
             return String(str)
@@ -836,30 +1095,587 @@
                 .replace(/"/g, '&quot;');
         }
 
-        function setPanelFooterLive(key, html, pulse = true) {
+        function decodeFooterHtmlText(str) {
+            return String(str)
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"');
+        }
+
+        function parseFooterHtmlSegments(html) {
+            if (!html || !html.trim()) {
+                return [{ cls: 'footer-ticker-muted', text: '—' }];
+            }
+            const segments = [];
+            const spanRe = /<span class="([^"]+)">([\s\S]*?)<\/span>/gi;
+            let lastIndex = 0;
+            let match;
+            while ((match = spanRe.exec(html)) !== null) {
+                if (match.index > lastIndex) {
+                    const plain = html.slice(lastIndex, match.index);
+                    if (plain.trim()) segments.push({ cls: '', text: decodeFooterHtmlText(plain) });
+                }
+                segments.push({
+                    cls: match[1],
+                    text: decodeFooterHtmlText(match[2])
+                });
+                lastIndex = spanRe.lastIndex;
+            }
+            if (lastIndex < html.length) {
+                const plain = html.slice(lastIndex);
+                if (plain.trim()) segments.push({ cls: '', text: decodeFooterHtmlText(plain) });
+            }
+            if (!segments.length) segments.push({ cls: '', text: decodeFooterHtmlText(html) });
+            return segments;
+        }
+
+        function renderFooterTypedSegments(segments, charCount) {
+            let remaining = Math.max(0, charCount);
+            let html = '';
+            for (const seg of segments) {
+                if (remaining <= 0) break;
+                const take = Math.min(remaining, seg.text.length);
+                if (take <= 0) continue;
+                const chunk = escapeFooterHtml(seg.text.slice(0, take));
+                html += seg.cls
+                    ? `<span class="${seg.cls}">${chunk}</span>`
+                    : chunk;
+                remaining -= take;
+            }
+            return html;
+        }
+
+        function queuePanelFooterTypewriter(key, html, pulse = true) {
+            const content = (html && html.trim()) ? html : '';
+            const displayHtml = content || '<span class="footer-ticker-muted">—</span>';
+            const typer = panelFooterTypers[key];
+            if (!typer) return;
+
+            const unchanged = panelFooterLiveHtml[key] === content
+                && typer.targetHtml === displayHtml
+                && typer.charIdx >= typer.totalChars;
+            if (unchanged) return;
+
+            const changed = panelFooterLiveHtml[key] !== content || typer.targetHtml !== displayHtml;
+            panelFooterLiveHtml[key] = content;
+            typer.targetHtml = displayHtml;
+            typer.segments = parseFooterHtmlSegments(displayHtml);
+            typer.totalChars = typer.segments.reduce((n, seg) => n + seg.text.length, 0);
+            typer.charIdx = 0;
+            typer.lastAt = 0;
+            typer.pulseOnStart = pulse && changed;
+            typer.pulsed = false;
+
             const el = document.getElementById('footer-live-' + key);
             const wrap = el?.closest('.panel-footer-live-wrap');
-            if (!el) return;
-            const content = (html && html.trim()) ? html : '';
-            const display = content || '<span class="footer-ticker-muted">—</span>';
-            const changed = panelFooterLiveHtml[key] !== content;
-            panelFooterLiveHtml[key] = content;
-            el.innerHTML = display;
             if (wrap) wrap.classList.toggle('is-idle', !content);
-            if (pulse && changed && content) {
-                el.classList.remove('is-pulse');
-                void el.offsetWidth;
-                el.classList.add('is-pulse');
+            if (el && typer.totalChars === 0) {
+                el.innerHTML = displayHtml;
             }
+        }
+
+        function tickPanelFooterTypers(now) {
+            PANEL_FOOTER_TYPER_KEYS.forEach(key => {
+                const typer = panelFooterTypers[key];
+                const el = document.getElementById('footer-live-' + key);
+                if (!typer || !el) return;
+
+                if (typer.charIdx >= typer.totalChars) {
+                    if (typer.targetHtml && el.innerHTML.indexOf('footer-cursor') !== -1) {
+                        el.innerHTML = typer.targetHtml;
+                    }
+                    return;
+                }
+
+                if (now - typer.lastAt < typer.charMs) return;
+
+                typer.charIdx = Math.min(typer.totalChars, typer.charIdx + 1);
+                typer.lastAt = now;
+
+                const shown = renderFooterTypedSegments(typer.segments, typer.charIdx);
+                const cursor = typer.charIdx < typer.totalChars
+                    ? '<span class="footer-cursor">█</span>'
+                    : '';
+                el.innerHTML = shown + cursor;
+
+                if (typer.charIdx === 1 && typer.pulseOnStart && !typer.pulsed) {
+                    typer.pulsed = true;
+                    el.classList.remove('is-pulse');
+                    void el.offsetWidth;
+                    el.classList.add('is-pulse');
+                }
+            });
+        }
+
+        function setPanelFooterLive(key, html, pulse = true) {
+            queuePanelFooterTypewriter(key, html, pulse);
         }
 
         function topologyNameLineHtml(name, closest) {
             const label = escapeFooterHtml(name.slice(0, 18).toUpperCase());
-            if (name === closest) return `<span class="footer-ticker-blue">${label}</span>`;
-            if (typeof isEv02Human === 'function' && isEv02Human(name)) {
-                return `<span class="footer-ticker-red">${label}</span>`;
+            const d = typeof evo2Active !== 'undefined' ? evo2Active[name] : null;
+            const sensor = d?.sID != null ? `S${String(d.sID).padStart(2, '0')}` : '--';
+            const rssi = d?.rssi ?? '--';
+            const freq = d ? fieldSerialFrequencyGhz(d.rssi) : '--';
+            const bin = (typeof evo2BinCols !== 'undefined' && evo2BinCols[name]?.chars) || '--------';
+            const ageSec = d ? Math.max(0, Math.round((performance.now() - d.ts) / 1000)) : null;
+            const ageLabel = ageSec != null ? `${ageSec}s` : '--';
+            const pos = d ? `x${Math.round((d.x ?? 0.5) * 100)} y${Math.round((d.y ?? 0.5) * 100)}` : '--';
+
+            let nameHtml;
+            if (name === closest) nameHtml = `<span class="footer-ticker-blue">${label}</span>`;
+            else if (typeof isEv02Human === 'function' && isEv02Human(name)) {
+                nameHtml = `<span class="footer-ticker-red">${label}</span>`;
+            } else {
+                nameHtml = `<span class="footer-ticker-muted">${label}</span>`;
             }
-            return `<span class="footer-ticker-muted">${label}</span>`;
+
+            return (
+                nameHtml +
+                `<span class="footer-ticker-muted"> · ${escapeFooterHtml(sensor)} · ${escapeFooterHtml(String(rssi))}dBm · ${escapeFooterHtml(freq)}GHz · ${escapeFooterHtml(pos)} · age ${escapeFooterHtml(ageLabel)} · ${escapeFooterHtml(bin)}</span>`
+            );
+        }
+
+        function buildEntityFooterHtml() {
+            const sig = dynamicEntity.signalIntensity.toFixed(2);
+            const wave = dynamicEntity.waveEnergy.toFixed(2);
+            const jitter = dynamicEntity.organicJitter.toFixed(2);
+            const signals = typeof collectActiveSignals === 'function' ? collectActiveSignals() : [];
+            const humans = signals.filter(s => s.isHuman);
+            const strongest = humans.length
+                ? humans.reduce((best, s) => (Number(s.rssi) > Number(best.rssi) ? s : best), humans[0])
+                : null;
+
+            if (isAiVoiceSpeaking && lastAiGeneratedText) {
+                return (
+                    `<span class="footer-ticker-muted">SIG ${sig} · WAVE ${wave} · JIT ${jitter} · N ${signals.length} · HUM ${humans.length} — </span>` +
+                    `<span class="footer-ticker-speech">${escapeFooterHtml(lastAiGeneratedText)}</span>`
+                );
+            }
+
+            let html =
+                `<span class="footer-ticker-muted">SIG ${sig} · WAVE ${wave} · JIT ${jitter} · NODES ${signals.length} · HUM ${humans.length}</span>`;
+
+            if (strongest) {
+                html +=
+                    `<span class="footer-ticker-muted"> · PEAK </span>` +
+                    `<span class="footer-ticker-red">${escapeFooterHtml(String(strongest.probeName || strongest.deviceId).slice(0, 14).toUpperCase())}</span>` +
+                    `<span class="footer-ticker-muted"> ${escapeFooterHtml(String(strongest.rssi))}dBm · ${escapeFooterHtml(fieldSerialFrequencyGhz(strongest.rssi))}GHz · S${escapeFooterHtml(String(strongest.sensorId).padStart(2, '0'))}</span>`;
+            } else {
+                html += `<span class="footer-ticker-muted"> · AWAITING ORGANIC SIGNAL</span>`;
+            }
+
+            return html;
+        }
+
+        function buildFieldFooterHtml(ctx) {
+            if (!ctx) {
+                return `<span class="footer-ticker-muted">AWAITING RX STREAM · Q:${fieldSerialQueue.length}</span>`;
+            }
+            const nameClass = ctx.isHuman
+                ? (ctx.isClosest ? 'footer-ticker-blue' : 'footer-ticker-red')
+                : 'footer-ticker-muted';
+            const nameLabel = escapeFooterHtml(ctx.isHuman ? ctx.nameDisplay.toUpperCase() : ctx.nameDisplay);
+            return (
+                `<span class="footer-ticker-muted">#${escapeFooterHtml(ctx.idx)} RX · </span>` +
+                `<span class="${nameClass}">${nameLabel}</span>` +
+                `<span class="footer-ticker-muted"> · ${escapeFooterHtml(ctx.sensor)} · ${escapeFooterHtml(String(ctx.rssi))}dBm · ${escapeFooterHtml(ctx.freq)}GHz · dist ${escapeFooterHtml(ctx.distShort)}m · FR ${escapeFooterHtml(String(ctx.frame))} · room ${escapeFooterHtml(String(ctx.room))} · Δ${escapeFooterHtml(ctx.deltaStr)} · Q:${fieldSerialQueue.length}</span>`
+            );
+        }
+
+        function refreshFieldFooterTicker(ctx) {
+            setPanelFooterLive('field', buildFieldFooterHtml(ctx), true);
+        }
+
+        function fieldSerialFrequencyGhz(rssi) {
+            const frequency = THREE.MathUtils.clamp(
+                THREE.MathUtils.mapLinear(Number(rssi) || -75, -100, -30, 0.12, 1),
+                0.12,
+                1
+            );
+            return (frequency * 2.437).toFixed(3);
+        }
+
+        function fieldSerialSeg(text, cls = '', dataName = '') {
+            return { text: String(text), cls, dataName };
+        }
+
+        function fieldSerialNameSeg(ctx) {
+            if (ctx.isHuman) {
+                return fieldSerialSeg(
+                    ctx.nameDisplay,
+                    `field-serial-name field-serial-name--human ${ctx.humanCls}`,
+                    ctx.nameRaw
+                );
+            }
+            return fieldSerialSeg(ctx.nameDisplay, 'field-serial-name');
+        }
+
+        function fieldSerialBuildContext(entry, displayName, time, rssiDelta = 0) {
+            const nameRaw = String(displayName || entry.device || 'UNKNOWN');
+            const isHuman = typeof isEv02Human === 'function' && isEv02Human(nameRaw);
+            const closest = typeof evo2GetClosestHuman === 'function'
+                ? evo2GetClosestHuman(time)
+                : null;
+            const isClosest = isHuman && nameRaw === closest;
+            const humanCls = isClosest ? 'field-serial-name--blue' : 'field-serial-name--red';
+            const nameDisplay = isHuman ? nameRaw.toUpperCase() : nameRaw;
+            const idx = String(++fieldSerialLineIndex).padStart(4, '0');
+            const sensorNum = entry.sensor_id ?? '--';
+            const sensor = `S${String(sensorNum).padStart(2, '0')}`;
+            const rssi = entry.rssi ?? '--';
+            const freq = fieldSerialFrequencyGhz(entry.rssi);
+            const distNum = Number(entry.distance_m);
+            const distStr = Number.isFinite(distNum) ? distNum.toFixed(3) : '--';
+            const distShort = Number.isFinite(distNum) ? String(Math.round(distNum)) : '--';
+            const frame = entry.frame_index ?? '--';
+            const room = entry.devices_in_room ?? '--';
+            const ts = entry.timestamp_ms ?? '--';
+            const h = entry.hour;
+            const m = entry.minute;
+            const s = entry.second;
+            const clock = (h != null && m != null && s != null)
+                ? `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+                : '--:--:--';
+            const layer = entry.layer_y ?? '--';
+            const probe = entry.probe || entry.probe_type || 'WIFI_PROBE';
+            const mac = entry.mac || entry.bssid || entry.device_mac || '—';
+            const isHumanFlag = entry.is_human === true || (typeof isHumanDevice === 'function' && isHumanDevice(nameRaw));
+            const delta = Number.isFinite(Number(rssiDelta)) ? rssiDelta : 0;
+            const deltaStr = delta > 0 ? `+${delta}` : String(delta);
+            const bin = Math.abs(Number(rssi) || 0).toString(2).padStart(8, '0');
+            const source = entry.source || SENSOR_DATA_MODE || 'rx';
+
+            return {
+                idx,
+                sensor,
+                sensorNum,
+                nameRaw,
+                nameDisplay,
+                isHuman,
+                isClosest,
+                humanCls,
+                rssi,
+                freq,
+                distStr,
+                distShort,
+                frame,
+                room,
+                ts,
+                clock,
+                layer,
+                probe,
+                mac,
+                isHumanFlag,
+                delta,
+                deltaStr,
+                bin,
+                source,
+                entry
+            };
+        }
+
+        function fieldSerialFormatComment(ctx) {
+            return [
+                fieldSerialSeg(`// ${ctx.clock} ${ctx.sensor} rssi=${ctx.rssi} room=${ctx.room}`)
+            ];
+        }
+
+        function fieldSerialFormatRx(ctx) {
+            return [
+                fieldSerialSeg(`${ctx.clock} RX[${ctx.sensor}] `),
+                fieldSerialNameSeg(ctx),
+                fieldSerialSeg(` rssi:${ctx.rssi} Δ${ctx.deltaStr} fr:${ctx.frame}`)
+            ];
+        }
+
+        function fieldSerialFormatJson(ctx) {
+            const payload = {
+                sensor_id: ctx.entry.sensor_id,
+                device: ctx.nameRaw,
+                rssi: ctx.rssi,
+                distance_m: ctx.distStr,
+                timestamp_ms: ctx.ts,
+                frame_index: ctx.frame,
+                devices_in_room: ctx.room,
+                clock: ctx.clock,
+                ghz: ctx.freq,
+                layer_y: ctx.layer,
+                probe: ctx.probe,
+                mac: ctx.mac,
+                human: ctx.isHumanFlag,
+                delta: ctx.delta,
+                bin: ctx.bin,
+                source: ctx.source
+            };
+            return [fieldSerialSeg(JSON.stringify(payload))];
+        }
+
+        function fieldSerialFormatProbe(ctx) {
+            return [
+                fieldSerialSeg(`${ctx.probe}(mac="${ctx.mac}")`),
+                fieldSerialSeg(`\n  -> `),
+                fieldSerialNameSeg(ctx),
+                fieldSerialSeg(` @${ctx.freq}GHz ${ctx.rssi}dBm dist=${ctx.distStr}m`)
+            ];
+        }
+
+        function fieldSerialFormatShort(ctx) {
+            return [
+                fieldSerialSeg(`[${ctx.idx}] `),
+                fieldSerialNameSeg(ctx),
+                fieldSerialSeg(` ${ctx.rssi}`)
+            ];
+        }
+
+        function fieldSerialFormatSensorLine(ctx) {
+            return [
+                fieldSerialSeg(`SENSOR_${String(ctx.sensorNum).padStart(2, '0')} | ${ctx.freq}GHz | rssi ${ctx.rssi} | ${ctx.distShort}m | ts=${ctx.ts}`)
+            ];
+        }
+
+        function fieldSerialFormatScan(ctx) {
+            return [
+                fieldSerialSeg(`wifi_scan(sid=${ctx.sensorNum},f=${ctx.frame},t=${ctx.ts}){`),
+                fieldSerialSeg(`dev:`),
+                fieldSerialNameSeg(ctx),
+                fieldSerialSeg(`,rssi:${ctx.rssi},dist:${ctx.distStr},room:${ctx.room},human:${ctx.isHumanFlag},Δ:${ctx.deltaStr}}`)
+            ];
+        }
+
+        function fieldSerialFormatVerbose(ctx) {
+            return [
+                fieldSerialSeg(`${ctx.clock}.${ctx.ts} `),
+                fieldSerialNameSeg(ctx),
+                fieldSerialSeg(` probe=${ctx.probe} mac=${ctx.mac} ${ctx.sensor} rssi=${ctx.rssi} ghz=${ctx.freq} dist=${ctx.distStr} room=${ctx.room} fr=${ctx.frame} layer=${ctx.layer} bin=${ctx.bin} src=${ctx.source}`)
+            ];
+        }
+
+        function fieldSerialFormatMinimal(ctx) {
+            return [fieldSerialSeg(`${ctx.rssi}  ${ctx.nameDisplay}`)];
+        }
+
+        function fieldSerialFormatContinuation(ctx) {
+            return [
+                fieldSerialSeg(`  └ mac=${ctx.mac} Δ${ctx.deltaStr} bin=${ctx.bin} layer=${ctx.layer} room=${ctx.room}/${ctx.frame}`)
+            ];
+        }
+
+        const FIELD_SERIAL_FORMATS = [
+            fieldSerialFormatComment,
+            fieldSerialFormatRx,
+            fieldSerialFormatJson,
+            fieldSerialFormatProbe,
+            fieldSerialFormatShort,
+            fieldSerialFormatSensorLine,
+            fieldSerialFormatScan,
+            fieldSerialFormatVerbose,
+            fieldSerialFormatMinimal
+        ];
+
+        function pickFieldSerialFormat(ctx) {
+            const seed = Number(ctx.frame) || hashString(ctx.nameRaw + ctx.ts) || 0;
+            return FIELD_SERIAL_FORMATS[Math.abs(seed) % FIELD_SERIAL_FORMATS.length];
+        }
+
+        function fieldSerialCharDelayMs(char, prevChar) {
+            let ms = 2 + Math.random() * 3;
+            if (char === ' ') ms += 1 + Math.random() * 2;
+            if (char === ',' || char === ':' || char === '=' || char === '|') ms += 1 + Math.random() * 2;
+            if (char === '{' || char === '}' || char === '(' || char === ')') ms += 1 + Math.random() * 2;
+            if (char === '\n') ms += 3 + Math.random() * 4;
+            if (prevChar === '\n') ms += 2;
+            if (Math.random() < 0.01) ms += 6 + Math.random() * 8;
+            return Math.max(1, ms * 0.5);
+        }
+
+        function fieldSerialLineClasses(ctx, isContinuation = false) {
+            const classes = ['field-serial-line'];
+            if (isContinuation) classes.push('field-serial-line--cont');
+            if (ctx.isHuman) {
+                classes.push('field-serial-line--human');
+                classes.push(ctx.isClosest ? 'field-serial-line--blue' : 'field-serial-line--red');
+            }
+            return classes.join(' ');
+        }
+
+        function trimFieldSerialFeed(feed) {
+            while (feed.children.length > FIELD_SERIAL_MAX_LINES) {
+                feed.firstElementChild?.remove();
+            }
+        }
+
+        function finishFieldSerialLine() {
+            const feed = document.getElementById('field-serial-feed');
+            const typer = fieldSerialTyper;
+            if (!typer.lineEl) return;
+
+            typer.cursorEl?.remove();
+            typer.lineEl.classList.remove('field-serial-line--typing');
+            typer.lineEl.classList.add('field-serial-line--fresh');
+            fieldSerialLastLineEl?.classList.remove('field-serial-line--fresh');
+            fieldSerialLastLineEl = typer.lineEl;
+
+            typer.lineEl = null;
+            typer.bodyEl = null;
+            typer.cursorEl = null;
+            typer.segments = null;
+            typer.segIdx = 0;
+            typer.charIdx = 0;
+            typer.activeSpan = null;
+            typer.ctx = null;
+            typer.idleUntil = performance.now()
+                + FIELD_SERIAL_LINE_PAUSE_MS[0]
+                + Math.random() * (FIELD_SERIAL_LINE_PAUSE_MS[1] - FIELD_SERIAL_LINE_PAUSE_MS[0]);
+
+            if (feed) {
+                trimFieldSerialFeed(feed);
+                feed.scrollTop = feed.scrollHeight;
+            }
+        }
+
+        function startNextFieldSerialLine(now) {
+            const typer = fieldSerialTyper;
+            if (typer.lineEl || !fieldSerialQueue.length) return;
+            if (now < typer.idleUntil) return;
+
+            const job = fieldSerialQueue.shift();
+            const feed = document.getElementById('field-serial-feed');
+            if (!feed || !job) return;
+
+            const lineEl = document.createElement('div');
+            lineEl.className = fieldSerialLineClasses(job.ctx, job.isContinuation);
+            const bodyEl = document.createElement('span');
+            bodyEl.className = 'field-serial-body';
+            const cursorEl = document.createElement('span');
+            cursorEl.className = 'field-serial-cursor';
+            cursorEl.textContent = '▌';
+            lineEl.appendChild(bodyEl);
+            lineEl.appendChild(cursorEl);
+            lineEl.classList.add('field-serial-line--typing');
+            feed.appendChild(lineEl);
+            trimFieldSerialFeed(feed);
+
+            typer.lineEl = lineEl;
+            typer.bodyEl = bodyEl;
+            typer.cursorEl = cursorEl;
+            typer.segments = job.segments;
+            typer.segIdx = 0;
+            typer.charIdx = 0;
+            typer.activeSpan = null;
+            typer.ctx = job.ctx;
+            typer.nextAt = now;
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        function tickFieldSerialTyper(now) {
+            const typer = fieldSerialTyper;
+            if (!typer.lineEl) {
+                startNextFieldSerialLine(now);
+                return;
+            }
+            if (now < typer.nextAt) return;
+
+            const seg = typer.segments[typer.segIdx];
+            if (!seg) {
+                finishFieldSerialLine();
+                return;
+            }
+
+            if (typer.charIdx === 0 && seg.cls) {
+                const span = document.createElement('span');
+                span.className = seg.cls;
+                if (seg.dataName) span.dataset.serialName = seg.dataName;
+                typer.bodyEl.appendChild(span);
+                typer.activeSpan = span;
+            } else if (typer.charIdx === 0) {
+                typer.activeSpan = null;
+            }
+
+            const char = seg.text[typer.charIdx];
+            const target = typer.activeSpan || typer.bodyEl;
+            target.appendChild(document.createTextNode(char));
+
+            const prevChar = typer.charIdx > 0
+                ? seg.text[typer.charIdx - 1]
+                : (typer.segIdx > 0 ? typer.segments[typer.segIdx - 1].text.slice(-1) : '');
+            typer.charIdx += 1;
+
+            if (typer.charIdx >= seg.text.length) {
+                typer.segIdx += 1;
+                typer.charIdx = 0;
+                typer.activeSpan = null;
+            }
+
+            if (typer.segIdx >= typer.segments.length) {
+                finishFieldSerialLine();
+            } else {
+                typer.nextAt = now + fieldSerialCharDelayMs(char, prevChar);
+            }
+
+            const feed = document.getElementById('field-serial-feed');
+            if (feed) feed.scrollTop = feed.scrollHeight;
+        }
+
+        function enqueueFieldSerialLine(entry, displayName, time, deviceId) {
+            if (!entry) return;
+            const prevRssi = trackedDevices[deviceId]?.lastEntryRssi;
+            const rssiDelta = prevRssi !== undefined ? entry.rssi - prevRssi : 0;
+            const ctx = fieldSerialBuildContext(entry, displayName, time, rssiDelta);
+            const primary = pickFieldSerialFormat(ctx)(ctx);
+            fieldSerialQueue.push({ segments: primary, ctx, isContinuation: false });
+
+            const seed = hashString(`${displayName}:${entry.frame_index}:${entry.timestamp_ms}`);
+            if (seed % 10 < 4) {
+                fieldSerialQueue.push({
+                    segments: fieldSerialFormatContinuation(ctx),
+                    ctx,
+                    isContinuation: true
+                });
+            }
+
+            while (fieldSerialQueue.length > FIELD_SERIAL_QUEUE_MAX) {
+                fieldSerialQueue.shift();
+            }
+            refreshFieldFooterTicker(ctx);
+        }
+
+        function appendFieldSerialLine(entry, displayName, time, deviceId) {
+            enqueueFieldSerialLine(entry, displayName, time, deviceId);
+        }
+
+        function refreshFieldSerialHumanColors(time = performance.now()) {
+            if (typeof evo2GetClosestHuman !== 'function') return;
+            const closest = evo2GetClosestHuman(time);
+            if (closest === fieldSerialClosestCache) return;
+            fieldSerialClosestCache = closest;
+
+            document.querySelectorAll('#field-serial-feed .field-serial-line--human').forEach(lineEl => {
+                const nameEl = lineEl.querySelector('[data-serial-name]');
+                const name = nameEl?.dataset.serialName;
+                const isClosest = name === closest;
+                lineEl.classList.toggle('field-serial-line--blue', isClosest);
+                lineEl.classList.toggle('field-serial-line--red', !isClosest);
+                if (nameEl) {
+                    nameEl.classList.toggle('field-serial-name--blue', isClosest);
+                    nameEl.classList.toggle('field-serial-name--red', !isClosest);
+                }
+            });
+
+            if (fieldSerialTyper.ctx?.isHuman) {
+                const isClosest = fieldSerialTyper.ctx.nameRaw === closest;
+                fieldSerialTyper.ctx.isClosest = isClosest;
+                fieldSerialTyper.ctx.humanCls = isClosest ? 'field-serial-name--blue' : 'field-serial-name--red';
+                if (fieldSerialTyper.lineEl) {
+                    fieldSerialTyper.lineEl.classList.toggle('field-serial-line--blue', isClosest);
+                    fieldSerialTyper.lineEl.classList.toggle('field-serial-line--red', !isClosest);
+                }
+                if (fieldSerialTyper.activeSpan?.dataset.serialName) {
+                    fieldSerialTyper.activeSpan.classList.toggle('field-serial-name--blue', isClosest);
+                    fieldSerialTyper.activeSpan.classList.toggle('field-serial-name--red', !isClosest);
+                }
+            }
         }
 
         function rebuildTopologyFooterQueue() {
@@ -879,17 +1695,26 @@
         function rebuildHardwareFooterQueue() {
             const stats = typeof e3LayerStats !== 'undefined' ? e3LayerStats : [];
             if (!stats.length) {
-                setPanelFooterLive('hardware', '<span class="footer-ticker-muted">AWAITING LAYER BUILD</span>', false);
+                setPanelFooterLive('hardware', '<span class="footer-ticker-muted">AWAITING LAYER BUILD · STACK 0 · READINGS 0</span>', false);
                 return;
             }
             const latest = stats[stats.length - 1];
             const inputCount = latest.inputs ?? latest.points ?? 0;
+            const layerY = latest.layerY ?? Math.round(latest.height ?? 0);
+            const humans = latest.humans ?? 0;
+            const links = latest.links ?? 0;
+            const closest = escapeFooterHtml(String(latest.closest || '—').slice(0, 14).toUpperCase());
+            const stack = latest.totalLayers ?? stats.length;
+            const readings = typeof e3LayerReadings !== 'undefined' ? e3LayerReadings.length : 0;
+            const active = typeof e3Active !== 'undefined' ? Object.keys(e3Active).length : 0;
             setPanelFooterLive(
                 'hardware',
-                `<span class="footer-ticker-level">LEVEL ${String(latest.level).padStart(2, '0')}</span>` +
-                `<span class="footer-ticker-sep"> — </span>` +
+                `<span class="footer-ticker-level">L${String(latest.level).padStart(2, '0')}</span>` +
+                `<span class="footer-ticker-muted"> Y:${layerY} · </span>` +
                 `<span class="footer-ticker-points">${inputCount}</span>` +
-                `<span class="footer-ticker-muted"> PTS</span>`
+                `<span class="footer-ticker-muted"> PTS · HUM ${humans} · CORE </span>` +
+                `<span class="footer-ticker-blue">${closest}</span>` +
+                `<span class="footer-ticker-muted"> · LINK ${links} · STACK ${stack} · RX ${readings} · ACT ${active}</span>`
             );
         }
 
@@ -912,50 +1737,21 @@
         }
 
         function refreshEntityFooterTicker() {
-            if (!isAiVoiceSpeaking || !lastAiGeneratedText) {
-                entityFooterTypewriter.full = '';
-                entityFooterTypewriter.charIdx = 0;
-                entityFooterTypewriter.lastCharAt = 0;
-                panelFooterLiveHtml.entity = '';
-                setPanelFooterLive('entity', '', false);
-                return;
-            }
-            if (entityFooterTypewriter.full !== lastAiGeneratedText) {
-                entityFooterTypewriter.full = lastAiGeneratedText;
-                entityFooterTypewriter.charIdx = 0;
-                entityFooterTypewriter.lastCharAt = 0;
-                panelFooterLiveHtml.entity = '';
-            }
+            const entityHtml = buildEntityFooterHtml();
+            const changed = panelFooterLiveHtml.entity !== entityHtml;
+            setPanelFooterLive('entity', entityHtml, changed);
         }
 
         function refreshHardwareFooterTicker() {
             rebuildHardwareFooterQueue();
         }
 
-        function tickEntityFooterTypewriter(now) {
-            if (!isAiVoiceSpeaking || !entityFooterTypewriter.full) return;
-            const tw = entityFooterTypewriter;
-            if (tw.charIdx >= tw.full.length) {
-                setPanelFooterLive(
-                    'entity',
-                    `<span class="footer-ticker-speech">${escapeFooterHtml(tw.full)}</span>`,
-                    false
-                );
-                return;
-            }
-            if (now - tw.lastCharAt < tw.charMs) return;
-            tw.charIdx = Math.min(tw.full.length, tw.charIdx + 1);
-            tw.lastCharAt = now;
-            const shown = tw.full.slice(0, tw.charIdx);
-            setPanelFooterLive(
-                'entity',
-                `<span class="footer-ticker-speech">${escapeFooterHtml(shown)}</span><span class="footer-cursor">█</span>`,
-                tw.charIdx === 1
-            );
-        }
-
         function tickPanelFooterRotators(now) {
-            tickEntityFooterTypewriter(now);
+            tickPanelFooterTypers(now);
+            if (now - entityFooterLastRefresh >= ENTITY_FOOTER_REFRESH_MS) {
+                entityFooterLastRefresh = now;
+                refreshEntityFooterTicker();
+            }
             const queue = panelFooterQueues.topology;
             if (queue.length <= 1) return;
             if (now - panelFooterLastStep.topology < PANEL_FOOTER_STEP_MS) return;
@@ -4291,6 +5087,7 @@
 
             const layerNodes = [];
             let layerSphereCount = 0;
+            let layerLinkCount = 0;
             positions.forEach(p => {
                 const cx = Math.max(minX + 0.1, Math.min(maxX - 0.1, p.x));
                 const cz = Math.max(minZ + 0.1, Math.min(maxZ - 0.1, p.z));
@@ -4306,6 +5103,7 @@
                         );
                         gl.setLayerIndex(li);
                         e3Growing.push(gl);
+                        layerLinkCount++;
                     }
                 }
 
@@ -4365,11 +5163,21 @@
                         gl.line.material.opacity = 0.35;
                     }
                     e3Growing.push(gl);
+                    layerLinkCount++;
                 }
             }
 
             e3Layers.push(layerNodes);
-            e3LayerStats.push({ level: li + 1, inputs: layerSphereCount });
+            e3LayerStats.push({
+                level: li + 1,
+                inputs: layerSphereCount,
+                height,
+                layerY: Math.round(height),
+                humans: humanNodes.length,
+                closest: closestInLayer || '—',
+                links: layerLinkCount,
+                totalLayers: li + 1
+            });
             refreshHardwareFooterTicker();
 
             const hasHuman = devices.some(d => isE3Human(d.name));
@@ -5611,6 +6419,7 @@
 
             if (!isClone) {
                 onEv02Signal(displayName, entry.rssi, entry.sensor_id, time);
+                appendFieldSerialLine(entry, displayName, time, deviceId);
                 onE3Signal(displayName, entry.rssi, time);
                 playEmfTone(entry.rssi, entry.distance_m, humanCheck);
                 maybeTriggerAiVoiceFromSensor(entry, deviceId, humanCheck);
@@ -5957,6 +6766,8 @@
             }
 
             tickPanelFooterRotators(time);
+            tickFieldSerialTyper(time);
+            refreshFieldSerialHumanColors(time);
 
             updateHtmlLabels();
             renderAllPanels(delta);
