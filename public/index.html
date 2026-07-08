@@ -131,9 +131,9 @@
         .field-serial-head {
             flex: 0 0 auto;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
-            gap: 8px;
+            gap: 10px;
             padding: 5px 10px 4px;
             border-bottom: 1px solid rgba(255, 0, 0, 0.22);
             font-size: 7px;
@@ -141,6 +141,116 @@
             text-transform: uppercase;
             color: rgba(255, 255, 255, 0.42);
             background: linear-gradient(180deg, rgba(255, 0, 0, 0.06) 0%, transparent 100%);
+        }
+
+        .field-serial-head-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .field-serial-head-meta {
+            font-size: 6px;
+            letter-spacing: 0.18em;
+            color: rgba(255, 255, 255, 0.28);
+        }
+
+        .field-serial-spectrum-bar {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 6px;
+            letter-spacing: 0.12em;
+            white-space: nowrap;
+        }
+
+        .field-spectrum-metric {
+            color: rgba(255, 255, 255, 0.38);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .field-spectrum-metric--hot {
+            color: rgba(255, 0, 0, 0.72);
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.28);
+        }
+
+        .field-spectrum-load-bar {
+            display: inline-block;
+            width: 28px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.06);
+            vertical-align: middle;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .field-spectrum-load-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--load-pct, 0%);
+            background: linear-gradient(90deg, rgba(255, 0, 0, 0.35), rgba(255, 0, 0, 0.85));
+            transition: width 0.08s steps(2, end);
+        }
+
+        .field-spectrum-metric--ping {
+            animation: fieldMetricPing 0.11s steps(2, end);
+        }
+
+        @keyframes fieldMetricPing {
+            0%, 100% {
+                color: rgba(255, 0, 0, 0.72);
+                background: transparent;
+                text-shadow: 0 0 5px rgba(255, 0, 0, 0.28);
+            }
+            50% {
+                color: #ffffff;
+                background: rgba(255, 0, 0, 0.52);
+                text-shadow: 0 0 10px rgba(255, 0, 0, 0.95);
+            }
+        }
+
+        .field-serial-spec-strip {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            padding: 3px 10px 4px;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.14);
+            background: rgba(255, 0, 0, 0.018);
+        }
+
+        .field-serial-spec-labels {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            font-size: 5px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.24);
+        }
+
+        .field-serial-spec-labels span:nth-child(2) {
+            color: rgba(255, 0, 0, 0.42);
+        }
+
+        .field-serial-spec-canvas-wrap {
+            position: relative;
+            width: 100%;
+            height: 14px;
+            overflow: hidden;
+        }
+
+        #field-spec-sparkline {
+            display: block;
+            width: 100%;
+            height: 14px;
+            image-rendering: pixelated;
         }
 
         .field-serial-head strong {
@@ -265,6 +375,57 @@
             text-shadow: 0 0 8px rgba(255, 0, 0, 0.35);
         }
 
+        .field-serial-meta {
+            color: rgba(255, 255, 255, 0.32);
+            letter-spacing: 0.08em;
+        }
+
+        .field-serial-mac {
+            color: rgba(255, 255, 255, 0.58);
+        }
+
+        .field-serial-oui {
+            color: rgba(255, 0, 0, 0.62);
+            letter-spacing: 0.06em;
+        }
+
+        .field-serial-system {
+            color: rgba(255, 255, 255, 0.48);
+        }
+
+        .field-serial-sintel {
+            color: rgba(255, 0, 0, 0.55);
+        }
+
+        .field-serial-audit {
+            color: rgba(255, 255, 255, 0.52);
+            font-style: normal;
+        }
+
+        .field-serial-line--forensic {
+            border-left-color: rgba(255, 0, 0, 0.18);
+        }
+
+        .field-serial-line--system {
+            border-left-color: rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.018);
+        }
+
+        .field-serial-line--sintel {
+            border-left-color: rgba(255, 0, 0, 0.42);
+            background: rgba(255, 0, 0, 0.025);
+        }
+
+        .field-serial-line--audit {
+            border-left-color: rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.015);
+        }
+
+        .field-serial-line--oui {
+            border-left-color: rgba(255, 0, 0, 0.28);
+            opacity: 0.9;
+        }
+
         body.light-mode .field-serial-head {
             color: rgba(0, 0, 0, 0.45);
             border-bottom-color: rgba(255, 0, 0, 0.18);
@@ -304,6 +465,40 @@
         body.light-mode .field-serial-name--red {
             color: #cc0000;
             text-shadow: none;
+        }
+
+        body.light-mode .field-serial-meta,
+        body.light-mode .field-serial-mac,
+        body.light-mode .field-serial-system,
+        body.light-mode .field-serial-audit {
+            color: rgba(0, 0, 0, 0.42);
+        }
+
+        body.light-mode .field-serial-oui,
+        body.light-mode .field-serial-sintel {
+            color: rgba(180, 0, 0, 0.72);
+        }
+
+        body.light-mode .field-spectrum-metric {
+            color: rgba(0, 0, 0, 0.42);
+        }
+
+        body.light-mode .field-spectrum-metric--hot {
+            color: rgba(180, 0, 0, 0.78);
+            text-shadow: none;
+        }
+
+        body.light-mode .field-serial-spec-strip {
+            background: rgba(255, 0, 0, 0.03);
+            border-bottom-color: rgba(255, 0, 0, 0.12);
+        }
+
+        body.light-mode .field-serial-spec-labels {
+            color: rgba(0, 0, 0, 0.28);
+        }
+
+        body.light-mode .field-serial-spec-labels span:nth-child(2) {
+            color: rgba(180, 0, 0, 0.55);
         }
 
         #triple-stage:not(.panels-live) .viewport-panel {
@@ -921,8 +1116,26 @@
             </header>
             <div id="panel-field" class="panel-viewport">
                 <div class="field-serial-head">
-                    <span><strong>RX</strong> // SENSOR SERIAL</span>
-                    <span class="field-serial-head-status">● LIVE</span>
+                    <div class="field-serial-head-left">
+                        <span><strong>RX</strong> // FORENSIC SENSOR AUDIT</span>
+                        <span class="field-serial-head-meta">[SYS_STAT: ACTIVE] · [BAND: 2.437GHz] · [MODE: DEEP SCAN]</span>
+                    </div>
+                    <div class="field-serial-spectrum-bar">
+                        <span class="field-spectrum-metric" id="field-pkt-density">PKT/sec: —</span>
+                        <span class="field-spectrum-metric field-spectrum-metric--hot" id="field-spectrum-load">LOAD: —%</span>
+                        <span class="field-spectrum-load-bar" id="field-spectrum-load-bar" style="--load-pct: 0%"></span>
+                        <span class="field-serial-head-status">● LIVE</span>
+                    </div>
+                </div>
+                <div class="field-serial-spec-strip">
+                    <div class="field-serial-spec-labels">
+                        <span id="field-spec-min">[MIN: 2.40GHz]</span>
+                        <span>[SPEC_ANA // RUNNING]</span>
+                        <span id="field-spec-max">[MAX: 2.48GHz]</span>
+                    </div>
+                    <div class="field-serial-spec-canvas-wrap">
+                        <canvas id="field-spec-sparkline" width="320" height="14" aria-hidden="true"></canvas>
+                    </div>
                 </div>
                 <div class="field-serial-feed-wrap">
                     <div id="field-serial-feed" class="field-serial-feed" aria-live="polite"></div>
@@ -1040,12 +1253,47 @@
         };
 
         const FIELD_SERIAL_MAX_LINES = 250;
-        const FIELD_SERIAL_QUEUE_MAX = 64;
-        const FIELD_SERIAL_LINE_PAUSE_MS = [4, 11];
+        const FIELD_SERIAL_QUEUE_MAX = 140;
+        const FIELD_SERIAL_LINE_PAUSE_MS = [0, 5];
+        const FIELD_SERIAL_BURST_PAUSE_MS = [180, 220];
+        const FIELD_SERIAL_MAC_TTL_MS = 14000;
+        const FIELD_SPEC_SPARK_POINTS = 56;
+        const FIELD_SPEC_GHZ_MIN = 2.40;
+        const FIELD_SPEC_GHZ_MAX = 2.48;
+        const FIELD_SENSOR_CODENAMES = { 1: 'ALPHA', 2: 'MALKA', 3: 'TAV', 4: 'SHIN', 5: 'RESH' };
+        const FIELD_OUI_VENDORS = {
+            '00:17:F2': { vendor: 'APPLE INC.', tag: 'iOS DEVICE' },
+            '28:E0:2C': { vendor: 'APPLE INC.', tag: 'iOS DEVICE' },
+            'AC:BC:32': { vendor: 'APPLE INC.', tag: 'MACOS/WATCH' },
+            'DC:A9:04': { vendor: 'APPLE INC.', tag: 'HOMEKIT NODE' },
+            '8C:85:90': { vendor: 'SAMSUNG ELECTRONICS', tag: 'ANDROID' },
+            '94:EB:2C': { vendor: 'GOOGLE LLC', tag: 'PIXEL/CHROMECAST' },
+            '00:50:56': { vendor: 'INTEL CORP', tag: 'WORKSTATION NIC' },
+            'B8:27:EB': { vendor: 'RASPBERRY PI', tag: 'EMBED PROBE' },
+            'D8:3A:DD': { vendor: 'ESPRESSIF INC.', tag: 'IoT BEACON' },
+            '00:1A:11': { vendor: 'CISCO SYSTEMS', tag: 'MESH AP' },
+            '00:26:BB': { vendor: 'HUAWEI TECH', tag: 'ROUTER/MODEM' }
+        };
+        const FIELD_FORENSIC_EXPOSURE_LEVELS = ['LOW', 'MODERATE', 'ELEVATED', 'CRITICAL'];
         let fieldSerialClosestCache = null;
         let fieldSerialLineIndex = 0;
         let fieldSerialLastLineEl = null;
         const fieldSerialQueue = [];
+        const fieldSerialActiveMacs = new Map();
+        let fieldSerialPacketTimestamps = [];
+        let fieldSerialLastSpectrumUpdate = 0;
+        let fieldSerialSpectrumLoad = 0;
+        let fieldSerialPacketRate = 0;
+        let fieldSerialSpectrumLoadBase = 18;
+        let fieldSerialPacketRateBase = 132;
+        let fieldSerialMicroTimer = null;
+        let fieldSerialMicroPhase = Math.random() * Math.PI * 2;
+        let fieldSerialSparkSamples = [];
+        let fieldSerialSparkCanvas = null;
+        let fieldSerialSparkCtx = null;
+        let fieldSerialPktPeakThreshold = { val: 148 + Math.random() * 12 };
+        let fieldSerialLoadPeakThreshold = { val: 52 + Math.random() * 18 };
+        let fieldSerialLastFooterCtx = null;
         const fieldSerialTyper = {
             lineEl: null,
             bodyEl: null,
@@ -1271,16 +1519,19 @@
 
         function buildFieldFooterHtml(ctx) {
             if (!ctx) {
-                return `<span class="footer-ticker-muted">AWAITING RX STREAM · Q:${fieldSerialQueue.length}</span>`;
+                return `<span class="footer-ticker-muted">AWAITING RX STREAM · PKT ${fieldSerialPacketRate.toFixed(1)}/s · LOAD ${fieldSerialSpectrumLoad.toFixed(1)}% · Q:${fieldSerialQueue.length}</span>`;
             }
             const nameClass = ctx.isHuman
                 ? (ctx.isClosest ? 'footer-ticker-blue' : 'footer-ticker-red')
                 : 'footer-ticker-muted';
             const nameLabel = escapeFooterHtml(ctx.isHuman ? ctx.nameDisplay.toUpperCase() : ctx.nameDisplay);
+            const oui = ctx.vendorResolved
+                ? ` · ${escapeFooterHtml(ctx.vendorResolved)}`
+                : '';
             return (
                 `<span class="footer-ticker-muted">#${escapeFooterHtml(ctx.idx)} RX · </span>` +
                 `<span class="${nameClass}">${nameLabel}</span>` +
-                `<span class="footer-ticker-muted"> · ${escapeFooterHtml(ctx.sensor)} · ${escapeFooterHtml(String(ctx.rssi))}dBm · ${escapeFooterHtml(ctx.freq)}GHz · dist ${escapeFooterHtml(ctx.distShort)}m · FR ${escapeFooterHtml(String(ctx.frame))} · room ${escapeFooterHtml(String(ctx.room))} · Δ${escapeFooterHtml(ctx.deltaStr)} · Q:${fieldSerialQueue.length}</span>`
+                `<span class="footer-ticker-muted"> · ${escapeFooterHtml(ctx.sensor)} · MAC ${escapeFooterHtml(ctx.mac)}${oui} · ${escapeFooterHtml(String(ctx.rssi))}dBm · ${escapeFooterHtml(ctx.freq)}GHz · dist ${escapeFooterHtml(ctx.distShort)}m · PKT ${fieldSerialPacketRate.toFixed(1)}/s · LOAD ${fieldSerialSpectrumLoad.toFixed(1)}% · Q:${fieldSerialQueue.length}</span>`
             );
         }
 
@@ -1297,8 +1548,285 @@
             return (frequency * 2.437).toFixed(3);
         }
 
+        function fieldSerialAssignOuiPrefix(nameRaw, isHuman) {
+            const lower = String(nameRaw || '').toLowerCase();
+            if (/iphone|ipad|apple|airpod|macbook|ios/.test(lower)) return 'AC:BC:32';
+            if (/samsung|galaxy|sm-|android/.test(lower)) return '8C:85:90';
+            if (/google|pixel|chromecast/.test(lower)) return '94:EB:2C';
+            if (/cyberlink|intel|desktop|pc|laptop/.test(lower)) return '00:50:56';
+            if (/raspberry|esp|iot|beacon/.test(lower)) return 'B8:27:EB';
+            if (/cisco|linksys|router|wifi/.test(lower)) return '00:1A:11';
+            if (isHuman) {
+                const humanOuis = ['00:17:F2', '28:E0:2C', 'AC:BC:32', 'DC:A9:04'];
+                return humanOuis[hashString(nameRaw) % humanOuis.length];
+            }
+            if (hashString(`${nameRaw}:anon`) % 11 === 0) return null;
+            const genericOuis = ['00:50:56', 'B8:27:EB', 'D8:3A:DD', '00:1A:11', '00:26:BB'];
+            return genericOuis[hashString(nameRaw) % genericOuis.length];
+        }
+
+        function fieldSerialPseudoMac(nameRaw, isHuman) {
+            const prefix = fieldSerialAssignOuiPrefix(nameRaw, isHuman);
+            const h = hashString(`${nameRaw}:mac`);
+            const suffix = [
+                (h >> 0) & 0xFF,
+                (h >> 8) & 0xFF,
+                (h >> 16) & 0xFF
+            ].map(b => b.toString(16).padStart(2, '0')).join(':').toUpperCase();
+            if (!prefix) return `02:${suffix}`;
+            return `${prefix}:${suffix}`;
+        }
+
+        function fieldSerialResolveMac(entry, nameRaw, isHuman) {
+            const raw = entry?.mac || entry?.bssid || entry?.device_mac;
+            if (raw && raw !== '—') return String(raw).toUpperCase();
+            return fieldSerialPseudoMac(nameRaw, isHuman);
+        }
+
+        function fieldSerialResolveVendor(mac, nameRaw, isHuman) {
+            const lower = String(nameRaw || '').toLowerCase();
+            if (/iphone|ipad|apple|airpod|macbook|ios/.test(lower)) {
+                return { vendor: 'APPLE INC.', tag: 'iOS DEVICE', confidence: 'HEURISTIC' };
+            }
+            if (/samsung|galaxy|sm-/.test(lower)) {
+                return { vendor: 'SAMSUNG ELECTRONICS', tag: 'ANDROID', confidence: 'HEURISTIC' };
+            }
+            if (/google|pixel/.test(lower)) {
+                return { vendor: 'GOOGLE LLC', tag: 'PIXEL DEVICE', confidence: 'HEURISTIC' };
+            }
+            const oui = String(mac || '').slice(0, 8).toUpperCase();
+            if (FIELD_OUI_VENDORS[oui]) {
+                return { ...FIELD_OUI_VENDORS[oui], confidence: 'OUI' };
+            }
+            if (hashString(`${mac}:${nameRaw}`) % 9 === 0) {
+                return { vendor: 'UNKNOWN VENDOR', tag: 'ANONYMOUS TRACKER', confidence: 'LOW' };
+            }
+            if (isHuman && hashString(nameRaw) % 4 !== 0) {
+                return { vendor: 'APPLE INC.', tag: 'iOS DEVICE', confidence: 'INFERRED' };
+            }
+            const pool = Object.values(FIELD_OUI_VENDORS);
+            const pick = pool[hashString(mac) % pool.length];
+            return { ...pick, confidence: 'INFERRED' };
+        }
+
+        function fieldSerialOuiLabel(vendorInfo) {
+            if (!vendorInfo?.vendor) return '';
+            return vendorInfo.tag
+                ? `[RESOLVED: ${vendorInfo.vendor} - ${vendorInfo.tag}]`
+                : `[RESOLVED: ${vendorInfo.vendor}]`;
+        }
+
+        function fieldSerialNodeCodename(sensorNum) {
+            const n = Number(sensorNum);
+            return FIELD_SENSOR_CODENAMES[n] || FIELD_SENSOR_CODENAMES[1];
+        }
+
+        function fieldSerialTrackActive(ctx) {
+            const now = performance.now();
+            fieldSerialActiveMacs.set(ctx.mac, now);
+            fieldSerialPacketTimestamps.push(now);
+            fieldSerialRecalcSpectrumBase(now);
+        }
+
+        function fieldSerialPruneActive(now) {
+            for (const [mac, ts] of fieldSerialActiveMacs) {
+                if (now - ts > FIELD_SERIAL_MAC_TTL_MS) fieldSerialActiveMacs.delete(mac);
+            }
+            fieldSerialPacketTimestamps = fieldSerialPacketTimestamps.filter(ts => now - ts < 1000);
+        }
+
+        function fieldSerialRecalcSpectrumBase(now) {
+            fieldSerialPruneActive(now);
+            const activeCount = fieldSerialActiveMacs.size;
+            const queuePressure = fieldSerialQueue.length * 0.85;
+            fieldSerialSpectrumLoadBase = THREE.MathUtils.clamp(
+                activeCount * 6.2 + queuePressure + 8 + Math.random() * 2,
+                12,
+                88
+            );
+            fieldSerialPacketRateBase = THREE.MathUtils.clamp(
+                118 + activeCount * 4.8 + queuePressure * 0.35 + fieldSerialPacketTimestamps.length * 0.4,
+                95,
+                158
+            );
+        }
+
+        function fieldSerialFlashMetricPeak(el) {
+            if (!el) return;
+            el.classList.remove('field-spectrum-metric--ping');
+            void el.offsetWidth;
+            el.classList.add('field-spectrum-metric--ping');
+            setTimeout(() => el.classList.remove('field-spectrum-metric--ping'), 85 + Math.random() * 55);
+        }
+
+        function fieldSerialCheckMetricPeaks(pktEl, loadEl) {
+            if (fieldSerialPacketRate >= fieldSerialPktPeakThreshold.val) {
+                fieldSerialFlashMetricPeak(pktEl);
+                fieldSerialPktPeakThreshold.val = fieldSerialPacketRate * (0.94 + Math.random() * 0.04);
+            }
+            if (fieldSerialSpectrumLoad >= fieldSerialLoadPeakThreshold.val) {
+                fieldSerialFlashMetricPeak(loadEl);
+                fieldSerialLoadPeakThreshold.val = fieldSerialSpectrumLoad * (0.93 + Math.random() * 0.05);
+            }
+        }
+
+        function fieldSerialDrawSparkline() {
+            if (!fieldSerialSparkCtx || !fieldSerialSparkCanvas) return;
+            const w = fieldSerialSparkCanvas.width;
+            const h = fieldSerialSparkCanvas.height;
+            const samples = fieldSerialSparkSamples;
+            const count = samples.length;
+            if (!count) return;
+
+            fieldSerialSparkCtx.clearRect(0, 0, w, h);
+            const slotW = w / FIELD_SPEC_SPARK_POINTS;
+
+            for (let i = 0; i < count; i++) {
+                const v = samples[i];
+                const barH = Math.max(1, v * (h - 1));
+                const x = i * slotW;
+                const y = h - barH;
+                fieldSerialSparkCtx.fillStyle = v > 0.82
+                    ? 'rgba(255, 0, 0, 0.88)'
+                    : (v > 0.45 ? 'rgba(255, 255, 255, 0.62)' : 'rgba(255, 255, 255, 0.22)');
+                fieldSerialSparkCtx.fillRect(Math.round(x), Math.round(y), 1, Math.ceil(barH));
+            }
+        }
+
+        function fieldSerialPushSparkSample() {
+            const activeCount = Math.max(1, fieldSerialActiveMacs.size);
+            const loadNorm = fieldSerialSpectrumLoad / 100;
+            const pktNorm = (fieldSerialPacketRate - 120) / 46;
+            fieldSerialMicroPhase += 0.38 + Math.random() * 0.55;
+            const wave = Math.sin(fieldSerialMicroPhase) * 0.22
+                + Math.sin(fieldSerialMicroPhase * 2.7) * 0.11
+                + (Math.random() - 0.5) * 0.28;
+            const sample = THREE.MathUtils.clamp(
+                0.08 + loadNorm * 0.42 + pktNorm * 0.18 + wave + (activeCount * 0.012),
+                0.04,
+                1
+            );
+            fieldSerialSparkSamples.push(sample);
+            if (fieldSerialSparkSamples.length > FIELD_SPEC_SPARK_POINTS) {
+                fieldSerialSparkSamples.shift();
+            }
+            fieldSerialDrawSparkline();
+
+            const minEl = document.getElementById('field-spec-min');
+            const maxEl = document.getElementById('field-spec-max');
+            const minJitter = (FIELD_SPEC_GHZ_MIN + (Math.random() - 0.5) * 0.006).toFixed(2);
+            const maxJitter = (FIELD_SPEC_GHZ_MAX + (Math.random() - 0.5) * 0.008).toFixed(2);
+            if (minEl) minEl.textContent = `[MIN: ${minJitter}GHz]`;
+            if (maxEl) maxEl.textContent = `[MAX: ${maxJitter}GHz]`;
+        }
+
+        function fieldSerialRenderSpectrumMetrics() {
+            const pktEl = document.getElementById('field-pkt-density');
+            const loadEl = document.getElementById('field-spectrum-load');
+            const barEl = document.getElementById('field-spectrum-load-bar');
+            if (pktEl) pktEl.textContent = `PKT/sec: ${fieldSerialPacketRate.toFixed(1)}`;
+            if (loadEl) loadEl.textContent = `LOAD: ${fieldSerialSpectrumLoad.toFixed(1)}%`;
+            if (barEl) barEl.style.setProperty('--load-pct', `${fieldSerialSpectrumLoad.toFixed(1)}%`);
+            fieldSerialCheckMetricPeaks(pktEl, loadEl);
+        }
+
+        function fieldSerialMicroTick() {
+            const now = performance.now();
+            fieldSerialPruneActive(now);
+            fieldSerialRecalcSpectrumBase(now);
+
+            const activeCount = fieldSerialActiveMacs.size;
+            const loadFactor = Math.max(0.35, activeCount / 6);
+            fieldSerialMicroPhase += 0.41 + Math.random() * 0.62;
+
+            const pktCenter = fieldSerialPacketRateBase;
+            const pktAmp = THREE.MathUtils.lerp(8, 22.7, loadFactor);
+            const pktWave = Math.sin(now * 0.021 + fieldSerialMicroPhase) * pktAmp
+                + Math.sin(now * 0.047) * (pktAmp * 0.35)
+                + (Math.random() - 0.5) * 5.8;
+            fieldSerialPacketRate = THREE.MathUtils.clamp(
+                pktCenter + pktWave,
+                activeCount > 0 ? 120.4 : 38.2,
+                activeCount > 0 ? 165.8 : 92.6
+            );
+
+            const loadDrift = Math.sin(now * 0.013 + fieldSerialMicroPhase * 0.8) * 1.8
+                + (Math.random() - 0.5) * 1.4
+                + (fieldSerialQueue.length * 0.06);
+            fieldSerialSpectrumLoad = THREE.MathUtils.clamp(
+                fieldSerialSpectrumLoadBase + loadDrift,
+                4.1,
+                98.7
+            );
+
+            fieldSerialPushSparkSample();
+            fieldSerialRenderSpectrumMetrics();
+
+            if (fieldSerialLastFooterCtx && Math.random() < 0.22) {
+                setPanelFooterLive('field', buildFieldFooterHtml(fieldSerialLastFooterCtx), false);
+            }
+        }
+
+        function fieldSerialScheduleMicroTick() {
+            if (fieldSerialMicroTimer) clearTimeout(fieldSerialMicroTimer);
+            const delay = 100 + Math.random() * 200;
+            fieldSerialMicroTimer = setTimeout(() => {
+                fieldSerialMicroTick();
+                fieldSerialScheduleMicroTick();
+            }, delay);
+        }
+
+        function initFieldSerialMicroDynamics() {
+            fieldSerialSparkCanvas = document.getElementById('field-spec-sparkline');
+            if (fieldSerialSparkCanvas) {
+                const wrap = fieldSerialSparkCanvas.closest('.field-serial-spec-canvas-wrap');
+                const syncCanvas = () => {
+                    const w = Math.max(120, wrap?.clientWidth || 320);
+                    fieldSerialSparkCanvas.width = w;
+                    fieldSerialSparkCanvas.height = 14;
+                    fieldSerialSparkCtx = fieldSerialSparkCanvas.getContext('2d');
+                };
+                syncCanvas();
+                fieldSerialSparkSamples = Array.from({ length: FIELD_SPEC_SPARK_POINTS }, () =>
+                    0.12 + Math.random() * 0.35
+                );
+                fieldSerialDrawSparkline();
+                if (wrap && typeof ResizeObserver !== 'undefined') {
+                    const ro = new ResizeObserver(() => {
+                        syncCanvas();
+                        fieldSerialDrawSparkline();
+                    });
+                    ro.observe(wrap);
+                }
+            }
+            fieldSerialMicroTick();
+            fieldSerialScheduleMicroTick();
+        }
+
+        function fieldSerialUpdateSpectrumBar(now) {
+            fieldSerialRecalcSpectrumBase(now);
+            fieldSerialMicroTick();
+        }
+
         function fieldSerialSeg(text, cls = '', dataName = '') {
             return { text: String(text), cls, dataName };
+        }
+
+        function fieldSerialMetaPrefix(ctx) {
+            return fieldSerialSeg(
+                `[ID:${ctx.idx}] [FREQ:${ctx.freq}GHz] [${ctx.sensor}] [NODE:${ctx.nodeCodename}] `,
+                'field-serial-meta'
+            );
+        }
+
+        function fieldSerialMacSeg(ctx) {
+            return fieldSerialSeg(`mac=${ctx.mac}`, 'field-serial-mac');
+        }
+
+        function fieldSerialOuiSeg(ctx) {
+            const label = fieldSerialOuiLabel(ctx.vendorInfo);
+            if (!label) return fieldSerialSeg('');
+            return fieldSerialSeg(` ${label}`, 'field-serial-oui');
         }
 
         function fieldSerialNameSeg(ctx) {
@@ -1340,12 +1868,17 @@
                 : '--:--:--';
             const layer = entry.layer_y ?? '--';
             const probe = entry.probe || entry.probe_type || 'WIFI_PROBE';
-            const mac = entry.mac || entry.bssid || entry.device_mac || '—';
+            const mac = fieldSerialResolveMac(entry, nameRaw, isHuman);
+            const vendorInfo = fieldSerialResolveVendor(mac, nameRaw, isHuman);
             const isHumanFlag = entry.is_human === true || (typeof isHumanDevice === 'function' && isHumanDevice(nameRaw));
             const delta = Number.isFinite(Number(rssiDelta)) ? rssiDelta : 0;
             const deltaStr = delta > 0 ? `+${delta}` : String(delta);
             const bin = Math.abs(Number(rssi) || 0).toString(2).padStart(8, '0');
             const source = entry.source || SENSOR_DATA_MODE || 'rx';
+            const nodeCodename = fieldSerialNodeCodename(sensorNum);
+            const exposureLevel = FIELD_FORENSIC_EXPOSURE_LEVELS[
+                Math.min(FIELD_FORENSIC_EXPOSURE_LEVELS.length - 1, Math.floor(Math.abs(Number(rssi) || 75) / 25))
+            ];
 
             return {
                 idx,
@@ -1367,33 +1900,51 @@
                 layer,
                 probe,
                 mac,
+                vendorInfo,
+                vendorResolved: vendorInfo.vendor,
+                vendorTag: vendorInfo.tag,
                 isHumanFlag,
                 delta,
                 deltaStr,
                 bin,
                 source,
+                nodeCodename,
+                exposureLevel,
                 entry
             };
         }
 
+        function fieldSerialFormatForensicRx(ctx) {
+            return [
+                fieldSerialMetaPrefix(ctx),
+                fieldSerialSeg(`${ctx.clock} RX `),
+                fieldSerialNameSeg(ctx),
+                fieldSerialSeg(` rssi:${ctx.rssi} Δ${ctx.deltaStr} fr:${ctx.frame} `),
+                fieldSerialMacSeg(ctx),
+                fieldSerialOuiSeg(ctx)
+            ];
+        }
+
         function fieldSerialFormatComment(ctx) {
             return [
-                fieldSerialSeg(`// ${ctx.clock} ${ctx.sensor} rssi=${ctx.rssi} room=${ctx.room}`)
+                fieldSerialMetaPrefix(ctx),
+                fieldSerialSeg(`// AUDIT ${ctx.clock} ${ctx.sensor} rssi=${ctx.rssi} room=${ctx.room} [SYS_STAT:ACTIVE]`)
             ];
         }
 
         function fieldSerialFormatRx(ctx) {
-            return [
-                fieldSerialSeg(`${ctx.clock} RX[${ctx.sensor}] `),
-                fieldSerialNameSeg(ctx),
-                fieldSerialSeg(` rssi:${ctx.rssi} Δ${ctx.deltaStr} fr:${ctx.frame}`)
-            ];
+            return fieldSerialFormatForensicRx(ctx);
         }
 
         function fieldSerialFormatJson(ctx) {
             const payload = {
+                id: ctx.idx,
                 sensor_id: ctx.entry.sensor_id,
+                node: ctx.nodeCodename,
                 device: ctx.nameRaw,
+                mac: ctx.mac,
+                vendor: ctx.vendorResolved,
+                vendor_tag: ctx.vendorTag,
                 rssi: ctx.rssi,
                 distance_m: ctx.distStr,
                 timestamp_ms: ctx.ts,
@@ -1403,75 +1954,147 @@
                 ghz: ctx.freq,
                 layer_y: ctx.layer,
                 probe: ctx.probe,
-                mac: ctx.mac,
                 human: ctx.isHumanFlag,
                 delta: ctx.delta,
                 bin: ctx.bin,
                 source: ctx.source
             };
-            return [fieldSerialSeg(JSON.stringify(payload))];
+            return [
+                fieldSerialMetaPrefix(ctx),
+                fieldSerialSeg(JSON.stringify(payload))
+            ];
         }
 
         function fieldSerialFormatProbe(ctx) {
             return [
-                fieldSerialSeg(`${ctx.probe}(mac="${ctx.mac}")`),
-                fieldSerialSeg(`\n  -> `),
+                fieldSerialMetaPrefix(ctx),
+                fieldSerialSeg(`${ctx.probe}(`),
+                fieldSerialMacSeg(ctx),
+                fieldSerialSeg(`)\n  -> `),
                 fieldSerialNameSeg(ctx),
-                fieldSerialSeg(` @${ctx.freq}GHz ${ctx.rssi}dBm dist=${ctx.distStr}m`)
+                fieldSerialSeg(` @${ctx.freq}GHz ${ctx.rssi}dBm dist=${ctx.distStr}m`),
+                fieldSerialOuiSeg(ctx)
             ];
         }
 
         function fieldSerialFormatShort(ctx) {
             return [
-                fieldSerialSeg(`[${ctx.idx}] `),
+                fieldSerialMetaPrefix(ctx),
                 fieldSerialNameSeg(ctx),
-                fieldSerialSeg(` ${ctx.rssi}`)
+                fieldSerialSeg(` ${ctx.rssi}dBm `),
+                fieldSerialMacSeg(ctx),
+                fieldSerialOuiSeg(ctx)
             ];
         }
 
         function fieldSerialFormatSensorLine(ctx) {
             return [
-                fieldSerialSeg(`SENSOR_${String(ctx.sensorNum).padStart(2, '0')} | ${ctx.freq}GHz | rssi ${ctx.rssi} | ${ctx.distShort}m | ts=${ctx.ts}`)
+                fieldSerialSeg(`[SYS_STAT:ACTIVE] `, 'field-serial-meta'),
+                fieldSerialSeg(`SENSOR_${String(ctx.sensorNum).padStart(2, '0')} | NODE:${ctx.nodeCodename} | ${ctx.freq}GHz | rssi ${ctx.rssi} | ${ctx.distShort}m | ts=${ctx.ts}`)
             ];
         }
 
         function fieldSerialFormatScan(ctx) {
             return [
-                fieldSerialSeg(`wifi_scan(sid=${ctx.sensorNum},f=${ctx.frame},t=${ctx.ts}){`),
+                fieldSerialMetaPrefix(ctx),
+                fieldSerialSeg(`wifi_scan(sid=${ctx.sensorNum},node=${ctx.nodeCodename},f=${ctx.frame},t=${ctx.ts}){`),
                 fieldSerialSeg(`dev:`),
                 fieldSerialNameSeg(ctx),
-                fieldSerialSeg(`,rssi:${ctx.rssi},dist:${ctx.distStr},room:${ctx.room},human:${ctx.isHumanFlag},Δ:${ctx.deltaStr}}`)
+                fieldSerialSeg(`,mac:${ctx.mac},rssi:${ctx.rssi},dist:${ctx.distStr},room:${ctx.room},human:${ctx.isHumanFlag},Δ:${ctx.deltaStr}}`),
+                fieldSerialOuiSeg(ctx)
             ];
         }
 
         function fieldSerialFormatVerbose(ctx) {
             return [
+                fieldSerialMetaPrefix(ctx),
                 fieldSerialSeg(`${ctx.clock}.${ctx.ts} `),
                 fieldSerialNameSeg(ctx),
-                fieldSerialSeg(` probe=${ctx.probe} mac=${ctx.mac} ${ctx.sensor} rssi=${ctx.rssi} ghz=${ctx.freq} dist=${ctx.distStr} room=${ctx.room} fr=${ctx.frame} layer=${ctx.layer} bin=${ctx.bin} src=${ctx.source}`)
+                fieldSerialSeg(` probe=${ctx.probe} `),
+                fieldSerialMacSeg(ctx),
+                fieldSerialOuiSeg(ctx),
+                fieldSerialSeg(` ${ctx.sensor} rssi=${ctx.rssi} ghz=${ctx.freq} dist=${ctx.distStr} room=${ctx.room} fr=${ctx.frame} layer=${ctx.layer} bin=${ctx.bin} src=${ctx.source}`)
             ];
         }
 
         function fieldSerialFormatMinimal(ctx) {
-            return [fieldSerialSeg(`${ctx.rssi}  ${ctx.nameDisplay}`)];
+            return [
+                fieldSerialSeg(`[ID:${ctx.idx}] `, 'field-serial-meta'),
+                fieldSerialSeg(`${ctx.rssi}  `),
+                fieldSerialNameSeg(ctx),
+                fieldSerialSeg(` `),
+                fieldSerialMacSeg(ctx)
+            ];
+        }
+
+        function fieldSerialFormatMacResolve(ctx) {
+            return [
+                fieldSerialMetaPrefix(ctx),
+                fieldSerialMacSeg(ctx),
+                fieldSerialOuiSeg(ctx),
+                fieldSerialSeg(` conf:${ctx.vendorInfo?.confidence || 'LOW'} node:${ctx.nodeCodename}`)
+            ];
         }
 
         function fieldSerialFormatContinuation(ctx) {
             return [
-                fieldSerialSeg(`  └ mac=${ctx.mac} Δ${ctx.deltaStr} bin=${ctx.bin} layer=${ctx.layer} room=${ctx.room}/${ctx.frame}`)
+                fieldSerialSeg(`  └ [FREQ:${ctx.freq}GHz] `, 'field-serial-meta'),
+                fieldSerialMacSeg(ctx),
+                fieldSerialOuiSeg(ctx),
+                fieldSerialSeg(` Δ${ctx.deltaStr} bin=${ctx.bin} layer=${ctx.layer} room=${ctx.room}/${ctx.frame}`)
+            ];
+        }
+
+        function fieldSerialFormatSystemExposure(ctx) {
+            return [
+                fieldSerialSeg(`[SYSTEM]: EXPOSURE INDEX ACCUMULATING // CRITICAL LEVEL: ${ctx.exposureLevel}`, 'field-serial-system')
+            ];
+        }
+
+        function fieldSerialFormatSignalIntel(ctx) {
+            return [
+                fieldSerialSeg(`[SIGNAL INTELLIGENCE]: PROBE REQUEST DETECTED IN NODE [${ctx.nodeCodename}] // ${ctx.probe} // ${ctx.mac}`, 'field-serial-sintel')
+            ];
+        }
+
+        function fieldSerialFormatFrequencyAudit(ctx) {
+            const jitter = (Math.abs(ctx.delta) + (hashString(ctx.mac) % 17) / 10).toFixed(1);
+            return [
+                fieldSerialSeg(`[FREQUENCY AUDIT]: JITTER ANOMALY ${jitter}ms @ ${ctx.freq}GHz // AUTOCORRECTING...`, 'field-serial-audit')
+            ];
+        }
+
+        function fieldSerialFormatSpectrumNote(ctx) {
+            return [
+                fieldSerialSeg(`[SPECTRUM]: CONGESTION INDEX ${fieldSerialSpectrumLoad.toFixed(1)}% · ACTIVE MAC ${fieldSerialActiveMacs.size} · PKT ${fieldSerialPacketRate.toFixed(1)}/s`, 'field-serial-system')
+            ];
+        }
+
+        function fieldSerialFormatChainOfCustody(ctx) {
+            return [
+                fieldSerialSeg(`[CHAIN-OF-CUSTODY]: FRAME ${ctx.frame} SEALED · SENSOR ${ctx.sensor} · HASH ${String(hashString(ctx.mac + ctx.ts)).slice(0, 8).padStart(8, '0')}`, 'field-serial-audit')
             ];
         }
 
         const FIELD_SERIAL_FORMATS = [
+            fieldSerialFormatForensicRx,
             fieldSerialFormatComment,
-            fieldSerialFormatRx,
             fieldSerialFormatJson,
             fieldSerialFormatProbe,
             fieldSerialFormatShort,
             fieldSerialFormatSensorLine,
             fieldSerialFormatScan,
             fieldSerialFormatVerbose,
-            fieldSerialFormatMinimal
+            fieldSerialFormatMinimal,
+            fieldSerialFormatMacResolve
+        ];
+
+        const FIELD_FORENSIC_INJECTIONS = [
+            { fn: fieldSerialFormatSystemExposure, lineKind: 'system' },
+            { fn: fieldSerialFormatSignalIntel, lineKind: 'sintel' },
+            { fn: fieldSerialFormatFrequencyAudit, lineKind: 'audit' },
+            { fn: fieldSerialFormatSpectrumNote, lineKind: 'system' },
+            { fn: fieldSerialFormatChainOfCustody, lineKind: 'audit' }
         ];
 
         function pickFieldSerialFormat(ctx) {
@@ -1479,20 +2102,54 @@
             return FIELD_SERIAL_FORMATS[Math.abs(seed) % FIELD_SERIAL_FORMATS.length];
         }
 
-        function fieldSerialCharDelayMs(char, prevChar) {
-            let ms = 2 + Math.random() * 3;
-            if (char === ' ') ms += 1 + Math.random() * 2;
-            if (char === ',' || char === ':' || char === '=' || char === '|') ms += 1 + Math.random() * 2;
-            if (char === '{' || char === '}' || char === '(' || char === ')') ms += 1 + Math.random() * 2;
-            if (char === '\n') ms += 3 + Math.random() * 4;
-            if (prevChar === '\n') ms += 2;
-            if (Math.random() < 0.01) ms += 6 + Math.random() * 8;
-            return Math.max(1, ms * 0.5);
+        function pickFieldSerialForensicInjection(ctx) {
+            const seed = hashString(`${ctx.idx}:${ctx.ts}:${ctx.nameRaw}:forensic`);
+            if (seed % 5 === 0) return null;
+            const pick = FIELD_FORENSIC_INJECTIONS[seed % FIELD_FORENSIC_INJECTIONS.length];
+            return {
+                segments: pick.fn(ctx),
+                lineKind: pick.lineKind,
+                isForensic: true
+            };
         }
 
-        function fieldSerialLineClasses(ctx, isContinuation = false) {
+        function fieldSerialPushForensicBurst(ctx, burstCount) {
+            for (let i = 0; i < burstCount; i++) {
+                const pick = FIELD_FORENSIC_INJECTIONS[
+                    hashString(`${ctx.mac}:${ctx.ts}:${i}:burst`) % FIELD_FORENSIC_INJECTIONS.length
+                ];
+                fieldSerialQueue.push({
+                    segments: pick.fn(ctx),
+                    ctx: { ...ctx, isForensic: true },
+                    isContinuation: false,
+                    lineKind: pick.lineKind
+                });
+            }
+        }
+
+        function fieldSerialCharDelayMs(char, prevChar) {
+            let ms = 0.4 + Math.random() * 2.2;
+            if (char === ' ') ms += 0.6 + Math.random() * 2.4;
+            if (char === '[' || char === ']') ms += 0.4 + Math.random() * 1.6;
+            if (char === '/' || char === ':' || char === '=' || char === '|') ms += 0.8 + Math.random() * 2;
+            if (char === '{' || char === '}' || char === '(' || char === ')') ms += 0.5 + Math.random() * 1.5;
+            if (char === '\n') ms += 2 + Math.random() * 4;
+            if (prevChar === '\n') ms += 1.5 + Math.random() * 3;
+            if (fieldSerialQueue.length > 18 && Math.random() < 0.35) ms *= 0.15;
+            if (Math.random() < 0.06) ms += 8 + Math.random() * 18;
+            if (Math.random() < 0.14) ms *= 0.12;
+            if (Math.random() < 0.008) ms += 28 + Math.random() * 40;
+            return Math.max(0.5, ms * 0.22);
+        }
+
+        function fieldSerialLineClasses(ctx, isContinuation = false, lineKind = '') {
             const classes = ['field-serial-line'];
             if (isContinuation) classes.push('field-serial-line--cont');
+            if (ctx.isForensic || lineKind) classes.push('field-serial-line--forensic');
+            if (lineKind === 'system') classes.push('field-serial-line--system');
+            if (lineKind === 'sintel') classes.push('field-serial-line--sintel');
+            if (lineKind === 'audit') classes.push('field-serial-line--audit');
+            if (lineKind === 'oui') classes.push('field-serial-line--oui');
             if (ctx.isHuman) {
                 classes.push('field-serial-line--human');
                 classes.push(ctx.isClosest ? 'field-serial-line--blue' : 'field-serial-line--red');
@@ -1525,9 +2182,11 @@
             typer.charIdx = 0;
             typer.activeSpan = null;
             typer.ctx = null;
+            const burstPause = Math.random() < 0.09;
+            const pauseRange = burstPause ? FIELD_SERIAL_BURST_PAUSE_MS : FIELD_SERIAL_LINE_PAUSE_MS;
             typer.idleUntil = performance.now()
-                + FIELD_SERIAL_LINE_PAUSE_MS[0]
-                + Math.random() * (FIELD_SERIAL_LINE_PAUSE_MS[1] - FIELD_SERIAL_LINE_PAUSE_MS[0]);
+                + pauseRange[0]
+                + Math.random() * (pauseRange[1] - pauseRange[0]);
 
             if (feed) {
                 trimFieldSerialFeed(feed);
@@ -1545,7 +2204,7 @@
             if (!feed || !job) return;
 
             const lineEl = document.createElement('div');
-            lineEl.className = fieldSerialLineClasses(job.ctx, job.isContinuation);
+            lineEl.className = fieldSerialLineClasses(job.ctx, job.isContinuation, job.lineKind || '');
             const bodyEl = document.createElement('span');
             bodyEl.className = 'field-serial-body';
             const cursorEl = document.createElement('span');
@@ -1577,41 +2236,54 @@
             }
             if (now < typer.nextAt) return;
 
-            const seg = typer.segments[typer.segIdx];
-            if (!seg) {
-                finishFieldSerialLine();
-                return;
-            }
+            const queueHot = fieldSerialQueue.length > 10;
+            const charsThisFrame = queueHot
+                ? 1 + Math.floor(Math.random() * (fieldSerialQueue.length > 24 ? 4 : 3))
+                : 1;
 
-            if (typer.charIdx === 0 && seg.cls) {
-                const span = document.createElement('span');
-                span.className = seg.cls;
-                if (seg.dataName) span.dataset.serialName = seg.dataName;
-                typer.bodyEl.appendChild(span);
-                typer.activeSpan = span;
-            } else if (typer.charIdx === 0) {
-                typer.activeSpan = null;
-            }
+            for (let burst = 0; burst < charsThisFrame; burst++) {
 
-            const char = seg.text[typer.charIdx];
-            const target = typer.activeSpan || typer.bodyEl;
-            target.appendChild(document.createTextNode(char));
+                const seg = typer.segments[typer.segIdx];
+                if (!seg) {
+                    finishFieldSerialLine();
+                    return;
+                }
 
-            const prevChar = typer.charIdx > 0
-                ? seg.text[typer.charIdx - 1]
-                : (typer.segIdx > 0 ? typer.segments[typer.segIdx - 1].text.slice(-1) : '');
-            typer.charIdx += 1;
+                if (typer.charIdx === 0 && seg.cls) {
+                    const span = document.createElement('span');
+                    span.className = seg.cls;
+                    if (seg.dataName) span.dataset.serialName = seg.dataName;
+                    typer.bodyEl.appendChild(span);
+                    typer.activeSpan = span;
+                } else if (typer.charIdx === 0) {
+                    typer.activeSpan = null;
+                }
 
-            if (typer.charIdx >= seg.text.length) {
-                typer.segIdx += 1;
-                typer.charIdx = 0;
-                typer.activeSpan = null;
-            }
+                const char = seg.text[typer.charIdx];
+                const target = typer.activeSpan || typer.bodyEl;
+                target.appendChild(document.createTextNode(char));
 
-            if (typer.segIdx >= typer.segments.length) {
-                finishFieldSerialLine();
-            } else {
-                typer.nextAt = now + fieldSerialCharDelayMs(char, prevChar);
+                const prevChar = typer.charIdx > 0
+                    ? seg.text[typer.charIdx - 1]
+                    : (typer.segIdx > 0 ? typer.segments[typer.segIdx - 1].text.slice(-1) : '');
+                typer.charIdx += 1;
+
+                if (typer.charIdx >= seg.text.length) {
+                    typer.segIdx += 1;
+                    typer.charIdx = 0;
+                    typer.activeSpan = null;
+                }
+
+                if (typer.segIdx >= typer.segments.length) {
+                    finishFieldSerialLine();
+                    const feed = document.getElementById('field-serial-feed');
+                    if (feed) feed.scrollTop = feed.scrollHeight;
+                    return;
+                }
+
+                if (burst === charsThisFrame - 1) {
+                    typer.nextAt = now + fieldSerialCharDelayMs(char, prevChar);
+                }
             }
 
             const feed = document.getElementById('field-serial-feed');
@@ -1623,16 +2295,47 @@
             const prevRssi = trackedDevices[deviceId]?.lastEntryRssi;
             const rssiDelta = prevRssi !== undefined ? entry.rssi - prevRssi : 0;
             const ctx = fieldSerialBuildContext(entry, displayName, time, rssiDelta);
-            const primary = pickFieldSerialFormat(ctx)(ctx);
-            fieldSerialQueue.push({ segments: primary, ctx, isContinuation: false });
+            fieldSerialTrackActive(ctx);
+            fieldSerialLastFooterCtx = ctx;
 
             const seed = hashString(`${displayName}:${entry.frame_index}:${entry.timestamp_ms}`);
-            if (seed % 10 < 4) {
+            const burstMode = seed % 7 < 3;
+
+            if (burstMode) {
+                fieldSerialPushForensicBurst(ctx, 2 + (seed % 3));
+            } else {
+                const forensic = pickFieldSerialForensicInjection(ctx);
+                if (forensic) {
+                    fieldSerialQueue.push({
+                        segments: forensic.segments,
+                        ctx: { ...ctx, isForensic: true },
+                        isContinuation: false,
+                        lineKind: forensic.lineKind
+                    });
+                }
+            }
+
+            const primary = pickFieldSerialFormat(ctx)(ctx);
+            fieldSerialQueue.push({ segments: primary, ctx, isContinuation: false, lineKind: '' });
+
+            if (seed % 10 < 7) {
                 fieldSerialQueue.push({
                     segments: fieldSerialFormatContinuation(ctx),
                     ctx,
-                    isContinuation: true
+                    isContinuation: true,
+                    lineKind: 'oui'
                 });
+            }
+            if (seed % 5 < 3) {
+                fieldSerialQueue.push({
+                    segments: fieldSerialFormatMacResolve(ctx),
+                    ctx,
+                    isContinuation: true,
+                    lineKind: 'oui'
+                });
+            }
+            if (burstMode && seed % 3 === 0) {
+                fieldSerialPushForensicBurst(ctx, 1 + (seed % 2));
             }
 
             while (fieldSerialQueue.length > FIELD_SERIAL_QUEUE_MAX) {
@@ -1772,6 +2475,7 @@
                 if (el) el.textContent = label;
             });
             panelFooterLastStep.topology = performance.now();
+            initFieldSerialMicroDynamics();
             refreshPanelFooterTickers();
         }
 
