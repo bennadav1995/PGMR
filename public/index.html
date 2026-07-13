@@ -120,6 +120,346 @@
 
         .viewport-panel[data-panel="topology"] .panel-viewport {
             margin-bottom: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topology-forensic-frame {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            pointer-events: none;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .topology-frame-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+        }
+
+        .topology-map-core {
+            flex: 1 1 auto;
+            min-width: 0;
+            min-height: 0;
+            position: relative;
+            z-index: 1;
+            background: #000000;
+        }
+
+        .topology-frame-edge {
+            flex-shrink: 0;
+            pointer-events: none;
+            background: #000000;
+            position: relative;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 7.5px;
+            line-height: 1.1;
+            letter-spacing: 0.04em;
+            font-variant-numeric: tabular-nums;
+            color: rgba(255, 255, 255, 0.48);
+        }
+
+        .topology-frame-edge--top {
+            height: 26px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 1px 2px;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.22);
+            overflow: hidden;
+        }
+
+        .topology-frame-edge--bottom {
+            height: 34px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 1px 2px;
+            border-top: 1px solid rgba(255, 0, 0, 0.22);
+            overflow: hidden;
+        }
+
+        .topology-frame-edge--left {
+            align-self: stretch;
+            min-height: 0;
+        }
+
+        .topology-frame-edge--left {
+            width: 172px;
+            border-right: 1px solid rgba(255, 0, 0, 0.22);
+            display: flex;
+            flex-direction: column;
+            padding: 1px 2px;
+            overflow: hidden;
+        }
+
+        .topology-bottom-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 560px;
+            grid-template-rows: repeat(3, 11px);
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .topology-bottom-main-row {
+            grid-column: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .topology-bottom-feeds {
+            grid-column: 2;
+            grid-row: 1 / -1;
+            width: 560px;
+            min-width: 560px;
+            max-width: 560px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            border-left: 1px solid rgba(255, 0, 0, 0.14);
+            overflow: hidden;
+            contain: layout;
+        }
+
+        .topology-bottom-feeds-row {
+            flex: 0 0 22px;
+            height: 22px;
+            display: grid;
+            grid-template-columns: 280px 280px;
+            overflow: hidden;
+        }
+
+        .topology-bottom-feed {
+            width: 280px;
+            min-width: 280px;
+            max-width: 280px;
+            height: 22px;
+            display: grid;
+            grid-template-columns: 68px minmax(0, 1fr);
+            align-items: center;
+            column-gap: 3px;
+            border-left: 1px solid rgba(255, 0, 0, 0.14);
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 7.5px;
+            letter-spacing: 0.03em;
+            font-variant-numeric: tabular-nums;
+            line-height: 11px;
+            padding: 0 3px;
+            box-sizing: border-box;
+        }
+
+        .topology-bottom-feeds-row .topology-bottom-feed:first-child {
+            border-left: none;
+        }
+
+        .topology-bottom-feed-label {
+            color: rgba(255, 0, 0, 0.48);
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .topology-bottom-feed-val {
+            color: rgba(255, 255, 255, 0.52);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: clip;
+            text-align: center;
+            min-width: 0;
+        }
+
+        .topology-bottom-feed--sensor {
+            flex: 0 0 11px;
+            height: 11px;
+            width: 560px;
+            min-width: 560px;
+            max-width: 560px;
+            border-top: 1px solid rgba(255, 0, 0, 0.14);
+            border-left: none;
+        }
+
+        .topology-bottom-feed-placeholder {
+            color: rgba(255, 255, 255, 0.22);
+        }
+
+        .topology-frame-edge--bottom .topology-matrix-row {
+            height: 11px;
+            line-height: 11px;
+            overflow: hidden;
+            text-overflow: clip;
+        }
+
+        .topology-location-cascade {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .topology-location-line {
+            line-height: 1.1;
+            height: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: rgba(255, 255, 255, 0.46);
+        }
+
+        .topology-location-line--fresh {
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        .topology-location-line--idle {
+            color: rgba(255, 255, 255, 0.28);
+        }
+
+        .topology-location-tag {
+            color: rgba(255, 0, 0, 0.5);
+        }
+
+        .topology-location-loc {
+            color: rgba(255, 255, 255, 0.58);
+        }
+
+        .topology-location-freq {
+            color: rgba(255, 255, 255, 0.52);
+        }
+
+        .topology-signal--human {
+            color: rgba(255, 0, 0, 0.88);
+        }
+
+        .topology-signal--closest {
+            color: rgba(68, 120, 255, 0.95);
+        }
+
+        .topology-signal--infra {
+            color: rgba(200, 200, 200, 0.72);
+        }
+
+        .topology-matrix-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .topology-matrix-row {
+            width: 100%;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.1;
+            height: 8px;
+        }
+
+        .topology-matrix-field {
+            flex: 0 0 auto;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.52);
+        }
+
+        .topology-matrix-field--key {
+            color: rgba(255, 0, 0, 0.48);
+        }
+
+        .topology-matrix-field--val {
+            color: rgba(255, 255, 255, 0.62);
+        }
+
+        .topology-matrix-field--hot {
+            color: rgba(255, 0, 0, 0.68);
+        }
+
+        .topology-matrix-sep {
+            flex: 0 0 auto;
+            margin: 0 7px;
+            color: rgba(255, 0, 0, 0.22);
+        }
+
+        .topology-ingest-dual {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .topology-ingest-dual-line {
+            display: flex;
+            gap: 3px;
+            line-height: 1.1;
+            height: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .topology-ingest-col {
+            flex: 1 1 50%;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: rgba(255, 255, 255, 0.44);
+        }
+
+        .topology-ingest-col--fresh {
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        .topology-ingest-line {
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: rgba(255, 255, 255, 0.44);
+        }
+
+        .topology-ingest-line--fresh {
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        .topology-ingest-line__t {
+            color: rgba(255, 0, 0, 0.46);
+        }
+
+        body.light-mode .topology-map-core {
+            background: #ffffff;
+        }
+
+        body.light-mode .topology-frame-edge {
+            background: #ffffff;
+            color: rgba(0, 0, 0, 0.48);
+        }
+
+        body.light-mode .topology-matrix-field {
+            color: rgba(0, 0, 0, 0.52);
+        }
+
+        body.light-mode .topology-matrix-field--key,
+        body.light-mode .topology-ingest-line__t,
+        body.light-mode .topology-location-tag {
+            color: rgba(180, 0, 0, 0.55);
+        }
+
+        body.light-mode .topology-ingest-line,
+        body.light-mode .topology-location-line {
+            color: rgba(0, 0, 0, 0.44);
         }
 
         .viewport-panel[data-panel="field"] .panel-viewport {
@@ -197,21 +537,186 @@
             transition: width 0.08s steps(2, end);
         }
 
-        .field-spectrum-metric--ping {
-            animation: fieldMetricPing 0.11s steps(2, end);
+        .viewport-panel[data-panel="entity"] .panel-viewport {
+            overflow: hidden;
         }
 
-        @keyframes fieldMetricPing {
-            0%, 100% {
-                color: rgba(255, 0, 0, 0.72);
-                background: transparent;
-                text-shadow: 0 0 5px rgba(255, 0, 0, 0.28);
-            }
-            50% {
-                color: #ffffff;
-                background: rgba(255, 0, 0, 0.52);
-                text-shadow: 0 0 10px rgba(255, 0, 0, 0.95);
-            }
+        .entity-forensic-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 4;
+            overflow: hidden;
+            --entity-grid-center: clamp(120px, 38%, 220px);
+        }
+
+        .entity-forensic-overlay::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1px solid rgba(255, 0, 0, 0.07);
+            pointer-events: none;
+        }
+
+        .entity-forensic-grid {
+            position: absolute;
+            inset: 4px;
+            display: grid;
+            grid-template-columns: 1fr var(--entity-grid-center) 1fr;
+            grid-template-rows: 1fr var(--entity-grid-center) 1fr;
+            width: calc(100% - 8px);
+            height: calc(100% - 8px);
+            pointer-events: none;
+        }
+
+        .entity-forensic-grid-cross {
+            pointer-events: none;
+        }
+
+        .entity-forensic-grid-cross--h {
+            grid-column: 1 / 4;
+            grid-row: 2;
+            align-self: center;
+            height: 0;
+            border-top: 1px dashed rgba(255, 0, 0, 0.16);
+            box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.04);
+        }
+
+        .entity-forensic-grid-cross--v {
+            grid-column: 2;
+            grid-row: 1 / 4;
+            justify-self: center;
+            width: 0;
+            border-left: 1px dashed rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 0.5px rgba(255, 0, 0, 0.06);
+        }
+
+        .entity-forensic-quad {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            min-width: 0;
+            min-height: 0;
+            padding: 5px 7px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 5px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.34);
+            font-variant-numeric: tabular-nums;
+            overflow: hidden;
+        }
+
+        .entity-forensic-quad--tl {
+            grid-column: 1;
+            grid-row: 1;
+            align-self: start;
+            justify-self: start;
+            width: 100%;
+            border-right: 1px solid rgba(255, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 0, 0, 0.1);
+        }
+
+        .entity-forensic-quad--tr {
+            grid-column: 3;
+            grid-row: 1;
+            align-self: start;
+            justify-self: end;
+            width: 100%;
+            border-left: 1px solid rgba(255, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 0, 0, 0.1);
+        }
+
+        .entity-forensic-quad--bl {
+            grid-column: 1;
+            grid-row: 3;
+            align-self: end;
+            justify-self: start;
+            width: 100%;
+            border-right: 1px solid rgba(255, 0, 0, 0.1);
+            border-top: 1px solid rgba(255, 0, 0, 0.1);
+        }
+
+        .entity-forensic-quad--br {
+            grid-column: 3;
+            grid-row: 3;
+            align-self: end;
+            justify-self: end;
+            width: 100%;
+            border-left: 1px solid rgba(255, 0, 0, 0.1);
+            border-top: 1px solid rgba(255, 0, 0, 0.1);
+        }
+
+        .entity-forensic-quad__head {
+            display: block;
+            margin-bottom: 3px;
+            padding-bottom: 2px;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.14);
+            color: rgba(255, 0, 0, 0.48);
+            letter-spacing: 0.16em;
+            font-size: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .entity-kv-row {
+            display: flex;
+            align-items: baseline;
+            width: 100%;
+            line-height: 1.7;
+            gap: 0;
+        }
+
+        .entity-kv-key {
+            flex: 0 1 auto;
+            color: rgba(255, 255, 255, 0.3);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 58%;
+        }
+
+        .entity-kv-leader {
+            flex: 1 1 auto;
+            min-width: 6px;
+            margin: 0 3px;
+            height: 0;
+            align-self: center;
+            border-bottom: 1px dotted rgba(255, 255, 255, 0.14);
+            opacity: 0.85;
+        }
+
+        .entity-kv-val {
+            flex: 0 0 auto;
+            text-align: right;
+            color: rgba(255, 255, 255, 0.52);
+            white-space: nowrap;
+        }
+
+        .entity-metric-hot {
+            color: rgba(255, 0, 0, 0.62);
+        }
+
+        .entity-anatomy-tag {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 5px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.44);
+            white-space: nowrap;
+            pointer-events: none;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.95);
+            border-left: 1px solid rgba(255, 0, 0, 0.32);
+            padding-left: 3px;
+            z-index: 3;
+        }
+
+        .entity-anatomy-tag--hot {
+            color: rgba(255, 0, 0, 0.62);
+            border-left-color: rgba(255, 0, 0, 0.55);
         }
 
         .field-serial-spec-strip {
@@ -499,6 +1004,45 @@
 
         body.light-mode .field-serial-spec-labels span:nth-child(2) {
             color: rgba(180, 0, 0, 0.55);
+        }
+
+        body.light-mode .entity-forensic-quad,
+        body.light-mode .entity-anatomy-tag {
+            color: rgba(0, 0, 0, 0.38);
+            text-shadow: none;
+        }
+
+        body.light-mode .entity-forensic-quad__head {
+            color: rgba(180, 0, 0, 0.55);
+            border-bottom-color: rgba(255, 0, 0, 0.12);
+        }
+
+        body.light-mode .entity-kv-key {
+            color: rgba(0, 0, 0, 0.32);
+        }
+
+        body.light-mode .entity-kv-val {
+            color: rgba(0, 0, 0, 0.52);
+        }
+
+        body.light-mode .entity-kv-leader {
+            border-bottom-color: rgba(0, 0, 0, 0.12);
+        }
+
+        body.light-mode .entity-metric-hot,
+        body.light-mode .entity-anatomy-tag--hot {
+            color: rgba(180, 0, 0, 0.68);
+        }
+
+        body.light-mode .entity-forensic-overlay::before {
+            border-color: rgba(255, 0, 0, 0.1);
+        }
+
+        body.light-mode .entity-forensic-quad--tl,
+        body.light-mode .entity-forensic-quad--tr,
+        body.light-mode .entity-forensic-quad--bl,
+        body.light-mode .entity-forensic-quad--br {
+            border-color: rgba(255, 0, 0, 0.1);
         }
 
         #triple-stage:not(.panels-live) .viewport-panel {
@@ -1157,6 +1701,16 @@
             <div id="panel-entity" class="panel-viewport">
                 <div id="canvas-entity" class="panel-canvas-host"></div>
                 <div id="labels-entity" class="panel-labels"></div>
+                <div id="entity-forensic-overlay" class="entity-forensic-overlay" aria-hidden="true">
+                    <div class="entity-forensic-grid">
+                        <div class="entity-forensic-quad entity-forensic-quad--tl" id="entity-forensic-tl"></div>
+                        <div class="entity-forensic-quad entity-forensic-quad--tr" id="entity-forensic-tr"></div>
+                        <div class="entity-forensic-quad entity-forensic-quad--bl" id="entity-forensic-bl"></div>
+                        <div class="entity-forensic-quad entity-forensic-quad--br" id="entity-forensic-br"></div>
+                        <div class="entity-forensic-grid-cross entity-forensic-grid-cross--h" aria-hidden="true"></div>
+                        <div class="entity-forensic-grid-cross entity-forensic-grid-cross--v" aria-hidden="true"></div>
+                    </div>
+                </div>
             </div>
             <footer class="panel-footer">
                 <div class="panel-footer-static">03 // ENTITY — ORGANIC PROTOCOL CORE</div>
@@ -1189,8 +1743,41 @@
                 <span class="panel-sub">06 // EVOLUTION</span>
             </header>
             <div id="panel-topology" class="panel-viewport">
-                <div id="canvas-topology" class="panel-canvas-host">
-                    <canvas id="evo2d-canvas"></canvas>
+                <div class="topology-forensic-frame" aria-hidden="true">
+                    <div class="topology-frame-edge topology-frame-edge--top">
+                        <div id="topology-margin-top" class="topology-matrix-stack"></div>
+                    </div>
+                    <div class="topology-frame-body">
+                        <div class="topology-frame-edge topology-frame-edge--left">
+                            <div id="topology-margin-left" class="topology-location-cascade"></div>
+                        </div>
+                        <div id="canvas-topology" class="panel-canvas-host topology-map-core">
+                            <canvas id="evo2d-canvas"></canvas>
+                        </div>
+                    </div>
+                    <div class="topology-frame-edge topology-frame-edge--bottom">
+                        <div id="topology-margin-bottom" class="topology-bottom-grid">
+                            <div class="topology-bottom-main-row" id="topology-bottom-row-ch"></div>
+                            <div class="topology-bottom-main-row" id="topology-bottom-row-rx"></div>
+                            <div class="topology-bottom-main-row" id="topology-bottom-row-pressure"></div>
+                            <div class="topology-bottom-feeds">
+                                <div class="topology-bottom-feeds-row">
+                                    <div class="topology-bottom-feed">
+                                        <span class="topology-bottom-feed-label">RX_CAPTURE</span>
+                                        <span class="topology-bottom-feed-val" id="topology-feed-capture-val"></span>
+                                    </div>
+                                    <div class="topology-bottom-feed">
+                                        <span class="topology-bottom-feed-label">DELTA_MESH</span>
+                                        <span class="topology-bottom-feed-val" id="topology-feed-delta-val"></span>
+                                    </div>
+                                </div>
+                                <div class="topology-bottom-feed topology-bottom-feed--sensor">
+                                    <span class="topology-bottom-feed-label">NODE_RSSI</span>
+                                    <span class="topology-bottom-feed-val" id="topology-feed-rssi-val"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="labels-topology" class="panel-labels"></div>
             </div>
@@ -1291,8 +1878,6 @@
         let fieldSerialSparkSamples = [];
         let fieldSerialSparkCanvas = null;
         let fieldSerialSparkCtx = null;
-        let fieldSerialPktPeakThreshold = { val: 148 + Math.random() * 12 };
-        let fieldSerialLoadPeakThreshold = { val: 52 + Math.random() * 18 };
         let fieldSerialLastFooterCtx = null;
         const fieldSerialTyper = {
             lineEl: null,
@@ -1651,25 +2236,6 @@
             );
         }
 
-        function fieldSerialFlashMetricPeak(el) {
-            if (!el) return;
-            el.classList.remove('field-spectrum-metric--ping');
-            void el.offsetWidth;
-            el.classList.add('field-spectrum-metric--ping');
-            setTimeout(() => el.classList.remove('field-spectrum-metric--ping'), 85 + Math.random() * 55);
-        }
-
-        function fieldSerialCheckMetricPeaks(pktEl, loadEl) {
-            if (fieldSerialPacketRate >= fieldSerialPktPeakThreshold.val) {
-                fieldSerialFlashMetricPeak(pktEl);
-                fieldSerialPktPeakThreshold.val = fieldSerialPacketRate * (0.94 + Math.random() * 0.04);
-            }
-            if (fieldSerialSpectrumLoad >= fieldSerialLoadPeakThreshold.val) {
-                fieldSerialFlashMetricPeak(loadEl);
-                fieldSerialLoadPeakThreshold.val = fieldSerialSpectrumLoad * (0.93 + Math.random() * 0.05);
-            }
-        }
-
         function fieldSerialDrawSparkline() {
             if (!fieldSerialSparkCtx || !fieldSerialSparkCanvas) return;
             const w = fieldSerialSparkCanvas.width;
@@ -1727,7 +2293,6 @@
             if (pktEl) pktEl.textContent = `PKT/sec: ${fieldSerialPacketRate.toFixed(1)}`;
             if (loadEl) loadEl.textContent = `LOAD: ${fieldSerialSpectrumLoad.toFixed(1)}%`;
             if (barEl) barEl.style.setProperty('--load-pct', `${fieldSerialSpectrumLoad.toFixed(1)}%`);
-            fieldSerialCheckMetricPeaks(pktEl, loadEl);
         }
 
         function fieldSerialMicroTick() {
@@ -2633,14 +3198,51 @@
         const ENTITY_BUBBLE_PULSE_ROT_STEP = (Math.PI * 2) / ENTITY_BUBBLE_PULSE_ROT_DIVISOR;
         const ENTITY_BUBBLE_PULSE_ROT_DURATION = 2.8;
 
+        let entityBubble = null;
+        let entityBubbleFrameSlots = null;
+        let entityTypoCore = null;
+        let entityForensicVisuals = null;
+        let entityForensicOverlayReady = false;
+
+        const ENTITY_FORENSIC_ANCHOR_TAGS = [
+            { id: 'entity-tag-vradius', dir: [0.74, 0.52, 0.41], hot: false, label: () => '[V_RADIUS // OSCILLATING]' },
+            { id: 'entity-tag-mesh', dir: [-0.68, 0.46, 0.54], hot: false, label: (m) => `[MESH_TENSION: ${m.meshTension}]` },
+            { id: 'entity-tag-core', dir: [0.18, -0.81, 0.38], hot: true, label: () => '[CORE_NODE_ALPHA: ACTIVE]' },
+            { id: 'entity-tag-field', dir: [-0.41, -0.55, 0.69], hot: false, label: (m) => `[FIELD_INVERSION_INDEX: ${m.fieldInversion}]` },
+            { id: 'entity-tag-surface', dir: [0.52, 0.22, -0.78], hot: false, label: (m) => `[SHELL_DENSITY: ${m.shellDensity}]` },
+            { id: 'entity-tag-pulse', dir: [-0.22, 0.74, -0.58], hot: true, label: (m) => `[PULSE_VECTOR: ${m.pulseVector}]` }
+        ];
+
+        const entityForensicMetrics = {
+            meshTension: '0.842',
+            fieldInversion: '12.4',
+            sigVariance: '0.052',
+            waveAmplitude: '0.85',
+            densityState: 'COMPILING...',
+            emFieldSurge: 'NOMINAL',
+            shellDensity: '0.731',
+            pulseVector: '+Z',
+            scanPlaneZ: '+0.000',
+            scanPlaneY: '+0.000',
+            latticeCoherence: '0.918',
+            bioPhase: '0.044',
+            crowdDensity: 'LOW',
+            avgAttentionSpan: '12s',
+            humanInteractionProb: '0.0',
+            signalRespirationRate: '16',
+            backgroundNoiseFloor: '-94',
+            emSpectrumChirp: 'IDLE',
+            currentTaxonomy: 'CLASS-B // INFRASTRUCTURE_BEACON',
+            privacyExposureRisk: 'NOMINAL'
+        };
+
+        let entityForensicTaxonomySeed = 0;
+
         function easeEntityBubbleTurn(t) {
             return 0.5 - 0.5 * Math.cos(Math.PI * THREE.MathUtils.clamp(t, 0, 1));
         }
         const ENTITY_INNER_DEPTH_MIN = 0.14;
         const ENTITY_INNER_DEPTH_MAX = 0.9;
-        let entityBubble = null;
-        let entityBubbleFrameSlots = null;
-        let entityTypoCore = null;
         let entityPanelLights = null;
         let entityFrameDotCircleTex = null;
 
@@ -4744,6 +5346,298 @@
             core.signal.mesh.visible = true;
         }
 
+        function initEntityForensicOverlay() {
+            if (entityForensicOverlayReady) return;
+            entityForensicOverlayReady = true;
+        }
+
+        function initEntityForensicVisuals() {
+            if (entityForensicVisuals) return;
+            initEntityBubble();
+            if (!entityBubble?.mesh) return;
+
+            const group = new THREE.Group();
+            group.name = 'entityForensicScan';
+            const size = ENTITY_BASE_RADIUS * 2.18;
+            const divisions = 16;
+
+            const planeGeo = new THREE.PlaneGeometry(size, size, divisions, divisions);
+            const scanPlane = new THREE.Mesh(planeGeo, new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.11,
+                depthWrite: false
+            }));
+            scanPlane.renderOrder = 8;
+
+            const planeHGeo = planeGeo.clone();
+            const scanPlaneH = new THREE.Mesh(planeHGeo, new THREE.MeshBasicMaterial({
+                color: 0xff0000,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.07,
+                depthWrite: false
+            }));
+            scanPlaneH.rotation.x = Math.PI / 2;
+            scanPlaneH.renderOrder = 7;
+
+            const laserPts = [];
+            const laserSegs = 36;
+            for (let i = 0; i <= laserSegs; i++) {
+                const t = (i / laserSegs - 0.5) * size;
+                laserPts.push(t, 0, 0);
+            }
+            const scanLaser = new THREE.Line(
+                new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(laserPts, 3)),
+                new THREE.LineBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.72, depthWrite: false })
+            );
+            scanLaser.renderOrder = 9;
+
+            const ringPts = [];
+            const ringSegs = 48;
+            for (let i = 0; i <= ringSegs; i++) {
+                const a = (i / ringSegs) * Math.PI * 2;
+                ringPts.push(Math.cos(a) * size * 0.48, Math.sin(a) * size * 0.48, 0);
+            }
+            const scanRing = new THREE.Line(
+                new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(ringPts, 3)),
+                new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.16, depthWrite: false })
+            );
+            scanRing.renderOrder = 8;
+
+            group.add(scanPlane);
+            group.add(scanPlaneH);
+            group.add(scanLaser);
+            group.add(scanRing);
+            entityBubble.mesh.add(group);
+
+            entityForensicVisuals = {
+                group,
+                scanPlane,
+                scanPlaneH,
+                scanLaser,
+                scanRing
+            };
+        }
+
+        function entityForensicNoise(t, seed) {
+            return Math.sin(t * 1.17 + seed * 2.1) * 0.5
+                + Math.sin(t * 2.43 + seed * 0.7) * 0.28
+                + Math.sin(t * 0.61 + seed * 3.9) * 0.14
+                + (Math.random() - 0.5) * 0.08;
+        }
+
+        function updateEntityForensicMetrics(time, delta, sig, energy, animTime) {
+            const t = time * 0.001;
+            const jitter = dynamicEntity.organicJitter;
+            const wave = dynamicEntity.waveEnergy;
+            const n0 = entityForensicNoise(t, 0.2);
+            const n1 = entityForensicNoise(t, 1.7);
+            const n2 = entityForensicNoise(t, 3.3);
+
+            entityForensicMetrics.meshTension = (0.842 + n0 * 0.024 + jitter * 0.006).toFixed(3);
+            entityForensicMetrics.fieldInversion = (12.4 + n1 * 1.8 + sig * 2.2).toFixed(1);
+            entityForensicMetrics.sigVariance = (0.052 + jitter * 0.014 + Math.abs(n2) * 0.011).toFixed(3);
+            entityForensicMetrics.waveAmplitude = (wave * 0.85 + Math.sin(t * 3.8) * 0.05 + sig * 0.08).toFixed(2);
+            entityForensicMetrics.densityState = sig > 0.72
+                ? 'COMPILING...'
+                : (wave > 0.55 ? 'RECALIBRATING' : 'MAPPING...');
+            entityForensicMetrics.emFieldSurge = sig > 0.78
+                ? 'ELEVATED'
+                : (dynamicEntity.spikeBurst > 0.15 ? 'SURGE' : 'NOMINAL');
+            entityForensicMetrics.shellDensity = (0.731 + n2 * 0.04 + energy * 0.06).toFixed(3);
+            entityForensicMetrics.pulseVector = dynamicEntity.spikeBurst > 0.12 ? '+AX' : '+Z';
+            entityForensicMetrics.latticeCoherence = (0.918 + n0 * 0.018 - jitter * 0.004).toFixed(3);
+            entityForensicMetrics.bioPhase = (0.044 + Math.sin(animTime * 2.1) * 0.012 + wave * 0.02).toFixed(3);
+
+            const scanZ = Math.sin(animTime * 1.38) * 0.432;
+            const scanY = Math.cos(animTime * 0.91) * 0.312;
+            entityForensicMetrics.scanPlaneZ = `${scanZ >= 0 ? '+' : ''}${scanZ.toFixed(3)}`;
+            entityForensicMetrics.scanPlaneY = `${scanY >= 0 ? '+' : ''}${scanY.toFixed(3)}`;
+
+            const deviceCount = typeof listEntityDeviceIds === 'function' ? listEntityDeviceIds().length : 0;
+            const signals = typeof collectActiveSignals === 'function' ? collectActiveSignals() : [];
+            const humans = signals.filter(s => s.isHuman).length;
+            const pktProxy = typeof fieldSerialPacketRate !== 'undefined' ? fieldSerialPacketRate : deviceCount * 14;
+            const crowdScore = deviceCount + pktProxy * 0.07;
+            entityForensicMetrics.crowdDensity = crowdScore > 20 ? 'HIGH' : (crowdScore > 9 ? 'MED' : 'LOW');
+
+            const attentionBase = 6 + humans * 5.5 + (1 - sig) * 14 + wave * 6;
+            entityForensicMetrics.avgAttentionSpan =
+                `${Math.max(3, Math.round(attentionBase + Math.sin(t * 1.35) * 4.2 + n1 * 3.1))}s`;
+
+            const humanRatio = signals.length ? humans / signals.length : 0;
+            entityForensicMetrics.humanInteractionProb = THREE.MathUtils.clamp(
+                humanRatio * 58 + sig * 30 + wave * 9 + Math.abs(n2) * 6,
+                0.4,
+                99.2
+            ).toFixed(1);
+
+            const breathCycle = Math.sin(t * 0.52 * Math.PI * 2);
+            const respirationBpm = 14 + breathCycle * 3.8 + energy * 4.5 + dynamicEntity.spikeBurst * 7 + sig * 2.2;
+            entityForensicMetrics.signalRespirationRate = Math.round(
+                THREE.MathUtils.clamp(respirationBpm, 11, 28)
+            ).toString();
+
+            entityForensicMetrics.backgroundNoiseFloor = Math.round(
+                THREE.MathUtils.clamp(-90 - (2.5 + Math.abs(n0) * 5.5 + sig * 1.8), -98, -90)
+            ).toString();
+
+            entityForensicMetrics.emSpectrumChirp =
+                (sig > 0.42 || wave > 0.38 || dynamicEntity.voiceEnergy > 0.18) ? 'ACTIVE' : 'IDLE';
+
+            const mutationIndex = energy * 0.42 + sig * 0.38 + dynamicEntity.spikeBurst * 0.55 + Math.abs(n1) * 0.18;
+            const loadMetric = typeof fieldSerialSpectrumLoad !== 'undefined' ? fieldSerialSpectrumLoad : sig * 100;
+            if (mutationIndex > 0.62 || Math.abs(mutationIndex - entityForensicTaxonomySeed) > 0.22) {
+                entityForensicTaxonomySeed = mutationIndex;
+            }
+            if (entityForensicTaxonomySeed > 0.68 && humans > 0) {
+                entityForensicMetrics.currentTaxonomy = 'CLASS-A // PERSONAL_COMMUNICATOR';
+            } else if (deviceCount > 5 && humanRatio < 0.28) {
+                entityForensicMetrics.currentTaxonomy = 'CLASS-B // INFRASTRUCTURE_BEACON';
+            } else if (entityForensicTaxonomySeed > 0.52) {
+                entityForensicMetrics.currentTaxonomy = 'CLASS-C // HYBRID_EMITTER';
+            } else {
+                entityForensicMetrics.currentTaxonomy = humanRatio > 0.35
+                    ? 'CLASS-A // PERSONAL_COMMUNICATOR'
+                    : 'CLASS-B // INFRASTRUCTURE_BEACON';
+            }
+
+            entityForensicMetrics.privacyExposureRisk = loadMetric > 72
+                ? 'CRITICAL'
+                : (loadMetric > 48 ? 'ELEVATED' : 'NOMINAL');
+        }
+
+        function entityForensicKvRow(key, value, hot = false) {
+            const valHtml = hot
+                ? `<span class="entity-metric-hot">${escapeFooterHtml(String(value))}</span>`
+                : escapeFooterHtml(String(value));
+            return (
+                `<div class="entity-kv-row">` +
+                `<span class="entity-kv-key">[${escapeFooterHtml(key)}]</span>` +
+                `<span class="entity-kv-leader" aria-hidden="true"></span>` +
+                `<span class="entity-kv-val">${valHtml}</span>` +
+                `</div>`
+            );
+        }
+
+        function entityForensicQuadHead(label) {
+            return `<div class="entity-forensic-quad__head">${escapeFooterHtml(label)}</div>`;
+        }
+
+        function updateEntityForensicGrid() {
+            const m = entityForensicMetrics;
+            const tl = document.getElementById('entity-forensic-tl');
+            const tr = document.getElementById('entity-forensic-tr');
+            const bl = document.getElementById('entity-forensic-bl');
+            const br = document.getElementById('entity-forensic-br');
+
+            if (tl) {
+                tl.innerHTML =
+                    entityForensicQuadHead('CORE_SPHERE_METRICS') +
+                    entityForensicKvRow('MESH_TENSION', m.meshTension) +
+                    entityForensicKvRow('SIG_VARIANCE', `${m.sigVariance} JIT`) +
+                    entityForensicKvRow('LATTICE_COH', m.latticeCoherence) +
+                    entityForensicKvRow('WAVE_AMPLITUDE', m.waveAmplitude, true) +
+                    entityForensicKvRow('SCAN_PLANE_Z', m.scanPlaneZ) +
+                    entityForensicKvRow('SCAN_PLANE_Y', m.scanPlaneY) +
+                    entityForensicKvRow('SHELL_DENS', m.shellDensity) +
+                    entityForensicKvRow('FIELD_INVERSION', m.fieldInversion) +
+                    entityForensicKvRow('BIO_PHASE', m.bioPhase);
+            }
+            if (tr) {
+                tr.innerHTML =
+                    entityForensicQuadHead('ENVIRONMENTAL_PSYCHOLOGY_LOG') +
+                    entityForensicKvRow('CROWD_DENSITY', m.crowdDensity, true) +
+                    entityForensicKvRow('ATTENTION_SPAN', m.avgAttentionSpan) +
+                    entityForensicKvRow('INTERACTION_PROB', `${m.humanInteractionProb}%`) +
+                    entityForensicKvRow('DENSITY_SPECTRUM', m.densityState) +
+                    entityForensicKvRow('EM_FIELD_SURGE', m.emFieldSurge, m.emFieldSurge !== 'NOMINAL');
+            }
+            if (bl) {
+                bl.innerHTML =
+                    entityForensicQuadHead('BIOACOUSTIC_SIGNAL') +
+                    entityForensicKvRow('RESPIRATION_RATE', `${m.signalRespirationRate} bpm`, true) +
+                    entityForensicKvRow('NOISE_FLOOR', `${m.backgroundNoiseFloor} dBm`) +
+                    entityForensicKvRow('EM_SPECTRUM_CHIRP', m.emSpectrumChirp);
+            }
+            if (br) {
+                br.innerHTML =
+                    entityForensicQuadHead('DEVICE_TAXONOMY') +
+                    entityForensicKvRow('TAXONOMY', m.currentTaxonomy) +
+                    entityForensicKvRow('PRIVACY_RISK', m.privacyExposureRisk, m.privacyExposureRisk !== 'NOMINAL');
+            }
+        }
+
+        function updateEntityAnatomyTags(radius, time) {
+            const bubble = entityBubble?.mesh;
+            const camera = cameras.entity;
+            const rect = panelRects.entity;
+            const container = labelContainers.entity;
+            if (!bubble || !camera || !rect || !container) return;
+
+            bubble.updateWorldMatrix(true, false);
+            const worldScale = radius * (entityGroup?.scale?.x ?? 1);
+            const m = entityForensicMetrics;
+
+            ENTITY_FORENSIC_ANCHOR_TAGS.forEach((anchor) => {
+                let el = document.getElementById(anchor.id);
+                if (!el) {
+                    el = document.createElement('div');
+                    el.id = anchor.id;
+                    el.className = 'entity-anatomy-tag' + (anchor.hot ? ' entity-anatomy-tag--hot' : '');
+                    container.appendChild(el);
+                }
+
+                tempV3.set(anchor.dir[0], anchor.dir[1], anchor.dir[2]).normalize().multiplyScalar(worldScale * 1.04);
+                bubble.localToWorld(tempV3);
+                tempV3.project(camera);
+
+                if (tempV3.z > 1) {
+                    el.style.display = 'none';
+                    return;
+                }
+
+                el.style.display = 'block';
+                el.style.left = `${(tempV3.x * 0.5 + 0.5) * rect.width}px`;
+                el.style.top = `${(tempV3.y * -0.5 + 0.5) * rect.height}px`;
+                el.textContent = anchor.label(m);
+            });
+        }
+
+        function updateEntityForensicScanPlanes(radius, animTime, sig, energy) {
+            initEntityForensicVisuals();
+            const forensic = entityForensicVisuals;
+            if (!forensic) return;
+
+            const scanZ = Math.sin(animTime * 1.38) * 0.432;
+            const scanY = Math.cos(animTime * 0.91) * 0.312;
+            const zPos = scanZ * radius;
+            const yPos = scanY * radius;
+
+            forensic.scanPlane.position.z = zPos;
+            forensic.scanLaser.position.z = zPos;
+            forensic.scanRing.position.z = zPos;
+            forensic.scanPlaneH.position.y = yPos;
+
+            const pulse = 0.08 + sig * 0.1 + energy * 0.06 + Math.sin(animTime * 7.2) * 0.025;
+            forensic.scanPlane.material.opacity = THREE.MathUtils.clamp(0.09 + pulse, 0.06, 0.28);
+            forensic.scanPlaneH.material.opacity = THREE.MathUtils.clamp(0.05 + pulse * 0.75, 0.04, 0.18);
+            forensic.scanLaser.material.opacity = THREE.MathUtils.clamp(0.55 + sig * 0.35 + Math.sin(animTime * 11) * 0.12, 0.35, 0.95);
+            forensic.scanRing.material.opacity = THREE.MathUtils.clamp(0.12 + energy * 0.14, 0.08, 0.32);
+            forensic.scanRing.rotation.z = animTime * 0.35;
+        }
+
+        function updateEntityForensicOverlay(radius, animTime, energy, time, delta) {
+            initEntityForensicOverlay();
+            const sig = dynamicEntity.signalIntensity;
+            updateEntityForensicMetrics(time, delta, sig, energy, animTime);
+            updateEntityForensicGrid();
+            updateEntityAnatomyTags(radius, time);
+            updateEntityForensicScanPlanes(radius, animTime, sig, energy);
+        }
+
         function updateEntityPanel(radius, animTime, energy, time, delta, frameCount) {
             initEntityVisuals();
             updateEntityOrganicMotion(time, delta);
@@ -4857,6 +5751,8 @@
             entityVisuals.burstLines.visible = false;
             entityVisuals.crystalGeo.setDrawRange(0, 0);
             entityVisuals.crystalMesh.visible = false;
+
+            updateEntityForensicOverlay(radius, animTime, energy, time, delta);
         }
 
         function buildEntityBubbleFrameSlots(baseDirs, widthSegs, heightSegs) {
@@ -5080,6 +5976,7 @@
                 if (key === 'topology') {
                     resizeEvolution2DPanel();
                     drawEvolution2DPanel(performance.now(), delta);
+                    updateTopologyForensicFrame(performance.now(), delta);
                     return;
                 }
 
@@ -6061,13 +6958,13 @@
         const EV02_RING_LINE_HUMAN = 1.45;
         const EV02_RING_LINE_CLOSEST = 1.65;
         const EV02_FIELD_PAD = 0.06;
-        // Calibrated installation map: S01 center, S02–S05 at true corner anchors
+        // Calibrated installation map: [01] center, [02]–[05] at corner anchors
         const EV02_SENSOR_LAYOUT = {
-            1: { nx: 0.5, ny: 0.5, label: 'S01' },
-            2: { nx: 0.08, ny: 0.08, label: 'S02' },
-            3: { nx: 0.92, ny: 0.08, label: 'S03' },
-            4: { nx: 0.08, ny: 0.92, label: 'S04' },
-            5: { nx: 0.92, ny: 0.92, label: 'S05' }
+            1: { nx: 0.5, ny: 0.5 },
+            2: { nx: 0.08, ny: 0.08 },
+            3: { nx: 0.92, ny: 0.08 },
+            4: { nx: 0.08, ny: 0.92 },
+            5: { nx: 0.92, ny: 0.92 }
         };
         const EV02_SENSOR_DRAW_ORDER = [1, 2, 3, 4, 5];
 
@@ -6080,6 +6977,525 @@
         let evo2W = 0;
         let evo2H = 0;
         let evo2Positions = null;
+
+        const TOPOLOGY_SENSOR_RX_CHANNEL = { 1: 1, 2: 6, 3: 11, 4: 6, 5: 1 };
+        const TOPOLOGY_SENSOR_LOC_NAMES = {
+            1: 'ALPHA',
+            2: 'MALKA',
+            3: 'SASON',
+            4: 'REUVENI',
+            5: 'ARAGOV'
+        };
+        const TOPOLOGY_LOCATION_CASCADE_BUFFER = 128;
+        const TOPOLOGY_MAP_TICKER_BUFFER = 128;
+
+        let topologyForensicReady = false;
+        let topologyMatrixState = null;
+
+        function createTopologyMatrixState() {
+            return {
+                streamAnchor: null,
+                rssiByDeviceSensor: new Map(),
+                locationCascade: [],
+                mapTickerLog: [],
+                macRegistry: new Map(),
+                decaySamples: [],
+                packetTimestamps: [],
+                sensorPacketWindow: { 1: [], 2: [], 3: [], 4: [], 5: [] },
+                sensorChannels: { ...TOPOLOGY_SENSOR_RX_CHANNEL },
+                dropEvents: 0,
+                lastDelta02: null,
+                lastDelta03: null,
+                lastDelta04: null,
+                lastDelta05: null,
+                lastDelta23: null,
+                lastDelta45: null
+            };
+        }
+
+        function topologyInitMatrixState() {
+            if (!topologyMatrixState) topologyMatrixState = createTopologyMatrixState();
+        }
+
+        function topologyResolvePacketType(entry, displayName) {
+            const probe = String(entry?.probe || entry?.probe_type || entry?.type || '').toUpperCase();
+            if (probe.includes('ACK')) return 'ACK';
+            if (probe.includes('DATA')) return 'DATA';
+            if (probe.includes('BEACON')) return 'BEACON';
+            if (probe.includes('PROBE')) return 'PROBE';
+            const cls = topologyClassifyDevice(displayName, entry);
+            if (cls === 'BEACON') return 'BEACON';
+            if (cls === 'HANDSET') return 'DATA';
+            return 'PROBE';
+        }
+
+        function topologyClassifyDevice(name, entry) {
+            const lower = String(name || '').toLowerCase();
+            if (entry?.is_human || isHumanDevice(name)) return 'HANDSET';
+            if (/wifi|hot|router|linksys|probe|mesh|cyberlink/i.test(lower)) return 'PROBE';
+            if (/iphone|galaxy|pixel|samsung|apple|android/i.test(lower)) return 'HANDSET';
+            return 'BEACON';
+        }
+
+        function topologyFormatDelta(d) {
+            if (d === null || !Number.isFinite(d)) return '—';
+            const sign = d > 0 ? '+' : '';
+            return `${sign}${Math.round(d)}dBm`;
+        }
+
+        function topologyCenterRssiForDevice(sensors) {
+            const s1 = sensors[1];
+            if (s1) return s1.rssi;
+            const vals = [2, 3, 4, 5].map(sid => sensors[sid]?.rssi).filter(v => v !== undefined);
+            if (!vals.length) return null;
+            vals.sort((a, b) => a - b);
+            return vals[Math.floor(vals.length / 2)];
+        }
+
+        function topologyComputeNodeDelta(state, peripheralSid, time) {
+            const pairs = [];
+            const windowMs = 6000;
+            for (const sensors of state.rssiByDeviceSensor.values()) {
+                const centerRssi = topologyCenterRssiForDevice(sensors);
+                const sp = sensors[peripheralSid];
+                if (centerRssi === null || !sp) continue;
+                if (time - sp.time > windowMs) continue;
+                if (sensors[1] && time - sensors[1].time > windowMs) continue;
+                pairs.push(sp.rssi - centerRssi);
+            }
+            if (!pairs.length) return null;
+            return pairs.reduce((a, b) => a + b, 0) / pairs.length;
+        }
+
+        function topologyComputePairDelta(state, sidA, sidB, time) {
+            const pairs = [];
+            const windowMs = 6000;
+            for (const sensors of state.rssiByDeviceSensor.values()) {
+                const sa = sensors[sidA];
+                const sb = sensors[sidB];
+                if (!sa || !sb) continue;
+                if (time - sa.time > windowMs || time - sb.time > windowMs) continue;
+                pairs.push(sb.rssi - sa.rssi);
+            }
+            if (!pairs.length) return null;
+            return pairs.reduce((a, b) => a + b, 0) / pairs.length;
+        }
+
+        function topologySysCoherence(state, time) {
+            let total = 0;
+            let coherent = 0;
+            const windowMs = 8000;
+            for (const sensors of state.rssiByDeviceSensor.values()) {
+                const centerRssi = topologyCenterRssiForDevice(sensors);
+                if (centerRssi === null) continue;
+                total++;
+                let aligned = true;
+                for (const sid of [2, 3, 4, 5]) {
+                    const sp = sensors[sid];
+                    if (!sp || time - sp.time > windowMs) continue;
+                    if (Math.abs(sp.rssi - centerRssi) > 14) aligned = false;
+                }
+                if (aligned) coherent++;
+            }
+            if (!total) return 0;
+            return (coherent / total) * 100;
+        }
+
+        function topologyEmFieldDensity(state, time) {
+            state.packetTimestamps = state.packetTimestamps.filter(t => time - t < 2500);
+            const rate = state.packetTimestamps.length;
+            if (rate > 42) return 'CRITICAL';
+            if (rate > 28) return 'HIGH';
+            if (rate > 14) return 'MODERATE';
+            return 'LOW';
+        }
+
+        function topologyExtractWifiChannel(entry) {
+            const chRaw = entry?.channel ?? entry?.wifi_channel ?? entry?.ch ?? entry?.wifi_ch;
+            if (chRaw != null && Number.isFinite(Number(chRaw))) {
+                const channel = Math.round(Number(chRaw));
+                if (channel >= 1 && channel <= 14) return channel;
+            }
+            return null;
+        }
+
+        function topologyWifiChannelToGhz(channel) {
+            const mhz = 2407 + 5 * (channel - 1);
+            return (mhz / 1000).toFixed(3);
+        }
+
+        function topologySensorFreqGhz(state, sid) {
+            const ch = state.sensorChannels[sid] ?? TOPOLOGY_SENSOR_RX_CHANNEL[sid] ?? 6;
+            return `${topologyWifiChannelToGhz(ch)}GHz`;
+        }
+
+        function topologySensorLocName(sid) {
+            return TOPOLOGY_SENSOR_LOC_NAMES[sid] || TOPOLOGY_SENSOR_LOC_NAMES[1];
+        }
+
+        function topologyMacPrefix(mac) {
+            const parts = String(mac || '').toUpperCase().split(':');
+            if (parts.length >= 3) return `${parts[0]}:${parts[1]}:${parts[2]}`;
+            return String(mac || '00:00:00').slice(0, 8).toUpperCase();
+        }
+
+        function topologyShortVendor(vendorInfo) {
+            if (!vendorInfo?.vendor) return 'UNKNOWN';
+            const v = vendorInfo.vendor.toUpperCase();
+            if (v.includes('APPLE')) return 'APPLE';
+            if (v.includes('SAMSUNG')) return 'SAMSUNG';
+            if (v.includes('GOOGLE')) return 'GOOGLE';
+            if (v.includes('INTEL')) return 'INTEL';
+            if (v.includes('CISCO')) return 'CISCO';
+            if (v.includes('ESPRESSIF')) return 'ESPRESSIF';
+            return v.split(/\s+/)[0].slice(0, 8);
+        }
+
+        function topologyMacSeenByCount(row, time, windowMs = 100) {
+            const recent = row.hits.filter(h => time - h.time <= windowMs);
+            return new Set(recent.map(h => h.sid)).size;
+        }
+
+        function topologyIsolationIndex(state, time) {
+            let single = 0;
+            let total = 0;
+            for (const row of state.macRegistry.values()) {
+                const n = topologyMacSeenByCount(row, time, 140);
+                if (n <= 0) continue;
+                total++;
+                if (n === 1) single++;
+            }
+            if (!total) return 0.0035;
+            return (single / total) * 0.035;
+        }
+
+        function topologySensorRxBuffer(state, sid, time) {
+            const window = state.sensorPacketWindow[sid] || [];
+            const recent = window.filter(t => time - t < 2800);
+            const load = Math.min(98, 68 + recent.length * 1.35);
+            return load.toFixed(0);
+        }
+
+        function topologyPacketPressure(state, time) {
+            state.packetTimestamps = state.packetTimestamps.filter(t => time - t < 2200);
+            const pct = Math.min(99.2, (state.packetTimestamps.length / 55) * 100);
+            const filled = Math.round(pct / 5);
+            const bar = '|'.repeat(filled) + '.'.repeat(Math.max(0, 20 - filled));
+            return `[${bar}] ${pct.toFixed(1)}%`;
+        }
+
+        function topologyDropRatio(state) {
+            const total = state.packetTimestamps.length + state.dropEvents;
+            if (!total) return 0.0014;
+            return Math.min(0.0099, state.dropEvents / total * 0.02 + 0.0008);
+        }
+
+        function topologyMapAnchor(sid) {
+            const s = EV02_SENSOR_LAYOUT[sid];
+            if (!s) return 'CTR';
+            if (sid === 1) return 'CTR';
+            if (s.nx < 0.5 && s.ny < 0.5) return 'TL';
+            if (s.nx >= 0.5 && s.ny < 0.5) return 'TR';
+            if (s.nx < 0.5 && s.ny >= 0.5) return 'BL';
+            return 'BR';
+        }
+
+        function topologySignalToneClass(displayName, time, isHuman) {
+            if (!isHuman) return 'topology-signal--infra';
+            const closest = typeof evo2GetClosestHuman === 'function' ? evo2GetClosestHuman(time) : null;
+            if (displayName && displayName === closest) return 'topology-signal--closest';
+            return 'topology-signal--human';
+        }
+
+        function topologySideFeedRowCapacity(feedEl) {
+            const rowH = 8;
+            const feedH = feedEl?.clientHeight || 0;
+            if (feedH > rowH) {
+                return Math.max(6, Math.floor(feedH / rowH));
+            }
+            const edge = feedEl?.closest('.topology-frame-edge');
+            const edgeH = edge?.clientHeight || 0;
+            if (edgeH > rowH) {
+                return Math.max(6, Math.floor((edgeH - 2) / rowH));
+            }
+            return 12;
+        }
+
+        function topologyRecordSensorPacket(entry, displayName, time) {
+            const sid = evo2ResolveSensorId(entry.sensor_id);
+            if (sid < 1 || sid > 5) return;
+            topologyInitMatrixState();
+            const state = topologyMatrixState;
+
+            if (state.streamAnchor === null) state.streamAnchor = time;
+            const tOffset = Math.round(time - state.streamAnchor) % 10000;
+            const pktType = topologyResolvePacketType(entry, displayName);
+            const isHuman = entry.is_human === true || isHumanDevice(displayName);
+
+            state.mapTickerLog.unshift({
+                tOffset,
+                sid,
+                node: String(sid).padStart(2, '0'),
+                loc: topologySensorLocName(sid),
+                anchor: topologyMapAnchor(sid),
+                type: pktType,
+                rssi: Math.round(entry.rssi),
+                device: String(displayName || 'UNKNOWN').slice(0, 10),
+                isHuman,
+                displayName,
+                born: time
+            });
+            if (state.mapTickerLog.length > TOPOLOGY_MAP_TICKER_BUFFER) {
+                state.mapTickerLog.length = TOPOLOGY_MAP_TICKER_BUFFER;
+            }
+
+            if (!state.rssiByDeviceSensor.has(displayName)) {
+                state.rssiByDeviceSensor.set(displayName, {});
+            }
+            const devSensors = state.rssiByDeviceSensor.get(displayName);
+            devSensors[sid] = { rssi: entry.rssi, time };
+
+            if (sid !== 1) {
+                const centerRssi = topologyCenterRssiForDevice(devSensors);
+                if (centerRssi !== null) {
+                    state.decaySamples.push(Math.abs(entry.rssi - centerRssi));
+                    if (state.decaySamples.length > 40) state.decaySamples.shift();
+                }
+            }
+
+            const chExtract = topologyExtractWifiChannel(entry);
+            if (chExtract != null) state.sensorChannels[sid] = chExtract;
+
+            state.locationCascade.unshift({
+                loc: topologySensorLocName(sid),
+                rssi: Math.round(entry.rssi),
+                freq: topologySensorFreqGhz(state, sid),
+                displayName,
+                isHuman,
+                born: time
+            });
+            if (state.locationCascade.length > TOPOLOGY_LOCATION_CASCADE_BUFFER) {
+                state.locationCascade.length = TOPOLOGY_LOCATION_CASCADE_BUFFER;
+            }
+
+            if (!state.sensorPacketWindow[sid]) state.sensorPacketWindow[sid] = [];
+            state.sensorPacketWindow[sid].push(time);
+            state.sensorPacketWindow[sid] = state.sensorPacketWindow[sid].filter(t => time - t < 4000);
+
+            const mac = fieldSerialResolveMac(entry, displayName, isHuman);
+            const vendorInfo = fieldSerialResolveVendor(mac, displayName, isHuman);
+            const macKey = topologyMacPrefix(mac);
+            let macRow = state.macRegistry.get(macKey);
+            if (!macRow) {
+                macRow = { macKey, mac, vendor: topologyShortVendor(vendorInfo), hits: [] };
+                state.macRegistry.set(macKey, macRow);
+            }
+            macRow.vendor = topologyShortVendor(vendorInfo);
+            macRow.hits.push({ sid, time });
+            macRow.hits = macRow.hits.filter(h => time - h.time < 1500);
+            if (state.macRegistry.size > 32) {
+                const oldest = [...state.macRegistry.entries()]
+                    .sort((a, b) => (a[1].hits[0]?.time ?? 0) - (b[1].hits[0]?.time ?? 0))[0]?.[0];
+                if (oldest) state.macRegistry.delete(oldest);
+            }
+
+            state.packetTimestamps.push(time);
+            if (entry.rssi <= -95) state.dropEvents++;
+
+            state.lastDelta02 = topologyComputeNodeDelta(state, 2, time);
+            state.lastDelta03 = topologyComputeNodeDelta(state, 3, time);
+            state.lastDelta04 = topologyComputeNodeDelta(state, 4, time);
+            state.lastDelta05 = topologyComputeNodeDelta(state, 5, time);
+            state.lastDelta23 = topologyComputePairDelta(state, 2, 3, time);
+            state.lastDelta45 = topologyComputePairDelta(state, 4, 5, time);
+
+            if (state.rssiByDeviceSensor.size > 180) {
+                const firstKey = state.rssiByDeviceSensor.keys().next().value;
+                state.rssiByDeviceSensor.delete(firstKey);
+            }
+        }
+
+        function topologyMatrixRow(html) {
+            return `<div class="topology-matrix-row">${html}</div>`;
+        }
+
+        function topologyMatrixSep() {
+            return `<span class="topology-matrix-sep">│</span>`;
+        }
+
+        function updateTopologyTriangulationTop(time) {
+            const el = document.getElementById('topology-margin-top');
+            if (!el) return;
+            topologyInitMatrixState();
+            const state = topologyMatrixState;
+            const jx = Math.sin(time * 0.0023) * 0.0004;
+            const jy = Math.cos(time * 0.0019) * 0.008;
+            const d02 = state.lastDelta02 !== null ? state.lastDelta02 + Math.sin(time * 0.0023) * 0.5 : null;
+            const d03 = state.lastDelta03 !== null ? state.lastDelta03 - Math.sin(time * 0.0017) * 0.4 : null;
+            const d23 = state.lastDelta23 !== null ? state.lastDelta23 + Math.cos(time * 0.002) * 0.45 : null;
+            const d04 = state.lastDelta04 !== null ? state.lastDelta04 + Math.cos(time * 0.0019) * 0.5 : null;
+            const d05 = state.lastDelta05 !== null ? state.lastDelta05 - Math.sin(time * 0.0021) * 0.35 : null;
+            const d45 = state.lastDelta45 !== null ? state.lastDelta45 + Math.sin(time * 0.0018) * 0.4 : null;
+            const coherence = topologySysCoherence(state, time);
+            const coherenceStr = coherence > 0
+                ? `${(coherence + Math.sin(time * 0.0015) * 0.35).toFixed(1)}%`
+                : '—';
+            const vectorX = ((d02 ?? 0) - (d03 ?? 0)) * 0.00035 + jx;
+            const vectorY = -((state.decaySamples.slice(-1)[0] ?? 14) / 100) + jy;
+            const emField = topologyEmFieldDensity(state, time);
+            const isolation = topologyIsolationIndex(state, time);
+            const emHot = emField === 'HIGH' || emField === 'CRITICAL';
+
+            el.innerHTML =
+                topologyMatrixRow(
+                    `<span class="topology-matrix-field topology-matrix-field--key">Δ[01→02]: ${topologyFormatDelta(d02)}</span>${topologyMatrixSep()}` +
+                    `<span class="topology-matrix-field topology-matrix-field--key">Δ[01→03]: ${topologyFormatDelta(d03)}</span>${topologyMatrixSep()}` +
+                    `<span class="topology-matrix-field topology-matrix-field--key">Δ[02→03]: ${topologyFormatDelta(d23)}</span>${topologyMatrixSep()}` +
+                    `<span class="topology-matrix-field">VECTOR_X: ${vectorX >= 0 ? '+' : ''}${vectorX.toFixed(4)}%</span>`
+                ) +
+                topologyMatrixRow(
+                    `<span class="topology-matrix-field topology-matrix-field--key">Δ[01→04]: ${topologyFormatDelta(d04)}</span>${topologyMatrixSep()}` +
+                    `<span class="topology-matrix-field topology-matrix-field--key">Δ[01→05]: ${topologyFormatDelta(d05)}</span>${topologyMatrixSep()}` +
+                    `<span class="topology-matrix-field topology-matrix-field--key">Δ[04→05]: ${topologyFormatDelta(d45)}</span>${topologyMatrixSep()}` +
+                    `<span class="topology-matrix-field">VECTOR_Y: ${vectorY.toFixed(3)}λ</span>`
+                ) +
+                topologyMatrixRow(
+                    `<span class="topology-matrix-field topology-matrix-field--key">[SYS_COHERENCE: ${coherenceStr}]</span>${topologyMatrixSep()}` +
+                    `<span class="topology-matrix-field${emHot ? ' topology-matrix-field--hot' : ''}">[EM_FIELD_DENSITY: ${emField}]</span>${topologyMatrixSep()}` +
+                    `<span class="topology-matrix-field">[NET_ISOLATION_INDEX: ${(isolation + Math.sin(time * 0.0013) * 0.0003).toFixed(4)}%]</span>`
+                );
+        }
+
+        function topologyNodeAvgRssi(state, sid, time) {
+            const vals = [];
+            const windowMs = 8000;
+            for (const sensors of state.rssiByDeviceSensor.values()) {
+                const reading = sensors[sid];
+                if (reading && time - reading.time < windowMs) vals.push(reading.rssi);
+            }
+            if (!vals.length) return null;
+            return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+        }
+
+        function topologyFormatDeltaFixed(d) {
+            if (d === null || !Number.isFinite(d)) return '  —  ';
+            const sign = d > 0 ? '+' : d < 0 ? '-' : ' ';
+            return `${sign}${String(Math.abs(Math.round(d))).padStart(2, '0')}dBm`;
+        }
+
+        function topologyBottomNodeRssiText(state, time) {
+            return [1, 2, 3, 4, 5].map(sid => {
+                const avg = topologyNodeAvgRssi(state, sid, time);
+                const ch = state.sensorChannels[sid] ?? TOPOLOGY_SENSOR_RX_CHANNEL[sid];
+                const freq = topologyWifiChannelToGhz(ch);
+                const node = String(sid).padStart(2, '0');
+                const rssiStr = avg !== null ? String(avg).padStart(3, ' ') : ' — ';
+                return `[${node}]${rssiStr}·${freq}`;
+            }).join(' ');
+        }
+
+        function topologyBottomCaptureHtml(state, time) {
+            const row = state.mapTickerLog[0];
+            if (!row) {
+                return '<span class="topology-bottom-feed-placeholder">[---] -- ----- ----</span>';
+            }
+            const tone = topologySignalToneClass(row.displayName, time, row.isHuman);
+            const tStr = String(row.tOffset).padStart(3, '0');
+            const node = escapeFooterHtml(String(row.node).padStart(2, '0'));
+            const type = escapeFooterHtml(String(row.type || 'PROBE').toUpperCase().padEnd(5, ' ').slice(0, 5));
+            const rssi = String(row.rssi).padStart(4, ' ');
+            return `<span class="${tone}">[${tStr}] ${node} ${type} ${rssi}</span>`;
+        }
+
+        function topologyBottomDeltaText(state, time) {
+            const jitter = Math.sin(time * 0.002) * 0.4;
+            const d02 = state.lastDelta02 !== null ? state.lastDelta02 + jitter : null;
+            const d03 = state.lastDelta03 !== null ? state.lastDelta03 - jitter * 0.5 : null;
+            const coherence = topologySysCoherence(state, time);
+            const cohStr = coherence > 0 ? `${coherence.toFixed(1).padStart(5, ' ')}%` : '  —  ';
+            return `Δ01→02 ${topologyFormatDeltaFixed(d02)} │ Δ01→03 ${topologyFormatDeltaFixed(d03)} │ COH ${cohStr}`;
+        }
+
+        function updateTopologySpectrumBottom(time) {
+            topologyInitMatrixState();
+            const state = topologyMatrixState;
+            const chRow = document.getElementById('topology-bottom-row-ch');
+            const rxRow = document.getElementById('topology-bottom-row-rx');
+            const pressureRow = document.getElementById('topology-bottom-row-pressure');
+            const captureVal = document.getElementById('topology-feed-capture-val');
+            const deltaVal = document.getElementById('topology-feed-delta-val');
+            const rssiVal = document.getElementById('topology-feed-rssi-val');
+            if (!chRow || !rxRow || !pressureRow || !captureVal || !deltaVal || !rssiVal) return;
+
+            const chScan = [1, 2, 3, 4, 5].map(sid =>
+                `[${String(sid).padStart(2, '0')}//CH${state.sensorChannels[sid] ?? TOPOLOGY_SENSOR_RX_CHANNEL[sid]}]`
+            ).join(' ');
+            const rxBuff = [1, 2, 3, 4, 5].map(sid =>
+                `[${String(sid).padStart(2, '0')}//${topologySensorRxBuffer(state, sid, time)}%]`
+            ).join(' ');
+            const coreTemp = (38.6 + (state.packetTimestamps.length % 12) * 0.22 + Math.sin(time * 0.0011) * 0.4).toFixed(1);
+            const pressure = topologyPacketPressure(state, time);
+            const dropRatio = topologyDropRatio(state);
+
+            chRow.innerHTML = topologyMatrixRow(
+                `<span class="topology-matrix-field topology-matrix-field--key">CH_SCAN: ${escapeFooterHtml(chScan)}</span>${topologyMatrixSep()}` +
+                `<span class="topology-matrix-field">BANDWIDTH: 20MHz</span>`
+            );
+            rxRow.innerHTML = topologyMatrixRow(
+                `<span class="topology-matrix-field topology-matrix-field--key">RX_BUFF: ${escapeFooterHtml(rxBuff)}</span>${topologyMatrixSep()}` +
+                `<span class="topology-matrix-field">CORE_TEMP: ${coreTemp}°C</span>`
+            );
+            pressureRow.innerHTML = topologyMatrixRow(
+                `<span class="topology-matrix-field">PACKET_PRESSURE: ${escapeFooterHtml(pressure)}</span>${topologyMatrixSep()}` +
+                `<span class="topology-matrix-field">DROP_RATIO_GLOBAL: ${dropRatio.toFixed(4)}</span>`
+            );
+
+            captureVal.innerHTML = topologyBottomCaptureHtml(state, time);
+            deltaVal.textContent = topologyBottomDeltaText(state, time);
+            rssiVal.textContent = topologyBottomNodeRssiText(state, time);
+        }
+
+        function updateTopologyLocationCascade(time) {
+            const el = document.getElementById('topology-margin-left');
+            if (!el) return;
+            topologyInitMatrixState();
+            const rowCount = topologySideFeedRowCapacity(el);
+            const rows = topologyMatrixState.locationCascade.slice(0, rowCount);
+            if (!rows.length) {
+                el.innerHTML = Array.from({ length: rowCount }, (_, i) =>
+                    i === 0
+                        ? '<div class="topology-location-line topology-location-line--idle"><span class="topology-location-tag">[INGEST]</span> │ awaiting signal capture...</div>'
+                        : '<div class="topology-location-line topology-location-line--idle">&nbsp;</div>'
+                ).join('');
+                return;
+            }
+            el.innerHTML = Array.from({ length: rowCount }, (_, idx) => {
+                const row = rows[idx];
+                if (!row) {
+                    return '<div class="topology-location-line topology-location-line--idle">&nbsp;</div>';
+                }
+                const fresh = idx === 0 && time - row.born < 320 ? ' topology-location-line--fresh' : '';
+                const tone = topologySignalToneClass(row.displayName, time, row.isHuman);
+                return (
+                    `<div class="topology-location-line${fresh}">` +
+                    `<span class="topology-location-tag">[INGEST]</span> │ LOC: [<span class="topology-location-loc ${tone}">${escapeFooterHtml(row.loc)}</span>] │ RSSI: ${row.rssi}dBm │ FREQ: <span class="topology-location-freq ${tone}">${escapeFooterHtml(row.freq)}</span>` +
+                    `</div>`
+                );
+            }).join('');
+        }
+
+        function initTopologyForensicFrame() {
+            if (topologyForensicReady) return;
+            topologyInitMatrixState();
+            topologyForensicReady = true;
+        }
+
+        function updateTopologyForensicFrame(time, delta) {
+            initTopologyForensicFrame();
+            updateTopologyTriangulationTop(time);
+            updateTopologySpectrumBottom(time);
+            updateTopologyLocationCascade(time);
+        }
 
         function isEv02Human(name) {
             const up = String(name || '').toUpperCase();
@@ -6122,9 +7538,14 @@
             return EV02_SENSOR_LAYOUT[id] || EV02_SENSOR_LAYOUT[1];
         }
 
+        function evo2SensorMapLabel(sensorId) {
+            return `[${String(sensorId).padStart(2, '0')}]`;
+        }
+
         function evo2SensorPx(sID, W, H) {
             const s = evo2SensorNorm(sID);
-            return { sx: s.nx * W, sy: s.ny * H, label: s.label };
+            const id = evo2ResolveSensorId(sID);
+            return { sx: s.nx * W, sy: s.ny * H, label: evo2SensorMapLabel(id) };
         }
 
         function evo2GetPos(name) {
@@ -6204,6 +7625,43 @@
             return { px: (v.x ?? 0.5) * W, py: (v.y ?? 0.5) * H };
         }
 
+        function evo2DrawSensorNodes(ctx, W, H) {
+            const labelColor = isLightMode ? 'rgba(0, 0, 0, 0.88)' : 'rgba(255, 255, 255, 0.94)';
+            const dotFill = isLightMode ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.22)';
+            const dotStroke = isLightMode ? 'rgba(0, 0, 0, 0.28)' : 'rgba(255, 255, 255, 0.28)';
+
+            EV02_SENSOR_DRAW_ORDER.forEach(sid => {
+                const s = EV02_SENSOR_LAYOUT[sid];
+                const sx = s.nx * W;
+                const sy = s.ny * H;
+                const label = evo2SensorMapLabel(sid);
+
+                ctx.beginPath();
+                ctx.arc(sx, sy, 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = dotFill;
+                ctx.fill();
+                ctx.strokeStyle = dotStroke;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.fillStyle = labelColor;
+                ctx.font = "bold 9px 'Courier New', Courier, monospace";
+                ctx.shadowBlur = 0;
+
+                if (sid === 1) {
+                    ctx.textAlign = 'center';
+                    ctx.fillText(label, sx, sy + 13);
+                } else if (s.nx > 0.55) {
+                    ctx.textAlign = 'right';
+                    ctx.fillText(label, sx - 6, sy + 3);
+                } else {
+                    ctx.textAlign = 'left';
+                    ctx.fillText(label, sx + 6, sy + 3);
+                }
+                ctx.textAlign = 'left';
+            });
+        }
+
         function initEvolution2DPanel() {
             evo2Canvas = document.getElementById('evo2d-canvas');
             const host = document.getElementById('canvas-topology');
@@ -6213,14 +7671,15 @@
                 host.appendChild(evo2Canvas);
             }
             evo2Ctx = evo2Canvas?.getContext('2d');
+            initTopologyForensicFrame();
             resizeEvolution2DPanel();
             syncEv02Hud(0);
         }
 
         function resizeEvolution2DPanel() {
-            const panel = document.getElementById('panel-topology');
-            if (!evo2Canvas || !panel) return;
-            const rect = panel.getBoundingClientRect();
+            const host = document.getElementById('canvas-topology');
+            if (!evo2Canvas || !host) return;
+            const rect = host.getBoundingClientRect();
             const dpr = Math.min(window.devicePixelRatio, 2);
             evo2W = Math.max(1, rect.width);
             evo2H = Math.max(1, rect.height);
@@ -6250,6 +7709,7 @@
                 .filter(([, v]) => playTime - v.ts < EV02_SIGNAL_TTL_MS);
             if (!entries.length) {
                 syncEv02Hud(0);
+                evo2DrawSensorNodes(ctx, W, H);
                 return;
             }
 
@@ -6398,20 +7858,7 @@
                 }
             });
 
-            EV02_SENSOR_DRAW_ORDER.forEach(sid => {
-                const s = EV02_SENSOR_LAYOUT[sid];
-                const sx = s.nx * W;
-                const sy = s.ny * H;
-                const isCenter = sid === 1;
-                ctx.beginPath();
-                ctx.arc(sx, sy, isCenter ? 2.5 : 2, 0, Math.PI * 2);
-                ctx.fillStyle = isCenter ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.14)';
-                ctx.fill();
-                ctx.fillStyle = isCenter ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.22)';
-                ctx.font = "9px 'Courier New', Courier, monospace";
-                ctx.textAlign = 'left';
-                ctx.fillText(s.label, sx + 5, sy + 3);
-            });
+            evo2DrawSensorNodes(ctx, W, H);
 
             syncEv02Hud(entries.length);
         }
@@ -7123,6 +8570,7 @@
 
             if (!isClone) {
                 onEv02Signal(displayName, entry.rssi, entry.sensor_id, time);
+                topologyRecordSensorPacket(entry, displayName, time);
                 appendFieldSerialLine(entry, displayName, time, deviceId);
                 onE3Signal(displayName, entry.rssi, time);
                 playEmfTone(entry.rssi, entry.distance_m, humanCheck);
