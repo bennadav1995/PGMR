@@ -1649,6 +1649,7 @@
             <button id="btn-audio-global" type="button" class="cmd-btn">[ AUDIO: MUTED ]</button>
             <button id="btn-stress" type="button" class="cmd-btn cmd-btn--danger">[ STRESS: OFF ]</button>
             <button id="btn-invert" type="button" class="cmd-btn">[ SPECTRUM: DARK ]</button>
+            <button id="btn-sensor-mode" type="button" class="cmd-btn" title="Toggle JSON recording ↔ live sensors (resets system)">[ SOURCE: JSON ]</button>
         </div>
     </div>
 
@@ -1823,10 +1824,33 @@
             btn.classList.toggle('is-active', hardwareStressMultiplierActive);
         }
 
-        /** 'playback' = recorded JSON only; live ESP32/WebSocket disabled */
-        const SENSOR_DATA_MODE = 'playback';
+        function syncSensorModeBtnUi() {
+            const btn = document.getElementById('btn-sensor-mode');
+            if (!btn) return;
+            const live = SENSOR_DATA_MODE === 'live';
+            btn.textContent = live ? '[ SOURCE: SENSORS ]' : '[ SOURCE: JSON ]';
+            btn.classList.toggle('is-active', live);
+            btn.classList.toggle('cmd-btn--primary', live);
+        }
+
+        /** 'playback' = recorded JSON; 'live' = five active sensors only (WebSocket) */
+        let SENSOR_DATA_MODE = 'playback';
         const PLAYBACK_RECORDING_URL = '/assets/data/recording.json';
         let liveSensorSocket = null;
+        let liveSensorReconnectTimer = null;
+
+        function resolveLiveSensorWsUrl() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const fromQuery = params.get('ws') || params.get('live_ws');
+                if (fromQuery) return fromQuery;
+            } catch (_) {}
+            if (typeof window.PGMR_LIVE_WS === 'string' && window.PGMR_LIVE_WS.trim()) {
+                return window.PGMR_LIVE_WS.trim();
+            }
+            // Default: dedicated ESP32 bridge (server.js — port 8081)
+            return 'ws://localhost:8081/ws/sensors';
+        }
         let trackedDevices = {};
         let isLightMode = false; 
         
@@ -8215,7 +8239,8 @@
         function normalizePlaybackEntry(raw, extras = {}) {
             if (!raw || typeof raw !== 'object') return null;
             const device = String(raw.device || raw.device_id || raw.ssid || 'UNKNOWN_NODE').trim();
-            const sensorId = raw.sensor_id ?? raw.sensorId ?? 1;
+            const sensorRaw = raw.sensor_id ?? raw.sensorId ?? raw.sensor ?? 1;
+            const sensorId = Number(sensorRaw);
             const rssi = Number(raw.rssi);
             const distance_m = Number(raw.distance_m ?? raw.distance ?? raw.dist_m);
             const layerY = extras.layer_y ?? raw.layer_y ?? getE3StackHeight();
@@ -8223,7 +8248,7 @@
                 ...raw,
                 device,
                 device_id: raw.device_id || device,
-                sensor_id: sensorId,
+                sensor_id: Number.isFinite(sensorId) ? sensorId : 1,
                 rssi: Number.isFinite(rssi) ? rssi : -70,
                 distance_m: Number.isFinite(distance_m) ? distance_m : 50,
                 devices_in_room: raw.devices_in_room ?? raw.devicesInRoom,
@@ -8235,7 +8260,7 @@
                 bssid: raw.bssid,
                 is_human: raw.is_human ?? isHumanDevice(device),
                 layer_y: Math.round(Number(layerY) || getE3StackHeight()),
-                playback: true,
+                playback: SENSOR_DATA_MODE === 'playback',
                 source: SENSOR_DATA_MODE,
             };
         }
@@ -8306,6 +8331,10 @@
         }
 
         function disconnectLiveHardwareStream() {
+            if (liveSensorReconnectTimer) {
+                clearTimeout(liveSensorReconnectTimer);
+                liveSensorReconnectTimer = null;
+            }
             if (liveSensorSocket) {
                 try {
                     liveSensorSocket.onmessage = null;
@@ -8315,6 +8344,138 @@
                 } catch (_) {}
                 liveSensorSocket = null;
             }
+        }
+
+        function stopActiveAiVoice() {
+            if (currentAiVoiceElement) {
+                try {
+                    currentAiVoiceElement.onended = null;
+                    currentAiVoiceElement.onerror = null;
+                    currentAiVoiceElement.pause();
+                    currentAiVoiceElement.src = '';
+                } catch (_) {}
+                currentAiVoiceElement = null;
+            }
+            if (currentAiVoiceObjectUrl) {
+                try { URL.revokeObjectURL(currentAiVoiceObjectUrl); } catch (_) {}
+                currentAiVoiceObjectUrl = null;
+            }
+            isAiVoiceSpeaking = false;
+            aiVoiceActive = false;
+            aiVoiceRequestInFlight = false;
+        }
+
+        function resetFieldSerialStream() {
+            fieldSerialQueue.length = 0;
+            fieldSerialActiveMacs.clear();
+            fieldSerialPacketTimestamps.length = 0;
+            fieldSerialLineIndex = 0;
+            fieldSerialLastLineEl = null;
+            fieldSerialClosestCache = null;
+            fieldSerialLastFooterCtx = null;
+            fieldSerialSpectrumLoad = 0;
+            fieldSerialPacketRate = 0;
+            fieldSerialSpectrumLoadBase = 18;
+            fieldSerialPacketRateBase = 132;
+            Object.assign(fieldSerialTyper, {
+                lineEl: null,
+                bodyEl: null,
+                cursorEl: null,
+                segments: null,
+                segIdx: 0,
+                charIdx: 0,
+                activeSpan: null,
+                nextAt: 0,
+                idleUntil: 0,
+                ctx: null,
+            });
+            const feed = document.getElementById('field-serial-feed');
+            if (feed) feed.innerHTML = '';
+        }
+
+        function resetEvolution3DTowerState() {
+            while (e3Growing.length) e3DisposeGrowingLine(e3Growing.pop());
+            while (e3Permanent.length) e3DisposeObject(e3Permanent.pop());
+            e3Layers.length = 0;
+            e3LayerReadings.length = 0;
+            e3LayerStats.length = 0;
+            e3LayerCount = 0;
+            for (const k of Object.keys(e3Active)) delete e3Active[k];
+            for (const k of Object.keys(e3BinCols)) delete e3BinCols[k];
+            e3LastLayerTime = performance.now();
+            if (typeof e3SyncCameraSmoothState === 'function') e3SyncCameraSmoothState(e3LastLayerTime);
+            if (typeof applyEvolution3DCameraPose === 'function') applyEvolution3DCameraPose();
+            if (typeof syncE3Hud === 'function') syncE3Hud();
+        }
+
+        function resetTopologySignalState() {
+            for (const k of Object.keys(evo2Active)) delete evo2Active[k];
+            for (const k of Object.keys(evo2BinCols)) delete evo2BinCols[k];
+            evo2RecordedNames.clear();
+            evo2FooterClosestCache = null;
+            topologyMatrixState = createTopologyMatrixState();
+            const top = document.getElementById('topology-margin-top');
+            const left = document.getElementById('topology-margin-left');
+            const chRow = document.getElementById('topology-bottom-row-ch');
+            const rxRow = document.getElementById('topology-bottom-row-rx');
+            const pressureRow = document.getElementById('topology-bottom-row-pressure');
+            const captureVal = document.getElementById('topology-feed-capture-val');
+            const deltaVal = document.getElementById('topology-feed-delta-val');
+            const rssiVal = document.getElementById('topology-feed-rssi-val');
+            if (top) top.innerHTML = '';
+            if (left) left.innerHTML = '';
+            if (chRow) chRow.innerHTML = '';
+            if (rxRow) rxRow.innerHTML = '';
+            if (pressureRow) pressureRow.innerHTML = '';
+            if (captureVal) captureVal.innerHTML = '';
+            if (deltaVal) deltaVal.textContent = '';
+            if (rssiVal) rssiVal.textContent = '';
+        }
+
+        function resetEntityDynamicState() {
+            frozenCrystalParticles = [];
+            entityBurstTendrils = [];
+            dynamicEntity.organicJitter = 0;
+            dynamicEntity.waveEnergy = 0;
+            dynamicEntity.signalIntensity = 0;
+            dynamicEntity.voiceEnergy = 0;
+            dynamicEntity.voiceCadence = 0;
+            dynamicEntity.voiceEnergyRaw = 0;
+            dynamicEntity.rotVelX = 0;
+            dynamicEntity.rotVelY = 0;
+            dynamicEntity.rotVelZ = 0;
+            dynamicEntity.spikeActive = false;
+            dynamicEntity.spikeStart = 0;
+            dynamicEntity.spikeClench = 0;
+            dynamicEntity.spikeBurst = 0;
+            if (typeof entityGroup !== 'undefined' && entityGroup) {
+                entityGroup.scale.set(1, 1, 1);
+            }
+        }
+
+        /** Full hard reset of streams, devices, and panel state (used on SOURCE toggle). */
+        function resetEntireSensorSystem() {
+            disconnectLiveHardwareStream();
+            stopActiveAiVoice();
+            sensorPlayback.loaded = false;
+            sensorPlayback.entries = [];
+            sensorPlayback.index = 0;
+            sensorPlayback.loopGeneration = 0;
+            sensorPlayback.virtualTimeOffset = 0;
+            sensorPlayback.lastRealTime = 0;
+            resetEntityPlaybackDevices();
+            trackedDevices = {};
+            lastSpokenMap = {};
+            resetFieldSerialStream();
+            resetTopologySignalState();
+            resetEvolution3DTowerState();
+            resetEntityDynamicState();
+            if (hardwareStressMultiplierActive) {
+                hardwareStressMultiplierActive = false;
+                syncStressBtnUi();
+            }
+            refreshPanelFooterTickers();
+            console.log('[system] Full reset — cleared devices, panels, and data clocks');
         }
 
         function initAudio() {
@@ -8524,6 +8685,7 @@
 
         /** Caps virtual-time catch-up; replays recording.json on an infinite seamless loop */
         function drainDueEntries(now) {
+            if (SENSOR_DATA_MODE !== 'playback') return [];
             if (!sensorPlayback.loaded || sensorPlayback.entries.length === 0) return [];
 
             const elapsedReal = Math.max(0, now - sensorPlayback.lastRealTime);
@@ -8657,9 +8819,19 @@
         }
 
         /** Live ESP32 hook — disabled while SENSOR_DATA_MODE === 'playback' */
-        function onLiveSensorReading(entry) {
+        function onLiveSensorReading(payload) {
             if (SENSOR_DATA_MODE !== 'live') return;
-            processSensorEntry(entry, performance.now());
+            const now = performance.now();
+            const items = Array.isArray(payload)
+                ? payload
+                : Array.isArray(payload?.data)
+                    ? payload.data
+                    : [payload];
+            for (const entry of items) {
+                if (entry && typeof entry === 'object') {
+                    processSensorEntry(entry, now);
+                }
+            }
         }
 
         function connectLiveHardwareStream(url) {
@@ -8668,8 +8840,32 @@
                 disconnectLiveHardwareStream();
                 return;
             }
-            disconnectLiveHardwareStream();
-            liveSensorSocket = new WebSocket(url);
+            if (liveSensorReconnectTimer) {
+                clearTimeout(liveSensorReconnectTimer);
+                liveSensorReconnectTimer = null;
+            }
+            if (liveSensorSocket) {
+                try {
+                    liveSensorSocket.onmessage = null;
+                    liveSensorSocket.onerror = null;
+                    liveSensorSocket.onclose = null;
+                    liveSensorSocket.close();
+                } catch (_) {}
+                liveSensorSocket = null;
+            }
+            const targetUrl = url || resolveLiveSensorWsUrl();
+            try {
+                liveSensorSocket = new WebSocket(targetUrl);
+            } catch (err) {
+                console.warn('[live] WebSocket open failed:', err.message);
+                liveSensorReconnectTimer = setTimeout(() => {
+                    if (SENSOR_DATA_MODE === 'live') connectLiveHardwareStream(targetUrl);
+                }, 1500);
+                return;
+            }
+            liveSensorSocket.onopen = () => {
+                console.log('[live] Connected to five-sensor stream', targetUrl);
+            };
             liveSensorSocket.onmessage = (ev) => {
                 try {
                     const data = JSON.parse(ev.data);
@@ -8679,10 +8875,18 @@
                 }
             };
             liveSensorSocket.onerror = () => console.warn('[live] WebSocket error');
+            liveSensorSocket.onclose = () => {
+                liveSensorSocket = null;
+                if (SENSOR_DATA_MODE !== 'live') return;
+                liveSensorReconnectTimer = setTimeout(() => {
+                    if (SENSOR_DATA_MODE === 'live') connectLiveHardwareStream(targetUrl);
+                }, 1500);
+            };
         }
 
         async function startPlaybackMode() {
             disconnectLiveHardwareStream();
+            SENSOR_DATA_MODE = 'playback';
             sensorPlayback.mode = 'playback';
             try {
                 const res = await fetch(PLAYBACK_RECORDING_URL, { cache: 'no-store' });
@@ -8694,6 +8898,42 @@
                 console.warn('[playback] Fetch failed, using embedded fallback:', err.message);
                 loadRecording(EMBEDDED_RECORDING);
             }
+            syncSensorModeBtnUi();
+        }
+
+        function startLiveMode() {
+            disconnectLiveHardwareStream();
+            SENSOR_DATA_MODE = 'live';
+            sensorPlayback.mode = 'live';
+            sensorPlayback.loaded = false;
+            sensorPlayback.entries = [];
+            sensorPlayback.index = 0;
+            sensorPlayback.loopGeneration = 0;
+            sensorPlayback.virtualTimeOffset = 0;
+            const url = resolveLiveSensorWsUrl();
+            connectLiveHardwareStream(url);
+            syncSensorModeBtnUi();
+            console.log('[live] JSON playback stopped — exclusive sensor stream at', url);
+        }
+
+        async function switchSensorDataMode(targetMode) {
+            const next = targetMode === 'live' ? 'live' : 'playback';
+            console.log('[system] Switching SOURCE →', next, '(full reset)');
+            resetEntireSensorSystem();
+            SENSOR_DATA_MODE = next;
+            sensorPlayback.mode = next;
+            if (next === 'live') {
+                startLiveMode();
+            } else {
+                await startPlaybackMode();
+            }
+            syncSensorModeBtnUi();
+            refreshPanelFooterTickers();
+        }
+
+        async function toggleSensorDataMode() {
+            const next = SENSOR_DATA_MODE === 'playback' ? 'live' : 'playback';
+            await switchSensorDataMode(next);
         }
 
         function easeInOutCubic(t) {
@@ -8795,10 +9035,14 @@
         document.getElementById('btn-audio-global').addEventListener('click', toggleMasterAudio);
         document.getElementById('btn-stress').addEventListener('click', toggleHardwareStressMultiplier);
         document.getElementById('btn-invert').addEventListener('click', toggleSpectrumMatrix);
+        document.getElementById('btn-sensor-mode').addEventListener('click', () => {
+            toggleSensorDataMode().catch(err => console.error('[sensor-mode]', err));
+        });
         syncAudioBtnUi();
         syncHudAudioStatus();
         syncSpectrumBtnUi();
         syncStressBtnUi();
+        syncSensorModeBtnUi();
         initPanelFooterTickers();
 
         // ==========================================

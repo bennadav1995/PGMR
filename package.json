@@ -1,11 +1,22 @@
 {
   "scripts": {
-    "start": "node server.js"
+    "start": "node ai-server.js",
+    "bridge": "node server.js",
+    "ai": "node ai-server.js",
+    "open:app": "wait-on http://127.0.0.1:3000 && open http://localhost:3000",
+    "dev": "concurrently --kill-others-on-fail -n APP,BRIDGE,WEB -c cyan,magenta,yellow \"npm run start\" \"npm run bridge\" \"npm run open:app\""
   },
   "dependencies": {
+    "@serialport/parser-readline": "^13.0.0",
     "axios": "^1.16.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "openai": "^6.39.0"
+    "openai": "^6.39.0",
+    "serialport": "^13.0.0",
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "wait-on": "^9.0.10"
   }
 }
