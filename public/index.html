@@ -152,6 +152,63 @@
             background: #000000;
         }
 
+        .topology-left-feed-toggle,
+        .entity-forensic-toggle {
+            box-sizing: border-box;
+            appearance: none;
+            -webkit-appearance: none;
+            position: static;
+            z-index: 4;
+            pointer-events: auto;
+            flex: 0 0 auto;
+            margin: 0;
+            padding: 2px 5px;
+            border: 1px solid rgba(255, 0, 0, 0.42);
+            background: rgba(0, 0, 0, 0.82);
+            color: rgba(255, 255, 255, 0.72);
+            font: normal 7.5px/1.1 'Courier New', Courier, monospace;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .topology-left-feed-toggle:hover,
+        .entity-forensic-toggle:hover {
+            color: rgba(255, 255, 255, 0.92);
+            border-color: rgba(255, 0, 0, 0.62);
+            background: rgba(0, 0, 0, 0.92);
+        }
+
+        .topology-left-feed-toggle:focus-visible,
+        .entity-forensic-toggle:focus-visible {
+            outline: 1px solid rgba(255, 0, 0, 0.72);
+            outline-offset: 1px;
+        }
+
+        .topology-left-feed-toggle.is-off,
+        .entity-forensic-toggle.is-off {
+            color: rgba(255, 0, 0, 0.62);
+            border-color: rgba(255, 0, 0, 0.28);
+        }
+
+        body.light-mode .topology-left-feed-toggle,
+        body.light-mode .entity-forensic-toggle {
+            background: rgba(255, 255, 255, 0.92);
+            color: rgba(0, 0, 0, 0.72);
+            border-color: rgba(180, 0, 0, 0.42);
+        }
+
+        body.light-mode .topology-left-feed-toggle:hover,
+        body.light-mode .entity-forensic-toggle:hover {
+            color: rgba(0, 0, 0, 0.92);
+            border-color: rgba(180, 0, 0, 0.62);
+        }
+
+        body.light-mode .topology-left-feed-toggle.is-off,
+        body.light-mode .entity-forensic-toggle.is-off {
+            color: rgba(180, 0, 0, 0.62);
+        }
+
         .topology-frame-edge {
             flex-shrink: 0;
             pointer-events: none;
@@ -173,6 +230,25 @@
             padding: 1px 2px;
             border-bottom: 1px solid rgba(255, 0, 0, 0.22);
             overflow: hidden;
+        }
+
+        .topology-top-bar {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            gap: 6px;
+            pointer-events: none;
+        }
+
+        .topology-top-bar .topology-matrix-stack {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .topology-top-bar .topology-left-feed-toggle {
+            pointer-events: auto;
         }
 
         .topology-frame-edge--bottom {
@@ -197,6 +273,24 @@
             flex-direction: column;
             padding: 1px 2px;
             overflow: hidden;
+            transition:
+                width 0.22s ease,
+                opacity 0.18s ease,
+                padding 0.22s ease,
+                border-color 0.22s ease;
+        }
+
+        .topology-forensic-frame.topology-left-feed-hidden .topology-frame-edge--left {
+            width: 0;
+            padding-left: 0;
+            padding-right: 0;
+            opacity: 0;
+            border-right-color: transparent;
+            pointer-events: none;
+        }
+
+        .topology-forensic-frame.topology-left-feed-hidden .topology-location-cascade {
+            visibility: hidden;
         }
 
         .topology-bottom-grid {
@@ -301,10 +395,11 @@
             flex-direction: column;
             justify-content: flex-start;
             gap: 0;
-            width: 100%;
-            height: 100%;
+            flex: 1 1 auto;
             min-height: 0;
+            width: 100%;
             overflow: hidden;
+            transition: opacity 0.18s ease, height 0.22s ease;
         }
 
         .topology-location-line {
@@ -550,12 +645,43 @@
             --entity-grid-center: clamp(120px, 38%, 220px);
         }
 
+        .viewport-panel[data-panel="entity"] .panel-footer-head-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-shrink: 0;
+            min-width: 0;
+        }
+
+        .viewport-panel[data-panel="entity"] .panel-footer-head-row .panel-footer-static {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .viewport-panel[data-panel="entity"] .panel-footer-head-row .entity-forensic-toggle {
+            font: normal 7.5px/1.1 'Courier New', Courier, monospace;
+            letter-spacing: 0.06em;
+            padding: 2px 5px;
+        }
+
+        .entity-forensic-overlay.entity-forensic-data-hidden .entity-forensic-quad,
+        .entity-forensic-overlay.entity-forensic-data-hidden .entity-forensic-grid-cross {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .entity-forensic-overlay.entity-forensic-data-hidden::before {
+            opacity: 0;
+        }
+
         .entity-forensic-overlay::before {
             content: '';
             position: absolute;
             inset: 3px;
             border: 1px solid rgba(255, 0, 0, 0.07);
             pointer-events: none;
+            transition: opacity 0.18s ease;
         }
 
         .entity-forensic-grid {
@@ -571,6 +697,7 @@
 
         .entity-forensic-grid-cross {
             pointer-events: none;
+            transition: opacity 0.18s ease, visibility 0.18s ease;
         }
 
         .entity-forensic-grid-cross--h {
@@ -605,6 +732,7 @@
             color: rgba(255, 255, 255, 0.34);
             font-variant-numeric: tabular-nums;
             overflow: hidden;
+            transition: opacity 0.18s ease, visibility 0.18s ease;
         }
 
         .entity-forensic-quad--tl {
@@ -1345,7 +1473,7 @@
         .viewport-panel .panel-footer .panel-sub {
             display: none;
         }
-        .viewport-panel .panel-footer > div,
+        .viewport-panel .panel-footer > div:not(.panel-footer-head-row),
         .viewport-panel .panel-footer .footer-grid {
             display: block;
         }
@@ -1355,17 +1483,17 @@
             gap: 2px 10px;
             align-items: baseline;
         }
-        .viewport-panel .panel-footer > div::before,
+        .viewport-panel .panel-footer > div:not(.panel-footer-head-row)::before,
         .viewport-panel .panel-footer .footer-grid::before {
             content: '{ ';
             color: var(--frame-red-faint);
         }
-        .viewport-panel .panel-footer > div::after,
+        .viewport-panel .panel-footer > div:not(.panel-footer-head-row)::after,
         .viewport-panel .panel-footer .footer-grid::after {
             content: ' }';
             color: var(--frame-red-faint);
         }
-        .viewport-panel .panel-footer > div > :not(.footer-value),
+        .viewport-panel .panel-footer > div > :not(.footer-value):not(.entity-forensic-toggle),
         .viewport-panel .panel-footer .footer-grid > span:nth-child(odd) {
             color: var(--json-key);
             font-size: 10px;
@@ -1623,13 +1751,13 @@
         body.light-mode .id-text {
             color: #000000;
         }
-        body.light-mode .viewport-panel .panel-footer > div::before,
+        body.light-mode .viewport-panel .panel-footer > div:not(.panel-footer-head-row)::before,
         body.light-mode .viewport-panel .panel-footer .footer-grid::before,
-        body.light-mode .viewport-panel .panel-footer > div::after,
+        body.light-mode .viewport-panel .panel-footer > div:not(.panel-footer-head-row)::after,
         body.light-mode .viewport-panel .panel-footer .footer-grid::after {
             color: var(--frame-red-faint);
         }
-        body.light-mode .viewport-panel .panel-footer > div > :not(.footer-value),
+        body.light-mode .viewport-panel .panel-footer > div > :not(.footer-value):not(.entity-forensic-toggle),
         body.light-mode .viewport-panel .panel-footer .footer-grid > span:nth-child(odd) {
             color: #666666;
         }
@@ -1714,7 +1842,16 @@
                 </div>
             </div>
             <footer class="panel-footer">
-                <div class="panel-footer-static">03 // ENTITY — ORGANIC PROTOCOL CORE</div>
+                <div class="panel-footer-head-row">
+                    <div class="panel-footer-static">03 // ENTITY — ORGANIC PROTOCOL CORE</div>
+                    <button
+                        type="button"
+                        id="entity-forensic-toggle"
+                        class="entity-forensic-toggle"
+                        aria-pressed="true"
+                        aria-label="Toggle core forensic data panels"
+                    >[ CORE DATA ]</button>
+                </div>
                 <div class="panel-footer-live-wrap">
                     <div class="panel-footer-live" id="footer-live-entity"></div>
                 </div>
@@ -1746,7 +1883,16 @@
             <div id="panel-topology" class="panel-viewport">
                 <div class="topology-forensic-frame" aria-hidden="true">
                     <div class="topology-frame-edge topology-frame-edge--top">
-                        <div id="topology-margin-top" class="topology-matrix-stack"></div>
+                        <div class="topology-top-bar">
+                            <div id="topology-margin-top" class="topology-matrix-stack"></div>
+                            <button
+                                type="button"
+                                id="topology-left-feed-toggle"
+                                class="topology-left-feed-toggle"
+                                aria-pressed="true"
+                                aria-label="Toggle signal and frequency feed"
+                            >[ SIGNAL FEED ]</button>
+                        </div>
                     </div>
                     <div class="topology-frame-body">
                         <div class="topology-frame-edge topology-frame-edge--left">
@@ -3201,6 +3347,7 @@
         const ENTITY_SHELL_WIDTH_SEGS = 32;
         const ENTITY_SHELL_HEIGHT_SEGS = 28;
         const ENTITY_BASE_RADIUS = 220;
+        const ENTITY_CAMERA_IDLE_RADIUS = 650;
         const ENTITY_TYPO_OUTER_RADIUS_RATIO = 1.0;
         const ENTITY_RED_SHELL_RADIUS_RATIO = 0.86;
         const ENTITY_INNER_CAGE_RADIUS_RATIO = 0.8;
@@ -3227,6 +3374,7 @@
         let entityTypoCore = null;
         let entityForensicVisuals = null;
         let entityForensicOverlayReady = false;
+        let entityForensicDataVisible = true;
 
         const ENTITY_FORENSIC_ANCHOR_TAGS = [
             { id: 'entity-tag-vradius', dir: [0.74, 0.52, 0.41], hot: false, label: () => '[V_RADIUS // OSCILLATING]' },
@@ -3365,7 +3513,7 @@
             },
             entity: {
                 lookAt: { x: 0, y: 0, z: 0 },
-                idleRadius: 950,
+                idleRadius: ENTITY_CAMERA_IDLE_RADIUS,
                 idlePhi: Math.PI / 2,
                 idleSpeed: 0,
                 idleBlend: 1,
@@ -5370,8 +5518,30 @@
             core.signal.mesh.visible = true;
         }
 
+        function initEntityForensicDataToggle() {
+            const btn = document.getElementById('entity-forensic-toggle');
+            const overlay = document.getElementById('entity-forensic-overlay');
+            if (!btn || !overlay || btn.dataset.bound === '1') return;
+            btn.dataset.bound = '1';
+
+            const syncToggleUi = () => {
+                overlay.classList.toggle('entity-forensic-data-hidden', !entityForensicDataVisible);
+                btn.classList.toggle('is-off', !entityForensicDataVisible);
+                btn.setAttribute('aria-pressed', entityForensicDataVisible ? 'true' : 'false');
+                btn.textContent = entityForensicDataVisible ? '[ CORE DATA ]' : '[ CORE DATA: OFF ]';
+            };
+
+            btn.addEventListener('click', () => {
+                entityForensicDataVisible = !entityForensicDataVisible;
+                syncToggleUi();
+            });
+
+            syncToggleUi();
+        }
+
         function initEntityForensicOverlay() {
             if (entityForensicOverlayReady) return;
+            initEntityForensicDataToggle();
             entityForensicOverlayReady = true;
         }
 
@@ -6750,17 +6920,6 @@
                 e3Permanent.push(sphere);
                 layerSphereCount++;
 
-                if (isCenter) {
-                    const rgeo = new THREE.RingGeometry(r * 2.2, r * 3.0, 28);
-                    const rmat = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0, side: THREE.DoubleSide });
-                    const ring = new THREE.Mesh(rgeo, rmat);
-                    ring.position.set(cx, height, cz);
-                    ring.rotation.x = Math.PI / 2;
-                    ring.userData = { growP: 0, targetO: 0.5, layerIndex: li, isRing: true };
-                    e3Group.add(ring);
-                    e3Permanent.push(ring);
-                }
-
                 const sp = e3MakeSprite(p.name, p.norm);
                 sp.position.set(cx + r + 0.12, height + 0.18, cz);
                 sp.material.opacity = 0;
@@ -7014,6 +7173,7 @@
         const TOPOLOGY_MAP_TICKER_BUFFER = 128;
 
         let topologyForensicReady = false;
+        let topologyLeftFeedVisible = true;
         let topologyMatrixState = null;
 
         function createTopologyMatrixState() {
@@ -7508,9 +7668,38 @@
             }).join('');
         }
 
+        function initTopologyLeftFeedToggle() {
+            const btn = document.getElementById('topology-left-feed-toggle');
+            const frame = document.querySelector('.topology-forensic-frame');
+            const leftEdge = document.querySelector('.topology-frame-edge--left');
+            if (!btn || !frame || btn.dataset.bound === '1') return;
+            btn.dataset.bound = '1';
+
+            const syncToggleUi = () => {
+                frame.classList.toggle('topology-left-feed-hidden', !topologyLeftFeedVisible);
+                btn.classList.toggle('is-off', !topologyLeftFeedVisible);
+                btn.setAttribute('aria-pressed', topologyLeftFeedVisible ? 'true' : 'false');
+                btn.textContent = topologyLeftFeedVisible ? '[ SIGNAL FEED ]' : '[ SIGNAL FEED: OFF ]';
+            };
+
+            btn.addEventListener('click', () => {
+                topologyLeftFeedVisible = !topologyLeftFeedVisible;
+                syncToggleUi();
+                resizeEvolution2DPanel();
+                requestAnimationFrame(resizeEvolution2DPanel);
+            });
+
+            leftEdge?.addEventListener('transitionend', (event) => {
+                if (event.propertyName === 'width') resizeEvolution2DPanel();
+            });
+
+            syncToggleUi();
+        }
+
         function initTopologyForensicFrame() {
             if (topologyForensicReady) return;
             topologyInitMatrixState();
+            initTopologyLeftFeedToggle();
             topologyForensicReady = true;
         }
 
@@ -8078,6 +8267,15 @@
         }
 
         function applyAiVoiceOutput(live) {
+            if (voicePlaybackGain && audioCtx) {
+                voicePlaybackGain.gain.cancelScheduledValues(audioCtx.currentTime);
+                if (live) {
+                    voicePlaybackGain.gain.setTargetAtTime(savedAiVoiceVolume, audioCtx.currentTime, 0.02);
+                } else {
+                    savedAiVoiceVolume = voicePlaybackGain.gain.value || 1;
+                    voicePlaybackGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.02);
+                }
+            }
             if (!currentAiVoiceElement) return;
             if (live) {
                 currentAiVoiceElement.volume = savedAiVoiceVolume;
@@ -8085,6 +8283,18 @@
                 savedAiVoiceVolume = currentAiVoiceElement.volume || 1;
                 currentAiVoiceElement.volume = 0;
             }
+        }
+
+        async function unlockAudioOutput() {
+            if (!isAudioStarted) initAudio();
+            await resumeAudioContextIfNeeded();
+            ensureVoiceAnalyserChain();
+            if (!audioCtx || !voicePlaybackGain) return;
+            voicePlaybackGain.gain.cancelScheduledValues(audioCtx.currentTime);
+            voicePlaybackGain.gain.setValueAtTime(
+                isGlobalMuted ? 0 : savedAiVoiceVolume,
+                audioCtx.currentTime
+            );
         }
 
         function setMasterAudioLive(live) {
@@ -8096,6 +8306,7 @@
                 window.isAiGenerationEnabled = true;
                 applyMasterAudioGain(true);
                 applyAiVoiceOutput(true);
+                unlockAudioOutput().catch(() => {});
                 if (!wasLive) {
                     requestAiVoiceResponse({ event: 'system_online' });
                 }
@@ -8189,50 +8400,65 @@
                 return;
             }
 
-            const isScream = isScreamText(generatedText);
-            const audioUrl = URL.createObjectURL(blob);
-            currentAiVoiceObjectUrl = audioUrl;
+            if (!isAudioStarted) initAudio();
+            await resumeAudioContextIfNeeded();
+            ensureVoiceAnalyserChain();
+            if (!audioCtx || !voicePlaybackGain) {
+                console.warn('-> [AUDIO] Web Audio voice chain unavailable');
+                return;
+            }
 
-            const audio = new Audio(audioUrl);
-            audio.volume = isGlobalMuted ? 0 : savedAiVoiceVolume;
-            audio.preload = 'auto';
-            currentAiVoiceElement = audio;
+            const isScream = isScreamText(generatedText);
 
             const finishVoicePlayback = () => {
                 isAiVoiceSpeaking = false;
                 aiVoiceActive = false;
-                if (isScream) restoreEmfBaseline();
-                URL.revokeObjectURL(audioUrl);
-                currentAiVoiceObjectUrl = null;
+                if (currentVoiceSource) {
+                    try { currentVoiceSource.onended = null; } catch (_) {}
+                    currentVoiceSource = null;
+                }
+                if (currentAiVoiceObjectUrl) {
+                    try { URL.revokeObjectURL(currentAiVoiceObjectUrl); } catch (_) {}
+                    currentAiVoiceObjectUrl = null;
+                }
                 currentAiVoiceElement = null;
+                if (isScream) restoreEmfBaseline();
                 refreshEntityFooterTicker();
             };
 
-            audio.onended = finishVoicePlayback;
-            audio.onerror = () => {
-                console.warn('-> [AUDIO] HTML5 audio element error');
-                finishVoicePlayback();
-            };
-
-            console.log('-> [AUDIO] Audio blob created, triggering HTML5 audio .play() now!', {
-                bytes: blob.size,
-                type: blob.type || 'audio/mpeg',
-                scream: isScream,
-            });
-
-            if (isScream) applyScreamEmfLinkage();
-
             try {
+                const arrayBuffer = await blob.arrayBuffer();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+                if (guardAiGenerationKillSwitch()) return;
+
+                const source = audioCtx.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(voicePlaybackGain);
+
+                voicePlaybackGain.gain.cancelScheduledValues(audioCtx.currentTime);
+                voicePlaybackGain.gain.setValueAtTime(
+                    isGlobalMuted ? 0 : savedAiVoiceVolume,
+                    audioCtx.currentTime
+                );
+
+                currentVoiceSource = source;
+                source.onended = finishVoicePlayback;
+
+                console.log('-> [AUDIO] Voice buffer decoded — starting Web Audio playback', {
+                    bytes: blob.size,
+                    durationSec: audioBuffer.duration.toFixed(2),
+                    scream: isScream,
+                });
+
+                if (isScream) applyScreamEmfLinkage();
+
                 isAiVoiceSpeaking = true;
                 aiVoiceActive = true;
                 refreshEntityFooterTicker();
-                const playPromise = audio.play();
-                if (playPromise !== undefined) await playPromise;
-                console.log('-> [AUDIO] HTML5 .play() resolved — output routed to system speakers');
-            } catch (playErr) {
+                source.start(0);
+            } catch (err) {
                 finishVoicePlayback();
-                console.warn('-> [AUDIO] .play() blocked:', playErr.message, '— enable [ AUDIO: LIVE ] first (browser autoplay policy)');
-                throw playErr;
+                console.warn('-> [AUDIO] Voice playback failed:', err.message);
             }
         }
 
@@ -8347,6 +8573,13 @@
         }
 
         function stopActiveAiVoice() {
+            if (currentVoiceSource) {
+                try {
+                    currentVoiceSource.onended = null;
+                    currentVoiceSource.stop(0);
+                } catch (_) {}
+                currentVoiceSource = null;
+            }
             if (currentAiVoiceElement) {
                 try {
                     currentAiVoiceElement.onended = null;
@@ -8521,8 +8754,9 @@
             modulatorOsc.start();
 
             ensureVoiceAnalyserChain();
-            
+
             isAudioStarted = true;
+            resumeAudioContextIfNeeded();
         }
 
         function playEmfTone(rssi, distance, isHuman) {
@@ -9097,9 +9331,6 @@
                 e3LastLayerTime = performance.now();
                 stabilizeEntityAfterVisibilityResume();
                 resumeAudioContextIfNeeded();
-                if (currentAiVoiceElement && isAiVoiceSpeaking && currentAiVoiceElement.paused) {
-                    currentAiVoiceElement.play().catch(() => {});
-                }
             }
         }
 
